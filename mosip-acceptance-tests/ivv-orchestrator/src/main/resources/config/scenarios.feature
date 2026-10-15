@@ -113,7 +113,313 @@ And I demo authentication where demo field is name, and UIN is the saved UIN, an
 And I bio authentication where device info file is faceDevice, and UIN is the saved UIN, and VID is the saved VID, and persona file path is the saved persona file path
 And I delete packet data
 
+  @scenario_3
+  @Negative_Test
+  @persona_ResidentFemaleAdult
+  @group_Adult_New
+  Scenario: Upload the resident packet again which has been uplodaded and processed already
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I get ping health where component is targetenv
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Female and store result in persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
+And I packetcreator where packet type is NEW, and template path is the saved packet template path and store result in packet zip path
+And I ridsync where packet type is NEW, and packet zip path is the saved packet zip path and store result in registration ID
+And I packetsync where packet zip path is the saved packet zip path
+And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
+And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+Then I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
+Then I packetsync where packet zip path is the saved packet zip path
+Then I check status where packet status is PROCESSED, and registration ID is the saved registration ID
+And I delete packet data
+
   @scenario_4
+  @Negative_Test
+  @persona_ResidentFemaleAdult
+  @group_Adult_New
+  Scenario: Skip biometric classification for resident if individual biometric parameter is missing from id json
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false, and registration status or invalidation flag is skipBiometricClassification
+And I get ping health where component is targetenv
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Female and store result in persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
+And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
+And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
+And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is VERIFICATION, and stage status is SUCCESS
+And I delete packet data
+
+  @scenario_5
+  @Negative_Test
+  @persona_ResidentMaleAdult
+  @group_Adult_New
+  Scenario: Resident gets UIN then name UPDATE is processed. Reprocess the old NEW packet after a later UPDATE exists verify it is treated as stale CREATE_DRAFT fails and status becomes REREGISTER
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I get ping health where component is targetenv
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
+And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
+And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
+And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
+And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update packet template path
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved update packet template path and store result in second registration ID
+And I check status where packet status is PROCESSED, and registration ID is the saved second registration ID
+And I verify notification where notification type is updated, and email is the saved email
+And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
+Then I reprocess packet where registration ID is the saved registration ID, and packet type is NEW
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is CREATE_DRAFT, and stage status is FAILED
+And I delete packet data
+
+  @scenario_6
+  @Positive_Test
+  @persona_ResidentMaleAdult
+  @group_Adult_New
+  Scenario: Resident gets UIN from NEW registration. Reprocess the same NEW packet with no later UPDATE verify it is not stale and remains PROCESSED
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I get ping health where component is targetenv
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
+And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
+And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
+Then I reprocess packet where registration ID is the saved registration ID, and packet type is NEW
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED, and occurrence count is 2
+And I delete packet data
+
+  @scenario_7
+  @Positive_Test
+  @persona_ResidentMaleAdult
+  @group_Adult_Update
+  Scenario: Resident gets UIN then name UPDATE is processed. Reprocess the latest UPDATE packet verify it is not stale and remains PROCESSED through PRINT_SERVICE
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I get ping health where component is targetenv
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
+And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
+And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+And I wait where wait seconds is 90
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
+And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
+And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update packet template path
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved update packet template path and store result in second registration ID
+And I check status where packet status is PROCESSED, and registration ID is the saved second registration ID
+And I verify notification where notification type is updated, and email is the saved email
+And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
+Then I reprocess packet where registration ID is the saved second registration ID, and packet type is UPDATE
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED, and occurrence count is 2
+And I delete packet data
+
+  @scenario_8
+  @Negative_Test
+  @persona_ResidentMaleAdult
+  @group_Adult_Update
+  Scenario: Resident gets UIN then two name UPDATE packets are processed. Reprocess the first UPDATE after a later UPDATE exists verify it is treated as stale CREATE_DRAFT fails and status becomes REREGISTER
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I get ping health where component is targetenv
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
+And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
+And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+And I wait where wait seconds is 90
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
+And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
+And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update template a
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved update template a and store result in rid update a
+And I check status where packet status is PROCESSED, and registration ID is the saved rid update a
+And I verify notification where notification type is updated, and email is the saved email
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
+And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
+And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update template b
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved update template b and store result in rid update b
+And I check status where packet status is PROCESSED, and registration ID is the saved rid update b
+And I verify notification where notification type is updated, and email is the saved email
+And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
+Then I reprocess packet where registration ID is the saved rid update a, and packet type is UPDATE
+Then I check ridstage where registration ID is the saved rid update a, and RID stage is CREATE_DRAFT, and stage status is FAILED
+And I delete packet data
+
+  @scenario_9
+  @Negative_Test
+  @persona_ResidentMaleAdult
+  @group_NA
+  Scenario: Resident gets UIN then two Lost UIN packets are processed. Reprocess the first Lost packet after a later Lost packet exists verify it is treated as stale CREATE_DRAFT fails and status becomes REREGISTER
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I get ping health where component is targetenv
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in rid new
+And I check status where packet status is PROCESSED, and registration ID is rid new
+And I get uin by rid where source registration ID is rid new and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+And I wait where wait seconds is 90
+And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
+And I get packet template where packet type is LOST, and persona file path is the saved persona file path and store result in lost template1
+And I packetcreator where packet type is LOST, and template path is lost template1 and store result in lost zip1
+And I ridsync where packet type is LOST, and packet zip path is the saved lost zip1 and store result in rid lost1
+And I packetsync where packet zip path is the saved lost zip1
+And I check status where packet status is PROCESSED, and registration ID is rid lost1
+And I get packet template where packet type is LOST, and persona file path is the saved persona file path and store result in lost template2
+And I packetcreator where packet type is LOST, and template path is lost template2 and store result in lost zip2
+And I ridsync where packet type is LOST, and packet zip path is the saved lost zip2 and store result in rid lost2
+And I packetsync where packet zip path is the saved lost zip2
+And I check status where packet status is PROCESSED, and registration ID is rid lost2
+And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
+Then I reprocess packet where registration ID is rid lost1, and packet type is LOST
+Then I check ridstage where registration ID is rid lost1, and RID stage is CREATE_DRAFT, and stage status is FAILED
+And I delete packet data
+
+  @scenario_10
+  @Positive_Test
+  @persona_ResidentMaleAdult
+  @group_NA
+  Scenario: Resident gets UIN then two Lost UIN packets are processed. Reprocess the latest Lost packet verify it is not stale and remains PROCESSED through PRINT_SERVICE
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I get ping health where component is targetenv
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in rid new
+And I check status where packet status is PROCESSED, and registration ID is rid new
+And I get uin by rid where source registration ID is rid new and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+And I wait where wait seconds is 90
+And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
+And I get packet template where packet type is LOST, and persona file path is the saved persona file path and store result in lost template1
+And I packetcreator where packet type is LOST, and template path is lost template1 and store result in lost zip1
+And I ridsync where packet type is LOST, and packet zip path is the saved lost zip1 and store result in rid lost1
+And I packetsync where packet zip path is the saved lost zip1
+And I check status where packet status is PROCESSED, and registration ID is rid lost1
+And I get packet template where packet type is LOST, and persona file path is the saved persona file path and store result in lost template2
+And I packetcreator where packet type is LOST, and template path is lost template2 and store result in lost zip2
+And I ridsync where packet type is LOST, and packet zip path is the saved lost zip2 and store result in rid lost2
+And I packetsync where packet zip path is the saved lost zip2
+And I check status where packet status is PROCESSED, and registration ID is rid lost2
+And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
+Then I reprocess packet where registration ID is rid lost2, and packet type is LOST
+Then I check ridstage where registration ID is rid lost2, and RID stage is PRINT_SERVICE, and stage status is PROCESSED, and occurrence count is 2
+And I delete packet data
+
+  @scenario_11
+  @Negative_Test
+  @persona_ResidentMaleAdult
+  @group_NA
+  Scenario: Lost packet L1 with name and address is processed then Lost packet L2 with a later name update is processed. Country representative reprocess of L1 is rejected as stale CREATE_DRAFT fails and identity remains as L2
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I get ping health where component is targetenv
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in rid new
+And I check status where packet status is PROCESSED, and registration ID is rid new
+And I get uin by rid where source registration ID is rid new and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+And I wait where wait seconds is 90
+And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name and addressLine1=L1AddressLine, and persona file is the saved persona file path
+And I clone resident data where persona file path is the saved persona file path and store result in old demo persona file path
+And I update resident with uin where persona file path is the saved old demo persona file path, and UIN is the saved UIN
+And I get packet template where packet type is LOST, and persona file path is the saved persona file path and store result in lost template1
+And I packetcreator where packet type is LOST, and template path is lost template1 and store result in lost zip1
+And I ridsync where packet type is LOST, and packet zip path is the saved lost zip1 and store result in rid lost1
+And I packetsync where packet zip path is the saved lost zip1
+And I check status where packet status is PROCESSED, and registration ID is rid lost1
+And I get uin by rid where source registration ID is rid lost1 and store result in lost packet UIN1
+Then I check updated uin where parameter 1 is the saved UIN, and parameter 2 is the saved lost packet UIN1
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name and email=lost265l2test, and persona file is the saved persona file path
+And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
+And I get packet template where packet type is LOST, and persona file path is the saved persona file path and store result in lost template2
+And I packetcreator where packet type is LOST, and template path is lost template2 and store result in lost zip2
+And I ridsync where packet type is LOST, and packet zip path is the saved lost zip2 and store result in rid lost2
+And I packetsync where packet zip path is the saved lost zip2
+And I check status where packet status is PROCESSED, and registration ID is rid lost2
+And I get uin by rid where source registration ID is rid lost2 and store result in lost packet UIN2
+Then I check updated uin where parameter 1 is the saved UIN, and parameter 2 is the saved lost packet UIN2
+And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
+Then I reprocess packet where registration ID is rid lost1, and packet type is LOST
+Then I check ridstage where registration ID is rid lost1, and RID stage is CREATE_DRAFT, and stage status is FAILED
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I generate vid where VID type is Perpetual, and UIN is the saved UIN, and email or phone is the saved email and store result in VID
+And I verify notification where notification type is Successful Generation of VID, and email is the saved email
+And I wait where wait seconds is 90
+And I demo authentication where demo field is emailId, and UIN is the saved UIN, and persona file path is the saved persona file path, and VID is the saved VID
+And I demo authentication where demo field is emailId, and UIN is the saved UIN, and persona file path is the saved old demo persona file path, and VID is the saved VID, and age update flag is ERROR
+And I delete packet data
+
+  @scenario_12
+  @Negative_Test
+  @persona_ResidentMaleAdult
+  @group_Adult_New
+  Scenario: When an older packet is reprocessed after a newer packet has already been successfully processed, verify that the older packet's draft data does not overwrite the newer packet's published data
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I get ping health where component is targetenv
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
+And I packetcreator where packet type is NEW, and template path is the saved packet template path and store result in packet zip path
+And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path and store result in modality hash value
+And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path, and modality hash map is the saved modality hash value, and delay seconds is 600, and mock ABIS status is Success
+And I ridsync where packet type is NEW, and packet zip path is the saved packet zip path and store result in registration ID
+And I packetsync where packet zip path is the saved packet zip path
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is IN_PROGRESS
+And I verify id repo draft location where registration ID is the saved registration ID, and location phase is draft
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in new packet template path
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved new packet template path and store result in second registration ID
+And I check status where packet status is PROCESSED, and registration ID is the saved second registration ID
+And I get uin by rid where source registration ID is the saved second registration ID and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I verify id repo draft location where registration ID is the saved second registration ID, and location phase is published
+And I verify id repo draft location where registration ID is the saved registration ID, and location phase is draft
+And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
+Then I reprocess packet where registration ID is the saved registration ID, and packet type is NEW
+And I post mock mv where registration ID is the saved registration ID, and manual verification decision is REJECTED
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is MANUAL_ADJUDICATION, and stage status is FAILED, and occurrence count is 2
+And I verify id repo draft location where registration ID is the saved registration ID, and location phase is rejected
+And I verify id repo draft location where registration ID is the saved second registration ID, and location phase is published
+And I delete mock expect where modality hash value is the saved modality hash value
+And I delete packet data
+
+  @scenario_13
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_Update
@@ -148,7 +454,7 @@ And I wait where wait seconds is 90
 And I demo authentication where demo field is name, and UIN is the saved second UIN, and persona file path is the saved persona file path, and VID is the saved VID
 And I delete packet data
 
-  @scenario_5
+  @scenario_14
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_Minor_New
@@ -164,7 +470,7 @@ And I check status where packet status is REREGISTER, and registration ID is the
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is INTRODUCER_VALIDATION, and stage status is ERROR
 And I delete packet data
 
-  @scenario_6
+  @scenario_15
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Minor_New
@@ -193,7 +499,7 @@ Then I check ridstage where registration ID is the saved parent registration ID,
 Then I check ridstage where registration ID is the saved child registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_7
+  @scenario_16
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_New_Exception
@@ -214,7 +520,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_8
+  @scenario_17
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -245,7 +551,7 @@ And I verify notification where notification type is Credential Issuance Status,
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_9
+  @scenario_18
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -267,7 +573,7 @@ Then I check ridstage where registration ID is the saved parent registration ID,
 Then I check ridstage where registration ID is the saved child registration ID, and RID stage is INTRODUCER_VALIDATION, and stage status is ERROR
 And I delete packet data
 
-  @scenario_10
+  @scenario_19
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -290,7 +596,7 @@ And I check status where packet status is REJECTED, and registration ID is rid l
 Then I check ridstage where registration ID is rid lost, and RID stage is MANUAL_ADJUDICATION, and stage status is FAILED
 And I delete packet data
 
-  @scenario_11
+  @scenario_20
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -314,7 +620,7 @@ And I check status where packet status is REJECTED, and registration ID is the s
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is MANUAL_ADJUDICATION, and stage status is FAILED
 And I delete packet data
 
-  @scenario_12
+  @scenario_21
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -340,7 +646,7 @@ And I generate and upload packet skipping prereg where persona file path is the 
 And I check status where packet status is PROCESSED, and registration ID is the saved second registration ID
 And I delete packet data
 
-  @scenario_13
+  @scenario_22
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -364,7 +670,7 @@ And I check status where packet status is PROCESSED, and registration ID is the 
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is MANUAL_ADJUDICATION, and stage status is SUCCESS
 And I delete packet data
 
-  @scenario_14
+  @scenario_23
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -382,7 +688,7 @@ And I wait where wait seconds is 90
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is VALIDATE_PACKET, and stage status is FAILED
 And I delete packet data
 
-  @scenario_15
+  @scenario_24
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -413,7 +719,7 @@ And I verify notification where notification type is Credential Issuance Status,
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_16
+  @scenario_25
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -431,7 +737,7 @@ And I wait where wait seconds is 90
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is FAILED
 And I delete packet data
 
-  @scenario_17
+  @scenario_26
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -447,7 +753,7 @@ And I check status where packet status is PROCESSED, and registration ID is the 
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_18
+  @scenario_27
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -463,7 +769,7 @@ And I check status where packet status is REREGISTER, and registration ID is the
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is VALIDATE_PACKET, and stage status is FAILED
 And I delete packet data
 
-  @scenario_19
+  @scenario_28
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -488,7 +794,7 @@ And I packetsync where packet zip path is the saved packet zip path
 Then I check ridstage where registration ID is lost rid, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is FAILED
 And I delete packet data
 
-  @scenario_20
+  @scenario_29
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -508,7 +814,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_21
+  @scenario_30
   @Postive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -532,7 +838,7 @@ And I packetsync where packet zip path is child zip packet path
 And I check status where packet status is PROCESSED, and registration ID is the saved parent registration ID
 And I delete packet data
 
-  @scenario_22
+  @scenario_31
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -565,7 +871,7 @@ And I bio esignet authentication where device info file is faceDevice, and UIN i
 And I user info where transaction ID is the saved transaction id, and OIDC client ID is the saved OIDC client ID
 And I delete packet data
 
-  @scenario_23
+  @scenario_32
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -595,7 +901,7 @@ And I bio esignet authentication where device info file is leftLittleDevice, and
 And I user info where transaction ID is the saved transaction id, and OIDC client ID is the saved OIDC client ID
 And I delete packet data
 
-  @scenario_24
+  @scenario_33
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -623,7 +929,7 @@ And I bio esignet authentication where device info file is rightThumbDevice, and
 And I user info where transaction ID is the saved transaction id, and OIDC client ID is the saved OIDC client ID
 And I delete packet data
 
-  @scenario_25
+  @scenario_34
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -658,7 +964,7 @@ And I wait where wait seconds is 90
 And I ekyc bio where device info file is faceDevice, and UIN is the saved second UIN, and VID is the saved VID, and persona file path is the saved persona file path
 And I delete packet data
 
-  @scenario_26
+  @scenario_35
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -692,7 +998,7 @@ And I wait where wait seconds is 90
 And I ekyc bio where device info file is faceDevice, and UIN is the saved second UIN, and VID is the saved VID, and persona file path is the saved persona file path
 And I delete packet data
 
-  @scenario_27
+  @scenario_36
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -726,7 +1032,7 @@ And I wait where wait seconds is 90
 And I ekyc bio where device info file is faceDevice, and UIN is the saved second UIN, and VID is the saved VID, and persona file path is the saved persona file path
 And I delete packet data
 
-  @scenario_28
+  @scenario_37
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -758,7 +1064,7 @@ And I ekyc otp where UIN ID type is the saved UIN, and UIN is the saved second U
 And I validate kyc data where KYC field is photo, and response variable is ekycData
 And I delete packet data
 
-  @scenario_29
+  @scenario_38
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -794,7 +1100,7 @@ And I esignet authentication where UIN transaction ID is the saved transaction i
 And I user info where transaction ID is the saved transaction id1, and OIDC client ID is the saved OIDC client ID
 And I delete packet data
 
-  @scenario_30
+  @scenario_39
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -817,7 +1123,7 @@ And I wait where wait seconds is 90
 And I multi factor authentication where bio device list is faceDevice, and demo fields is dob, and individual ID type is the saved UIN, and individual ID is the saved UIN, and persona file path is the saved persona file path, and VID is the saved VID, and email is the saved email
 And I delete packet data
 
-  @scenario_31
+  @scenario_40
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -840,7 +1146,7 @@ And I wait where wait seconds is 90
 And I multi factor authentication where bio device list is faceDevice, and demo fields is dob, and individual ID type is the saved UIN, and individual ID is the saved UIN, and persona file path is the saved persona file path, and VID is the saved VID, and email is the saved email
 And I delete packet data
 
-  @scenario_32
+  @scenario_41
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -871,7 +1177,7 @@ And I check credential status where credential request ID is the saved credentia
 And I verify notification where notification type is Credential Issuance Status, and email is the saved email
 And I delete packet data
 
-  @scenario_33
+  @scenario_42
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -908,7 +1214,7 @@ And I esignet authentication where UIN transaction ID is the saved transaction i
 And I user info where transaction ID is the saved transaction id1, and OIDC client ID is the saved OIDC client ID
 And I delete packet data
 
-  @scenario_34
+  @scenario_43
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -951,7 +1257,7 @@ And I wait where wait seconds is 90
 And I demo authentication where demo field is name, and UIN is the saved child uin2, and persona file path is the saved child persona file path, and VID is the saved VID
 And I delete packet data
 
-  @scenario_35
+  @scenario_44
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -986,7 +1292,7 @@ And I wait where wait seconds is 90
 And I ekyc bio where device info file is faceDevice, and UIN is the saved second UIN, and VID is the saved VID, and persona file path is the saved persona file path
 And I delete packet data
 
-  @scenario_36
+  @scenario_45
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1009,7 +1315,7 @@ And I wait where wait seconds is 90
 And I ekyc bio where device info file is faceDevice, and UIN is the saved UIN, and VID is the saved VID, and persona file path is the saved persona file path
 And I delete packet data
 
-  @scenario_37
+  @scenario_46
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1045,7 +1351,7 @@ And I get email by uin where resident UIN is the saved UIN and store result in e
 And I verify notification where notification type is UIN Generated, and email is the saved email
 And I delete packet data
 
-  @scenario_38
+  @scenario_47
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1077,7 +1383,7 @@ And I post mock mv where registration ID is the saved second registration ID, an
 And I check status where packet status is REJECTED, and registration ID is the saved second registration ID
 And I delete packet data
 
-  @scenario_39
+  @scenario_48
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1099,7 +1405,7 @@ And I get email by uin where resident UIN is the saved UIN and store result in e
 And I verify notification where notification type is UIN Generated, and email is the saved email
 And I delete packet data
 
-  @scenario_40
+  @scenario_49
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1122,7 +1428,7 @@ And I wait where wait seconds is 90
 And I ekyc bio where device info file is faceDevice, and UIN is the saved UIN, and VID is the saved VID, and persona file path is the saved persona file path
 And I delete packet data
 
-  @scenario_41
+  @scenario_50
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1145,7 +1451,7 @@ And I wait where wait seconds is 90
 And I ekyc bio where device info file is rightRingDevice, and UIN is the saved UIN, and VID is the saved VID, and persona file path is the saved persona file path
 And I delete packet data
 
-  @scenario_42
+  @scenario_51
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1168,7 +1474,7 @@ And I wait where wait seconds is 90
 And I ekyc bio where device info file is RightIris, and UIN is the saved UIN, and VID is the saved VID, and persona file path is the saved persona file path
 And I delete packet data
 
-  @scenario_43
+  @scenario_52
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1193,7 +1499,7 @@ And I wait where wait seconds is 90
 And I ekyc bio where device info file is faceDevice, and UIN is the saved UIN, and VID is the saved VID, and persona file path is the saved persona file path
 And I delete packet data
 
-  @scenario_44
+  @scenario_53
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1216,7 +1522,7 @@ And I wait where wait seconds is 90
 And I ekyc bio where device info file is faceDevice, and UIN is the saved UIN, and VID is the saved VID, and persona file path is the saved persona file path
 And I delete packet data
 
-  @scenario_45
+  @scenario_54
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1239,7 +1545,7 @@ And I wait where wait seconds is 90
 And I ekyc bio where device info file is leftRingDevice, and UIN is the saved UIN, and VID is the saved VID, and persona file path is the saved persona file path
 And I delete packet data
 
-  @scenario_46
+  @scenario_55
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1262,7 +1568,7 @@ And I wait where wait seconds is 90
 And I ekyc bio where device info file is LeftIris, and UIN is the saved UIN, and VID is the saved VID, and persona file path is the saved persona file path
 And I delete packet data
 
-  @scenario_47
+  @scenario_56
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1285,7 +1591,7 @@ And I wait where wait seconds is 90
 And I ekyc bio where device info file is faceDevice, and UIN is the saved UIN, and VID is the saved VID, and persona file path is the saved persona file path
 And I delete packet data
 
-  @scenario_75
+  @scenario_57
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1332,7 +1638,7 @@ Then I user where user action is DELETE_CENTERMAPPING, and user index or master 
 Then I center where call type is DCOM, and user details is the saved details75, and center index is 75
 And I delete packet data
 
-  @scenario_48
+  @scenario_58
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1352,7 +1658,7 @@ And I check status where packet status is REREGISTER, and registration ID is the
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is UPLOAD_PACKET, and stage status is ERROR
 And I delete packet data
 
-  @scenario_49
+  @scenario_59
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1389,7 +1695,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved child registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_50
+  @scenario_60
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1418,7 +1724,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved child registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_3
+  @scenario_61
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1446,7 +1752,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is rid lost, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_51
+  @scenario_62
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1476,7 +1782,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_58
+  @scenario_63
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1493,7 +1799,7 @@ And I check status where packet status is REREGISTER, and registration ID is the
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is VALIDATE_PACKET, and stage status is FAILED
 And I delete packet data
 
-  @scenario_59
+  @scenario_64
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1520,7 +1826,7 @@ Then I check ridstage where registration ID is the saved child registration ID, 
 Then I check ridstage where registration ID is the saved parent registration ID, and RID stage is VALIDATE_PACKET, and stage status is REJECTED
 And I delete packet data
 
-  @scenario_60
+  @scenario_65
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1537,7 +1843,7 @@ And I pre register where persona file path is the saved persona file path and st
 And I update pre reg status where status code is 0, and pre-registration ID is the saved pre-registration ID, and validation mode is invalid
 And I delete packet data
 
-  @scenario_61
+  @scenario_66
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1555,7 +1861,7 @@ And I check status where packet status is REREGISTER, and registration ID is the
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is VALIDATE_PACKET, and stage status is REJECTED
 And I delete packet data
 
-  @scenario_62
+  @scenario_67
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1578,7 +1884,7 @@ And I post mock mv where registration ID is the saved second registration ID, an
 And I check status where packet status is REJECTED, and registration ID is the saved second registration ID
 And I delete packet data
 
-  @scenario_63
+  @scenario_68
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1600,7 +1906,7 @@ And I check status where packet status is REJECTED, and registration ID is the s
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is MANUAL_ADJUDICATION, and stage status is FAILED
 And I delete packet data
 
-  @scenario_64
+  @scenario_69
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1624,7 +1930,7 @@ And I check status where packet status is REJECTED, and registration ID is rid n
 Then I check ridstage where registration ID is rid new, and RID stage is MANUAL_ADJUDICATION, and stage status is FAILED
 And I delete packet data
 
-  @scenario_65
+  @scenario_70
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1646,7 +1952,7 @@ And I check status where packet status is REJECTED, and registration ID is the s
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is DEMOGRAPHIC_VERIFICATION, and stage status is IN_PROGRESS
 And I delete packet data
 
-  @scenario_66
+  @scenario_71
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1671,7 +1977,7 @@ And I check status where packet status is REJECTED, and registration ID is rid n
 Then I check ridstage where registration ID is rid new, and RID stage is MANUAL_ADJUDICATION, and stage status is FAILED
 And I delete packet data
 
-  @scenario_67
+  @scenario_72
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1687,7 +1993,7 @@ And I check status where packet status is PROCESSED, and registration ID is the 
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_68
+  @scenario_73
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1703,7 +2009,7 @@ And I check status where packet status is REREGISTER, and registration ID is the
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is SUPERVISOR_VALIDATION, and stage status is ERROR
 And I delete packet data
 
-  @scenario_69
+  @scenario_74
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1719,7 +2025,7 @@ And I check status where packet status is REREGISTER, and registration ID is the
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is SUPERVISOR_VALIDATION, and stage status is FAILED
 And I delete packet data
 
-  @scenario_70
+  @scenario_75
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1735,7 +2041,7 @@ And I check status where packet status is PROCESSED, and registration ID is the 
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_71
+  @scenario_76
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1751,7 +2057,7 @@ And I check status where packet status is REREGISTER, and registration ID is the
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is OPERATOR_VALIDATION, and stage status is ERROR
 And I delete packet data
 
-  @scenario_72
+  @scenario_77
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1767,7 +2073,7 @@ And I check status where packet status is REREGISTER, and registration ID is the
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is OPERATOR_VALIDATION, and stage status is FAILED
 And I delete packet data
 
-  @scenario_73
+  @scenario_78
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1794,7 +2100,7 @@ And I check status where packet status is REREGISTER, and registration ID is the
 Then I check ridstage where registration ID is the saved rid1, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is SUCCESS
 And I delete packet data
 
-  @scenario_74
+  @scenario_79
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1821,7 +2127,7 @@ And I check status where packet status is REREGISTER, and registration ID is the
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is SUCCESS
 And I delete packet data
 
-  @scenario_76
+  @scenario_80
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1868,7 +2174,7 @@ Then I user where user action is DELETE_CENTERMAPPING, and user index or master 
 Then I center where call type is DCOM, and user details is the saved details76, and center index is 76
 And I delete packet data
 
-  @scenario_78
+  @scenario_81
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1895,7 +2201,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_79
+  @scenario_82
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -1910,7 +2216,7 @@ And I generate and upload packet skipping prereg where persona file path is the 
 And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
 And I delete packet data
 
-  @scenario_80
+  @scenario_83
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1938,7 +2244,7 @@ And I check status where packet status is REJECTED, and registration ID is the s
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is DEMOGRAPHIC_VERIFICATION, and stage status is FAILED
 And I delete packet data
 
-  @scenario_52
+  @scenario_84
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -1968,7 +2274,7 @@ And I user where user action is DELETE_CENTERMAPPING, and user index or master u
 And I center where call type is DCOM, and user details is the saved details52, and center index is 52
 And I delete packet data
 
-  @scenario_53
+  @scenario_85
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -2012,7 +2318,7 @@ And I user where user action is DELETE_CENTERMAPPING, and user index or master u
 And I center where call type is DCOM, and user details is the saved details531, and center index is 531
 And I delete packet data
 
-  @scenario_54
+  @scenario_86
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -2044,7 +2350,7 @@ And I user where user action is DELETE_CENTERMAPPING, and user index or master u
 And I center where call type is DCOM, and user details is the saved details54, and center index is 54
 And I delete packet data
 
-  @scenario_55
+  @scenario_87
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -2071,7 +2377,7 @@ And I user where user action is DELETE_CENTERMAPPING, and user index or master u
 And I center where call type is DCOM, and user details is the saved details55, and center index is 55
 And I delete packet data
 
-  @scenario_56
+  @scenario_88
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -2099,7 +2405,7 @@ And I sync data where call type is TPM_VERIFY, and machine details is the saved 
 And I sync data where call type is CONFIGS_KEYINDEX, and machine details is key index
 And I delete packet data
 
-  @scenario_57
+  @scenario_89
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -2130,7 +2436,7 @@ And I machine where call type is DCOM, and center details is the saved details57
 And I center where call type is DCOM, and user details is the saved details57, and center index is 57
 And I delete packet data
 
-  @scenario_81
+  @scenario_90
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -2152,7 +2458,7 @@ And I delete mock expect where modality hash value is the saved modality hash va
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_82
+  @scenario_91
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -2175,7 +2481,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_83
+  @scenario_92
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -2213,7 +2519,7 @@ And I bio esignet authentication where device info file is faceDevice, and UIN i
 And I user info where transaction ID is the saved transaction id, and OIDC client ID is the saved OIDC client ID
 And I delete packet data
 
-  @scenario_77
+  @scenario_93
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -2260,7 +2566,7 @@ Then I user where user action is DELETE_CENTERMAPPING, and user index or master 
 Then I center where call type is DCOM, and user details is the saved details77, and center index is 77
 And I delete packet data
 
-  @scenario_84
+  @scenario_94
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -2275,7 +2581,7 @@ And I generate and upload packet skipping prereg where persona file path is the 
 And I check status where packet status is reregister, and registration ID is the saved registration ID
 And I delete packet data
 
-  @scenario_85
+  @scenario_95
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -2297,7 +2603,7 @@ And I ridsync where packet type is BIOMETRIC_CORRECTION, and packet zip path is 
 And I packetsync where packet zip path is the saved zip packet path2, and expected sync result is false
 And I delete packet data
 
-  @scenario_86
+  @scenario_96
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -2323,7 +2629,7 @@ And I check status where packet status is PROCESSED, and registration ID is the 
 And I delete mock expect where modality hash value is the saved modality hash value
 And I delete packet data
 
-  @scenario_87
+  @scenario_97
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -2357,7 +2663,7 @@ And I packetsync where packet zip path is the saved zip packet path3
 Then I check ridstage where registration ID is the saved rid3, and RID stage is SECUREZONE_NOTIFICATION, and stage status is REJECTED
 And I delete packet data
 
-  @scenario_89
+  @scenario_98
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -2390,7 +2696,7 @@ And I check status where packet status is PROCESSED, and registration ID is the 
 And I check status where packet status is REJECTED, and registration ID is the saved registration ID
 And I delete packet data
 
-  @scenario_90
+  @scenario_99
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -2419,7 +2725,7 @@ And I get email by uin where resident UIN is the saved UIN and store result in e
 And I verify notification where notification type is UIN Generated, and email is the saved email
 And I delete packet data
 
-  @scenario_91
+  @scenario_100
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -2448,7 +2754,7 @@ And I get email by uin where resident UIN is the saved UIN and store result in e
 And I verify notification where notification type is UIN Generated, and email is the saved email
 And I delete packet data
 
-  @scenario_92
+  @scenario_101
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -2478,7 +2784,7 @@ And I post mock mv where registration ID is the saved child rid2, and manual ver
 And I check status where packet status is REJECTED, and registration ID is the saved child rid2
 And I delete packet data
 
-  @scenario_93
+  @scenario_102
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -2501,7 +2807,7 @@ And I generate vid where VID type is Perpetual, and UIN is the saved UIN, and em
 And I verify notification where notification type is Successful Generation of VID, and email is the saved email
 And I delete packet data
 
-  @scenario_94
+  @scenario_103
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -2524,7 +2830,7 @@ And I generate vid where VID type is Perpetual, and UIN is the saved UIN, and em
 And I verify notification where notification type is Successful Generation of VID, and email is the saved email
 And I delete packet data
 
-  @scenario_95
+  @scenario_104
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -2554,7 +2860,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_96
+  @scenario_105
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -2589,7 +2895,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_97
+  @scenario_106
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -2605,7 +2911,7 @@ And I check status where packet status is PROCESSED, and registration ID is the 
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is VERIFICATION, and stage status is SUCCESS
 And I delete packet data
 
-  @scenario_98
+  @scenario_107
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -2620,7 +2926,7 @@ And I generate and upload packet skipping prereg where persona file path is the 
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is VALIDATE_PACKET, and stage status is FAILED
 And I delete packet data
 
-  @scenario_99
+  @scenario_108
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Minor_New
@@ -2648,7 +2954,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved child registration ID, and RID stage is INTRODUCER_VALIDATION, and stage status is SUCCESS
 And I delete packet data
 
-  @scenario_100
+  @scenario_109
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_Minor_New
@@ -2673,7 +2979,7 @@ And I check status where packet status is REREGISTER, and registration ID is the
 Then I check ridstage where registration ID is the saved child registration ID, and RID stage is VALIDATE_PACKET, and stage status is FAILED
 And I delete packet data
 
-  @scenario_101
+  @scenario_110
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_Minor_New
@@ -2698,7 +3004,7 @@ And I check status where packet status is PROCESSED, and registration ID is the 
 Then I check ridstage where registration ID is the saved child registration ID, and RID stage is VERIFICATION, and stage status is SUCCESS
 And I delete packet data
 
-  @scenario_102
+  @scenario_111
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_New_Infant
@@ -2727,7 +3033,7 @@ Then I check ridstage where registration ID is the saved child registration ID, 
 Then I check ridstage where registration ID is the saved child registration ID, and RID stage is VERIFICATION, and stage status is SUCCESS
 And I delete packet data
 
-  @scenario_103
+  @scenario_112
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_New_Infant
@@ -2751,7 +3057,7 @@ And I generate and upload packet skipping prereg where persona file path is the 
 Then I check ridstage where registration ID is the saved child registration ID, and RID stage is VALIDATE_PACKET, and stage status is FAILED
 And I delete packet data
 
-  @scenario_104
+  @scenario_113
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Minor_New
@@ -2790,7 +3096,7 @@ And I bio authentication where device info file is leftRingDevice, and UIN is th
 And I otp authentication where UIN is the saved UIN, and VID is the saved child UIN, and email is the saved VID, and parameter 4 is the saved vidwithoutotp, and parameter 5 is the saved email
 And I delete packet data
 
-  @scenario_105
+  @scenario_114
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_New_Infant
@@ -2822,7 +3128,7 @@ Then I wait where wait seconds is UIN_WAIT_TIME
 Then I demo authentication where demo field is name, and UIN is the saved child UIN, and persona file path is the saved child persona file path, and VID is the saved vidwithoutotp
 And I delete packet data
 
-  @scenario_106
+  @scenario_115
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Minor_New
@@ -2858,7 +3164,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is rid lost, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_107
+  @scenario_116
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -2883,7 +3189,7 @@ And I packetsync where packet zip path is the saved packet zip path
 And I check status where packet status is REJECTED, and registration ID is rid lost
 And I delete packet data
 
-  @scenario_108
+  @scenario_117
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -2912,7 +3218,7 @@ And I check status where packet status is REJECTED, and registration ID is the s
 And I delete mock expect where modality hash value is the saved modality hash value
 And I delete packet data
 
-  @scenario_109
+  @scenario_118
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -2928,7 +3234,7 @@ And I check status where packet status is REREGISTER, and registration ID is the
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is INTRODUCER_VALIDATION, and stage status is ERROR
 And I delete packet data
 
-  @scenario_110
+  @scenario_119
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -2954,7 +3260,7 @@ And I wait where wait seconds is 90
 And I demo authentication where demo field is name, and UIN is the saved UIN, and persona file path is the saved persona file path, and VID is the saved VID
 And I delete packet data
 
-  @scenario_111
+  @scenario_120
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -2986,7 +3292,7 @@ And I ekyc demo where demo field is name, and UIN is the saved child UIN, and pe
 And I validate kyc data where KYC field is photo, and response variable is ekycData
 And I delete packet data
 
-  @scenario_112
+  @scenario_121
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -3020,7 +3326,7 @@ And I validate kyc data where KYC field is photo, and response variable is ekycD
 Then I check ridstage where registration ID is the saved child registration ID, and RID stage is VERIFICATION, and stage status is SUCCESS
 And I delete packet data
 
-  @scenario_113
+  @scenario_122
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -3061,7 +3367,7 @@ And I check credential status where credential request ID is the saved credentia
 And I demo authentication where demo field is name, and UIN is lost uin, and persona file path is the saved persona file path, and VID is the saved vidwithoutotp
 And I delete packet data
 
-  @scenario_114
+  @scenario_123
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -3094,7 +3400,7 @@ And I wait where wait seconds is 90
 And I bio authentication where device info file is faceDevice, and UIN is lost uin, and VID is the saved vidwithoutotp, and persona file path is the saved persona file path
 And I delete packet data
 
-  @scenario_115
+  @scenario_124
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_New_Infant
@@ -3133,7 +3439,7 @@ Then I check ridstage where registration ID is the saved child registration ID, 
 Then I check ridstage where registration ID is the saved child registration ID, and RID stage is VERIFICATION, and stage status is SUCCESS
 And I delete packet data
 
-  @scenario_116
+  @scenario_125
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -3149,7 +3455,7 @@ And I check status where packet status is REREGISTER, and registration ID is the
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is VALIDATE_PACKET, and stage status is FAILED
 And I delete packet data
 
-  @scenario_117
+  @scenario_126
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -3167,7 +3473,7 @@ And I check status where packet status is REREGISTER, and registration ID is the
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is VALIDATE_PACKET, and stage status is ERROR
 And I delete packet data
 
-  @scenario_118
+  @scenario_127
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -3187,7 +3493,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_119
+  @scenario_128
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_New_Minor_Exc
@@ -3218,7 +3524,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved child registration ID, and RID stage is INTRODUCER_VALIDATION, and stage status is SUCCESS
 And I delete packet data
 
-  @scenario_120
+  @scenario_129
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_New_Minor_Exc
@@ -3248,7 +3554,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved child registration ID, and RID stage is INTRODUCER_VALIDATION, and stage status is SUCCESS
 And I delete packet data
 
-  @scenario_121
+  @scenario_130
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -3269,7 +3575,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_122
+  @scenario_131
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Minor_New
@@ -3299,7 +3605,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved child registration ID, and RID stage is INTRODUCER_VALIDATION, and stage status is SUCCESS
 And I delete packet data
 
-  @scenario_123
+  @scenario_132
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_New_Infant_Exc
@@ -3330,7 +3636,7 @@ Then I check ridstage where registration ID is the saved child registration ID, 
 Then I check ridstage where registration ID is the saved child registration ID, and RID stage is VERIFICATION, and stage status is SUCCESS
 And I delete packet data
 
-  @scenario_124
+  @scenario_133
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Update_Adult
@@ -3357,7 +3663,7 @@ Then I check ridstage where registration ID is the saved second registration ID,
 Then I check tags where registration ID is the saved second registration ID
 And I delete packet data
 
-  @scenario_125
+  @scenario_134
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Update_Adult
@@ -3384,7 +3690,7 @@ And I verify notification where notification type is updated, and email is the s
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_126
+  @scenario_135
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Minor_New
@@ -3422,7 +3728,7 @@ Then I check ridstage where registration ID is the saved child registration ID, 
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_127
+  @scenario_136
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Minor_New
@@ -3460,7 +3766,7 @@ Then I check ridstage where registration ID is the saved child registration ID, 
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_128
+  @scenario_137
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Update_Adult
@@ -3494,7 +3800,7 @@ And I demo authentication where demo field is name, and UIN is the saved UIN, an
 And I bio authentication where device info file is rightThumbDevice, and UIN is the saved UIN, and VID is the saved VID, and persona file path is the saved persona file path
 And I delete packet data
 
-  @scenario_129
+  @scenario_138
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Update_Adult
@@ -3531,7 +3837,7 @@ And I demo authentication where demo field is name, and UIN is the saved UIN, an
 And I bio authentication where device info file is faceDevice, and UIN is the saved UIN, and VID is the saved VID, and persona file path is the saved persona file path
 And I delete packet data
 
-  @scenario_130
+  @scenario_139
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -3560,7 +3866,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is rid lost, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_131
+  @scenario_140
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_NA
@@ -3578,7 +3884,7 @@ And I check status where packet status is PROCESSED, and registration ID is the 
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_132
+  @scenario_141
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_New_Exception
@@ -3599,7 +3905,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_133
+  @scenario_142
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Minor_New
@@ -3628,7 +3934,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved child registration ID, and RID stage is INTRODUCER_VALIDATION, and stage status is SUCCESS
 And I delete packet data
 
-  @scenario_134
+  @scenario_143
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_New_Infant
@@ -3658,7 +3964,7 @@ Then I check ridstage where registration ID is the saved child registration ID, 
 Then I check ridstage where registration ID is the saved child registration ID, and RID stage is VERIFICATION, and stage status is SUCCESS
 And I delete packet data
 
-  @scenario_135
+  @scenario_144
   @Negative_Test
   @persona_NonResidentMaleAdult
   @group_Adult_New
@@ -3678,7 +3984,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_136
+  @scenario_145
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_Adult_New
@@ -3695,7 +4001,7 @@ And I check status where packet status is REREGISTER, and registration ID is the
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is VALIDATE_PACKET, and stage status is FAILED
 And I delete packet data
 
-  @scenario_137
+  @scenario_146
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_New_Exception
@@ -3723,7 +4029,7 @@ And I verify notification where notification type is updated, and email is the s
 And I check for bdbabsence where UIN is the saved second UIN, and biometric modalities is FINGER_Left IndexFinger
 And I delete packet data
 
-  @scenario_138
+  @scenario_147
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Update_Adult
@@ -3749,7 +4055,7 @@ And I check tags where registration ID is the saved second registration ID
 And I check for bdbpresence where UIN is the saved second UIN, and biometric modalities is FINGER_Left RingFinger and FINGER_Right LittleFinger and FACE and FINGER_Left LittleFinger and IRIS_Right and FINGER_Left MiddleFinger and FINGER_Left IndexFinger and FINGER_Right IndexFinger and IRIS_Left and FINGER_Right RingFinger and FINGER_Right MiddleFinger and FINGER_Right Thumb, and biometric exception flag is false
 And I delete packet data
 
-  @scenario_139
+  @scenario_148
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_New_Exception
@@ -3777,7 +4083,7 @@ And I verify notification where notification type is updated, and email is the s
 And I check for bdbabsence where UIN is the saved second UIN, and biometric modalities is IRIS_Left and IRIS_Right
 And I delete packet data
 
-  @scenario_140
+  @scenario_149
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_New
@@ -3797,7 +4103,7 @@ Then I check ridstage where registration ID is the saved registration ID, and RI
 Then I check for bdbpresence where UIN is the saved registration ID, and biometric modalities is FINGER_Left RingFinger and FINGER_Right LittleFinger and FACE and FINGER_Left LittleFinger and IRIS_Right and FINGER_Left MiddleFinger and FINGER_Left IndexFinger and FINGER_Right IndexFinger and IRIS_Left and FINGER_Right RingFinger and FINGER_Left Thumb and FINGER_Right MiddleFinger and FINGER_Right Thumb, and biometric exception flag is false/EXCEPTION_FLAG/
 And I delete packet data
 
-  @scenario_141
+  @scenario_150
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_New
@@ -3816,7 +4122,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_142
+  @scenario_151
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_Adult_New
@@ -3831,7 +4137,7 @@ And I generate and upload packet skipping prereg where persona file path is the 
 And I check status where packet status is REREGISTER, and registration ID is the saved registration ID
 And I delete packet data
 
-  @scenario_143
+  @scenario_152
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_Adult_New
@@ -3855,7 +4161,7 @@ And I generate and upload packet skipping prereg where persona file path is the 
 And I check status where packet status is REREGISTER, and registration ID is the saved second registration ID
 And I delete packet data
 
-  @scenario_144
+  @scenario_153
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -3884,7 +4190,7 @@ And I packetsync where packet zip path is the saved packet zip path
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is CMD_VALIDATION, and stage status is FAILED
 And I delete packet data
 
-  @scenario_145
+  @scenario_154
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -3913,7 +4219,7 @@ And I packetsync where packet zip path is the saved packet zip path
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is VALIDATE_PACKET, and stage status is FAILED
 And I delete packet data
 
-  @scenario_146
+  @scenario_155
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_New_Exception
@@ -3934,7 +4240,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_147
+  @scenario_156
   @Negative_Test
   @persona_SeniorNonResidentMale
   @group_Senior_New
@@ -3953,7 +4259,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_148
+  @scenario_157
   @Positive_Test
   @persona_SeniorResidentMale
   @group_Senior_New
@@ -3972,7 +4278,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_149
+  @scenario_158
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_Adult_New
@@ -3989,7 +4295,7 @@ And I check status where packet status is REREGISTER, and registration ID is the
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is VALIDATE_PACKET, and stage status is FAILED
 And I delete packet data
 
-  @scenario_150
+  @scenario_159
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_New_Infant
@@ -4022,7 +4328,7 @@ Then I check ridstage where registration ID is the saved child rid2, and RID sta
 Then I check ridstage where registration ID is the saved child rid2, and RID stage is VERIFICATION, and stage status is SUCCESS
 And I delete packet data
 
-  @scenario_151
+  @scenario_160
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -4037,7 +4343,7 @@ And I generate and upload packet skipping prereg where persona file path is the 
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is VALIDATE_PACKET, and stage status is FAILED
 And I delete packet data
 
-  @scenario_152
+  @scenario_161
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -4053,7 +4359,7 @@ And I ridsync where packet type is NEW, and packet zip path is the saved packet 
 And I packetsync where packet zip path is the saved packet zip path, and expected sync result is false
 And I delete packet data
 
-  @scenario_153
+  @scenario_162
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_Adult_New
@@ -4081,7 +4387,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved rid1, and RID stage is VERIFICATION, and stage status is SUCCESS
 And I delete packet data
 
-  @scenario_154
+  @scenario_163
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -4106,7 +4412,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved rid1, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_155
+  @scenario_164
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -4129,7 +4435,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved rid1, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_156
+  @scenario_165
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -4161,7 +4467,7 @@ Then I machine where call type is DCOM, and center details is the saved details1
 Then I center where call type is DCOM, and user details is the saved details156, and center index is 156
 And I delete packet data
 
-  @scenario_157
+  @scenario_166
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -4179,7 +4485,7 @@ And I check status where packet status is REREGISTER, and registration ID is the
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is CMD_VALIDATION, and stage status is FAILED
 And I delete packet data
 
-  @scenario_158
+  @scenario_167
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -4210,7 +4516,7 @@ Then I user where user action is DELETE_CENTERMAPPING, and user index or master 
 Then I center where call type is DCOM, and user details is the saved details8, and center index is 8
 And I delete packet data
 
-  @scenario_159
+  @scenario_168
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -4225,7 +4531,7 @@ And I generate and upload packet skipping prereg where persona file path is the 
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is VALIDATE_PACKET, and stage status is REPROCESS
 And I delete packet data
 
-  @scenario_160
+  @scenario_169
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -4248,7 +4554,7 @@ And I wait where wait seconds is 90
 And I ekyc bio where device info file is faceDevice, and UIN is the saved UIN, and VID is the saved VID, and persona file path is the saved persona file path
 And I delete packet data
 
-  @scenario_161
+  @scenario_170
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -4277,7 +4583,7 @@ And I bio esignet authentication where device info file is rightThumbDevice, and
 And I user info where transaction ID is the saved transaction id, and OIDC client ID is the saved OIDC client ID
 And I delete packet data
 
-  @scenario_162
+  @scenario_171
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -4292,51 +4598,7 @@ And I get packet template where packet type is NEW, and persona file path is the
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path, and sync RID flag is invalidMachine
 And I delete packet data
 
-  @scenario_163
-  @Negative_Test
-  @persona_ResidentFemaleAdult
-  @group_Adult_New
-  Scenario: Upload the resident packet again which has been uplodaded and processed already
-Given I get ping health where component is packetcreator
-And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
-And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
-And I get ping health where component is targetenv
-And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Female and store result in persona file path
-And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
-And I packetcreator where packet type is NEW, and template path is the saved packet template path and store result in packet zip path
-And I ridsync where packet type is NEW, and packet zip path is the saved packet zip path and store result in registration ID
-And I packetsync where packet zip path is the saved packet zip path
-And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
-And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
-And I get email by uin where resident UIN is the saved UIN and store result in email
-And I verify notification where notification type is UIN Generated, and email is the saved email
-Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
-Then I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
-Then I packetsync where packet zip path is the saved packet zip path
-Then I check status where packet status is PROCESSED, and registration ID is the saved registration ID
-And I delete packet data
-
-  @scenario_164
-  @Negative_Test
-  @persona_ResidentFemaleAdult
-  @group_Adult_New
-  Scenario: Skip biometric classification for resident if individual biometric parameter is missing from id json
-Given I get ping health where component is packetcreator
-And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
-And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false, and registration status or invalidation flag is skipBiometricClassification
-And I get ping health where component is targetenv
-And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Female and store result in persona file path
-And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
-And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
-And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
-And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
-And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
-And I get email by uin where resident UIN is the saved UIN and store result in email
-And I verify notification where notification type is UIN Generated, and email is the saved email
-Then I check ridstage where registration ID is the saved registration ID, and RID stage is VERIFICATION, and stage status is SUCCESS
-And I delete packet data
-
-  @scenario_165
+  @scenario_172
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -4352,7 +4614,7 @@ And I check status where packet status is REREGISTER, and registration ID is the
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is VALIDATE_PACKET, and stage status is FAILED
 And I delete packet data
 
-  @scenario_166
+  @scenario_173
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -4376,7 +4638,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_167
+  @scenario_174
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -4399,7 +4661,7 @@ And I wait where wait seconds is 90
 And I demo authentication where demo field is age, and UIN is the saved UIN, and persona file path is the saved persona file path, and VID is the saved VID, and age update flag is ageDecrease
 And I delete packet data
 
-  @scenario_168
+  @scenario_175
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -4422,7 +4684,7 @@ And I wait where wait seconds is 90
 And I demo authentication where demo field is age, and UIN is the saved UIN, and persona file path is the saved persona file path, and VID is the saved VID
 And I delete packet data
 
-  @scenario_169
+  @scenario_176
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -4438,7 +4700,7 @@ And I check status where packet status is REREGISTER, and registration ID is the
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is CMD_VALIDATION, and stage status is ERROR
 And I delete packet data
 
-  @scenario_170
+  @scenario_177
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -4471,7 +4733,7 @@ And I get uin by rid where source registration ID is the saved rid3 and store re
 And I verify notification where notification type is updated, and email is the saved email
 And I delete packet data
 
-  @scenario_171
+  @scenario_178
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -4504,7 +4766,7 @@ And I get uin by rid where source registration ID is the saved rid3 and store re
 And I verify notification where notification type is updated, and email is the saved email
 And I delete packet data
 
-  @scenario_172
+  @scenario_179
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_Minor_New
@@ -4547,7 +4809,7 @@ And I get uin by rid where source registration ID is the saved rid1 and store re
 And I verify notification where notification type is updated, and email is the saved email
 And I delete packet data
 
-  @scenario_173
+  @scenario_180
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_New_Infant
@@ -4591,7 +4853,7 @@ And I get uin by rid where source registration ID is the saved rid1 and store re
 And I verify notification where notification type is updated, and email is the saved email
 And I delete packet data
 
-  @scenario_174
+  @scenario_181
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -4610,7 +4872,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_175
+  @scenario_182
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -4626,7 +4888,7 @@ And I generate and upload packet skipping prereg where persona file path is the 
 And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
 And I delete packet data
 
-  @scenario_176
+  @scenario_183
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -4653,7 +4915,7 @@ And I get uin by rid where source registration ID is the saved second registrati
 And I verify notification where notification type is updated, and email is the saved email
 And I delete packet data
 
-  @scenario_177
+  @scenario_184
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -4681,7 +4943,7 @@ And I check tags where registration ID is the saved second registration ID
 And I verify notification where notification type is updated, and email is the saved email
 And I delete packet data
 
-  @scenario_178
+  @scenario_185
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -4707,7 +4969,7 @@ And I check status where packet status is FAILED, and registration ID is the sav
 And I delete mock expect where modality hash value is the saved modality hash value
 And I delete packet data
 
-  @scenario_179
+  @scenario_186
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -4742,7 +5004,7 @@ And I get uin by rid where source registration ID is the saved rid3 and store re
 And I verify notification where notification type is updated, and email is the saved email
 And I delete packet data
 
-  @scenario_180
+  @scenario_187
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -4776,7 +5038,7 @@ Then I check ridstage where registration ID is the saved rid3, and RID stage is 
 Then I check updated uin where parameter 1 is the saved uin1, and parameter 2 is the saved uin3
 And I delete packet data
 
-  @scenario_181
+  @scenario_188
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -4823,7 +5085,7 @@ And I verify notification where notification type is updated, and email is the s
 Then I check ridstage where registration ID is the saved rid5, and RID stage is MANUAL_ADJUDICATION, and stage status is SUCCESS
 And I delete packet data
 
-  @scenario_182
+  @scenario_189
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -4864,7 +5126,7 @@ Then I check ridstage where registration ID is the saved rid4, and RID stage is 
 Then I check updated uin where parameter 1 is the saved uin1, and parameter 2 is the saved uin4
 And I delete packet data
 
-  @scenario_183
+  @scenario_190
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -4895,7 +5157,7 @@ Then I check ridstage where registration ID is the saved rid3, and RID stage is 
 Then I check updated uin where parameter 1 is the saved uin1, and parameter 2 is the saved uin3
 And I delete packet data
 
-  @scenario_184
+  @scenario_191
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -4922,7 +5184,7 @@ And I bio authentication where device info file is rightThumbDevice, and UIN is 
 And I bio authentication where device info file is LeftIris, and UIN is the saved UIN, and VID is the saved VID, and persona file path is the saved persona file path, and scenario flow is ERROR
 And I delete packet data
 
-  @scenario_185
+  @scenario_192
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -4949,7 +5211,7 @@ And I bio authentication where device info file is LeftIris, and UIN is the save
 And I bio authentication where device info file is rightThumbDevice, and UIN is the saved UIN, and VID is the saved VID, and persona file path is the saved persona file path, and scenario flow is ERROR
 And I delete packet data
 
-  @scenario_186
+  @scenario_193
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -4976,7 +5238,7 @@ And I bio authentication where device info file is LeftIris, and UIN is the save
 And I bio authentication where device info file is faceDevice, and UIN is the saved UIN, and VID is the saved VID, and persona file path is the saved persona file path
 And I delete packet data
 
-  @scenario_187
+  @scenario_194
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -5001,7 +5263,7 @@ And I bio authentication where device info file is LeftIris, and UIN is the save
 And I bio authentication where device info file is faceDevice, and UIN is the saved UIN, and VID is the saved VID, and persona file path is the saved persona file path
 And I delete packet data
 
-  @scenario_188
+  @scenario_195
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -5029,7 +5291,7 @@ And I bio authentication where device info file is faceDevice, and UIN is the sa
 And I bio authentication where device info file is leftLittleDevice, and UIN is the saved UIN, and VID is the saved VID, and persona file path is the saved persona file path
 And I delete packet data
 
-  @scenario_189
+  @scenario_196
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -5058,7 +5320,7 @@ And I check status where packet status is REREGISTER, and registration ID is the
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is VALIDATE_PACKET, and stage status is ERROR
 And I delete packet data
 
-  @scenario_190
+  @scenario_197
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -5083,7 +5345,7 @@ Then I check status where packet status is REREGISTER, and registration ID is th
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is UIN_GENERATOR, and stage status is ERROR
 And I delete packet data
 
-  @scenario_191
+  @scenario_198
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -5123,7 +5385,7 @@ And I wait where wait seconds is 90
 And I bio authentication where device info file is faceDevice, and UIN is minor uin, and VID is the saved VID, and persona file path is the saved child persona file path
 And I delete packet data
 
-  @scenario_192
+  @scenario_199
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -5163,7 +5425,7 @@ And I wait where wait seconds is 90
 And I bio authentication where device info file is faceDevice, and UIN is the saved UIN, and VID is the saved VID, and persona file path is the saved child persona file path
 And I delete packet data
 
-  @scenario_193
+  @scenario_200
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Minor_New
@@ -5204,7 +5466,7 @@ And I wait where wait seconds is 90
 And I bio authentication where device info file is faceDevice, and UIN is the saved UIN, and VID is the saved VID, and persona file path is the saved child persona file path
 And I delete packet data
 
-  @scenario_194
+  @scenario_201
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_External_New
@@ -5223,7 +5485,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_195
+  @scenario_202
   @Postive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -5251,7 +5513,7 @@ And I check status where packet status is PROCESSED, and registration ID is the 
 And I demo authentication where demo field is name, and UIN is the saved UIN, and persona file path is the saved persona file path, and VID is the saved VID
 And I delete packet data
 
-  @scenario_196
+  @scenario_203
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -5267,7 +5529,7 @@ And I check status where packet status is REREGISTER, and registration ID is the
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is VALIDATE_PACKET, and stage status is FAILED
 And I delete packet data
 
-  @scenario_197
+  @scenario_204
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -5295,7 +5557,7 @@ And I check status where packet status is REREGISTER, and registration ID is the
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is VALIDATE_PACKET, and stage status is FAILED
 And I delete packet data
 
-  @scenario_198
+  @scenario_205
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_External_New
@@ -5314,7 +5576,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_199
+  @scenario_206
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -5341,7 +5603,7 @@ And I get uin by rid where source registration ID is the saved second registrati
 And I verify notification where notification type is updated, and email is the saved email
 And I delete packet data
 
-  @scenario_200
+  @scenario_207
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_External_New
@@ -5356,7 +5618,7 @@ And I sync external packet where packet zip path is the saved registration ID
 And I check status where packet status is REREGISTER, and registration ID is the saved registration ID
 And I delete packet data
 
-  @scenario_201
+  @scenario_208
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_External_New
@@ -5371,7 +5633,7 @@ And I sync external packet where packet zip path is the saved registration ID
 And I check status where packet status is REREGISTER, and registration ID is the saved registration ID
 And I delete packet data
 
-  @scenario_202
+  @scenario_209
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_External_New
@@ -5384,7 +5646,7 @@ And I get resident data where persona type is infant, and guardian flag is false
 And I create and upload external packet where persona file path is CRVS11@invalid, and packet template path is CRVS_NEW1, and parameter 3 is the saved persona file path and store result in registration ID
 And I delete packet data
 
-  @scenario_203
+  @scenario_210
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_External_New
@@ -5400,7 +5662,7 @@ And I sync external packet where packet zip path is the saved registration ID
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is FAILED
 And I delete packet data
 
-  @scenario_204
+  @scenario_211
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_External_New
@@ -5416,7 +5678,7 @@ And I sync external packet where packet zip path is the saved registration ID
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is FAILED
 And I delete packet data
 
-  @scenario_205
+  @scenario_212
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -5445,7 +5707,7 @@ And I generate and upload packet skipping prereg where persona file path is the 
 And I check status where packet status is FAILED, and registration ID is the saved registration ID
 And I delete packet data
 
-  @scenario_206
+  @scenario_213
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -5472,7 +5734,7 @@ Then I check ridstage where registration ID is the saved child registration ID, 
 Then I check ridstage where registration ID is the saved parent registration ID, and RID stage is VALIDATE_PACKET, and stage status is REJECTED
 And I delete packet data
 
-  @scenario_208
+  @scenario_214
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -5500,7 +5762,7 @@ And I verify notification where notification type is updated, and email is the s
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_209
+  @scenario_215
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -5524,7 +5786,7 @@ And I verify notification where notification type is updated, and email is the s
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_210
+  @scenario_216
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -5557,7 +5819,7 @@ And I verify notification where notification type is updated, and email is the s
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_211
+  @scenario_217
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -5579,7 +5841,7 @@ And I set context where context key is env_context, and pre-requisite details is
 And I create and upload external packet where persona file path is CRVS11@invalid, and packet template path is CRVS_DEATH1, and parameter 3 is the saved persona file path, and parameter 4 is true, and parameter 5 is the saved UIN and store result in second registration ID
 And I delete packet data
 
-  @scenario_212
+  @scenario_218
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -5609,7 +5871,7 @@ And I verify notification where notification type is updated, and email is the s
 And I ekyc bio where device info file is faceDevice, and UIN is the saved second UIN, and VID is the saved VID, and persona file path is the saved persona file path
 And I delete packet data
 
-  @scenario_213
+  @scenario_219
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_Adult_Update
@@ -5633,7 +5895,7 @@ And I generate and upload packet skipping prereg where persona file path is the 
 And I check status where packet status is PROCESSED, and registration ID is the saved second registration ID
 And I delete packet data
 
-  @scenario_214
+  @scenario_220
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -5658,7 +5920,7 @@ And I oidc client and store result in OIDC client ID
 And I bio delegated authentication where parameter 1 is faceDevice, and parameter 2 is the saved UIN, and parameter 3 is the saved VID, and parameter 4 is the saved persona file path, and parameter 5 is the saved OIDC client ID
 And I delete packet data
 
-  @scenario_216
+  @scenario_221
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -5685,7 +5947,7 @@ And I get uin by rid where source registration ID is the saved rid3 and store re
 And I verify notification where notification type is updated, and email is the saved email
 And I delete packet data
 
-  @scenario_217
+  @scenario_222
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -5727,7 +5989,7 @@ Then I check ridstage where registration ID is the saved rid3, and RID stage is 
 Then I check ridstage where registration ID is the saved rid4, and RID stage is MANUAL_ADJUDICATION, and stage status is SUCCESS
 And I delete packet data
 
-  @scenario_218
+  @scenario_223
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Update_Adult
@@ -5754,7 +6016,7 @@ And I verify notification where notification type is updated, and email is the s
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_219
+  @scenario_224
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Update_Adult
@@ -5781,7 +6043,7 @@ And I verify notification where notification type is updated, and email is the s
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_220
+  @scenario_225
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -5824,7 +6086,7 @@ And I verify notification where notification type is updated, and email is the s
 Then I check ridstage where registration ID is the saved rid3, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is FAILED
 Then I check ridstage where registration ID is the saved rid3, and RID stage is MANUAL_ADJUDICATION, and stage status is SUCCESS
 
-  @scenario_221
+  @scenario_226
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -5869,7 +6131,7 @@ And I check status where packet status is REJECTED, and registration ID is the s
 Then I check ridstage where registration ID is the saved rid5, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is FAILED
 And I delete packet data
 
-  @scenario_222
+  @scenario_227
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -5901,7 +6163,7 @@ And I delete mock expect where modality hash value is the saved modality hash va
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_223
+  @scenario_228
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -5918,7 +6180,7 @@ And I packetsync where packet zip path is the saved packet zip path
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is VALIDATE_PACKET, and stage status is ERROR, and sub-status is RPR-SYS-EXCEPTION-001
 And I delete packet data
 
-  @scenario_225
+  @scenario_229
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_Update
@@ -5973,7 +6235,7 @@ And I get email by uin where resident UIN is the saved uin6 and store result in 
 And I verify notification where notification type is updated, and email is the saved email1
 And I delete packet data
 
-  @scenario_226
+  @scenario_230
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -6005,7 +6267,7 @@ And I update demo or bio details where bio type is 0, and miss fields is 0, and 
 And I demo authentication where demo field is name, and UIN is the saved second UIN, and persona file path is the saved persona file path, and VID is the saved VID, and age update flag is ERROR
 And I delete packet data
 
-  @scenario_227
+  @scenario_231
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -6025,7 +6287,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_230
+  @scenario_232
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_Update
@@ -6060,7 +6322,7 @@ And I check status where packet status is PROCESSED, and registration ID is the 
 And I get uin by rid where source registration ID is the saved rid4 and store result in uin4
 And I delete packet data
 
-  @scenario_231
+  @scenario_233
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -6091,7 +6353,7 @@ And I wait where wait seconds is 90
 And I bio authentication where device info file is rightThumbDevice, and UIN is the saved second UIN, and VID is the saved VID, and persona file path is the saved persona file path
 And I delete packet data
 
-  @scenario_232
+  @scenario_234
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -6122,7 +6384,7 @@ And I wait where wait seconds is 90
 And I bio authentication where device info file is LeftIris, and UIN is the saved second UIN, and VID is the saved VID, and persona file path is the saved persona file path
 And I delete packet data
 
-  @scenario_236
+  @scenario_235
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -6148,7 +6410,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-#  @scenario_237
+#  @disabled_scenario_237
 #  @Positive_Test
 #  @persona_ResidentMaleAdult
 #  @group_NA
@@ -6172,7 +6434,7 @@ And I delete packet data
 #And I demo authentication where demo field is name, and UIN is the saved UIN, and persona file path is the saved persona file path, and VID is the saved VID, and age update flag is 0, and handle key is handles
 #And I delete packet data
 
-  @scenario_238
+  @scenario_236
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -6187,7 +6449,7 @@ And I generate and upload packet skipping prereg where persona file path is the 
 And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
 And I delete packet data
 
-  @scenario_239
+  @scenario_237
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_New_Infant
@@ -6218,7 +6480,7 @@ Then I check ridstage where registration ID is the saved child rid2, and RID sta
 Then I check ridstage where registration ID is the saved child rid2, and RID stage is VERIFICATION, and stage status is SUCCESS
 And I delete packet data
 
-  @scenario_240
+  @scenario_238
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_New_Infant
@@ -6250,7 +6512,7 @@ Then I check ridstage where registration ID is the saved child rid2, and RID sta
 Then I check ridstage where registration ID is the saved child rid2, and RID stage is VERIFICATION, and stage status is SUCCESS
 And I delete packet data
 
-  @scenario_241
+  @scenario_239
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_New_Adult
@@ -6264,7 +6526,7 @@ And I get packet template where packet type is NEW, and persona file path is the
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path, and sync RID flag or expected error code is INVALID_PACKET_SIZE
 And I delete packet data
 
-  @scenario_242
+  @scenario_240
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_New_Adult
@@ -6279,7 +6541,7 @@ And I generate and upload packet skipping prereg where persona file path is the 
 And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
 And I delete packet data
 
-  @scenario_244
+  @scenario_241
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_Adult_Update
@@ -6315,7 +6577,7 @@ And I bio authentication where device info file is faceDevice, and UIN is the sa
 And I bio authentication where device info file is LeftIris, and UIN is the saved second UIN, and VID is the saved VID, and persona file path is old bio persona file path, and scenario flow is ERROR
 And I delete packet data
 
-  @scenario_245
+  @scenario_242
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_Adult_Update
@@ -6349,7 +6611,7 @@ And I demo authentication where demo field is name, and UIN is the saved second 
 And I demo authentication where demo field is name, and UIN is the saved second UIN, and persona file path is old demo persona file path, and VID is the saved VID, and age update flag is ERROR
 And I delete packet data
 
-  @scenario_246
+  @scenario_243
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -6373,7 +6635,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_247
+  @scenario_244
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -6399,7 +6661,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is rid new, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_248
+  @scenario_245
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -6422,7 +6684,7 @@ And I check status where packet status is PROCESSED, and registration ID is rid 
 Then I check ridstage where registration ID is rid lost, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_249
+  @scenario_246
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -6438,7 +6700,7 @@ And I check status where packet status is REREGISTER, and registration ID is the
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is VALIDATE_PACKET, and stage status is FAILED
 And I delete packet data
 
-  @scenario_250
+  @scenario_247
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_Update
@@ -6488,7 +6750,7 @@ And I demo authentication where demo field is name, and UIN is the saved uin aft
 And I demo authentication where demo field is gender, and UIN is the saved uin after u3, and persona file path is pre update demo persona file path, and VID is the saved VID, and age update flag is ERROR
 And I delete packet data
 
-  @scenario_251
+  @scenario_248
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_Adult_Update
@@ -6530,7 +6792,7 @@ And I demo authentication where demo field is name, and UIN is the saved uin aft
 And I demo authentication where demo field is name, and UIN is the saved uin after u2, and persona file path is u1 demo persona file path, and VID is the saved VID, and age update flag is ERROR
 And I delete packet data
 
-  @scenario_252
+  @scenario_249
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -6560,7 +6822,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is rid lost, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_253
+  @scenario_250
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -6590,7 +6852,7 @@ And I verify notification where notification type is UIN Generated, and email is
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_254
+  @scenario_251
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_Adult_Update
@@ -6631,185 +6893,7 @@ And I demo authentication where demo field is name, and UIN is the saved uin aft
 And I demo authentication where demo field is name, and UIN is the saved uin after u2, and persona file path is pre update demo persona file path, and VID is the saved VID, and age update flag is ERROR
 And I delete packet data
 
-  @scenario_256
-  @Negative_Test
-  @persona_ResidentMaleAdult
-  @group_Adult_New
-  Scenario: Resident gets UIN then name UPDATE is processed. Reprocess the old NEW packet after a later UPDATE exists verify it is treated as stale CREATE_DRAFT fails and status becomes REREGISTER
-Given I get ping health where component is packetcreator
-And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
-And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
-And I get ping health where component is targetenv
-And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
-And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
-And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
-And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
-And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
-And I get email by uin where resident UIN is the saved UIN and store result in email
-And I verify notification where notification type is UIN Generated, and email is the saved email
-Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
-And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
-And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
-And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update packet template path
-And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved update packet template path and store result in second registration ID
-And I check status where packet status is PROCESSED, and registration ID is the saved second registration ID
-And I verify notification where notification type is updated, and email is the saved email
-And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
-Then I reprocess packet where registration ID is the saved registration ID, and packet type is NEW
-Then I check ridstage where registration ID is the saved registration ID, and RID stage is CREATE_DRAFT, and stage status is FAILED
-And I delete packet data
-
-  @scenario_258
-  @Positive_Test
-  @persona_ResidentMaleAdult
-  @group_Adult_New
-  Scenario: Resident gets UIN from NEW registration. Reprocess the same NEW packet with no later UPDATE verify it is not stale and remains PROCESSED
-Given I get ping health where component is packetcreator
-And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
-And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
-And I get ping health where component is targetenv
-And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
-And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
-And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
-And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
-And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
-And I get email by uin where resident UIN is the saved UIN and store result in email
-And I verify notification where notification type is UIN Generated, and email is the saved email
-Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
-And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
-Then I reprocess packet where registration ID is the saved registration ID, and packet type is NEW
-Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED, and occurrence count is 2
-And I delete packet data
-
-  @scenario_259
-  @Positive_Test
-  @persona_ResidentMaleAdult
-  @group_Adult_Update
-  Scenario: Resident gets UIN then name UPDATE is processed. Reprocess the latest UPDATE packet verify it is not stale and remains PROCESSED through PRINT_SERVICE
-Given I get ping health where component is packetcreator
-And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
-And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
-And I get ping health where component is targetenv
-And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
-And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
-And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
-And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
-And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
-And I get email by uin where resident UIN is the saved UIN and store result in email
-And I verify notification where notification type is UIN Generated, and email is the saved email
-And I wait where wait seconds is 90
-And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
-And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
-And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update packet template path
-And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved update packet template path and store result in second registration ID
-And I check status where packet status is PROCESSED, and registration ID is the saved second registration ID
-And I verify notification where notification type is updated, and email is the saved email
-And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
-Then I reprocess packet where registration ID is the saved second registration ID, and packet type is UPDATE
-Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED, and occurrence count is 2
-And I delete packet data
-
-  @scenario_260
-  @Negative_Test
-  @persona_ResidentMaleAdult
-  @group_Adult_Update
-  Scenario: Resident gets UIN then two name UPDATE packets are processed. Reprocess the first UPDATE after a later UPDATE exists verify it is treated as stale CREATE_DRAFT fails and status becomes REREGISTER
-Given I get ping health where component is packetcreator
-And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
-And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
-And I get ping health where component is targetenv
-And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
-And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
-And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
-And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
-And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
-And I get email by uin where resident UIN is the saved UIN and store result in email
-And I verify notification where notification type is UIN Generated, and email is the saved email
-And I wait where wait seconds is 90
-And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
-And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
-And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update template a
-And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved update template a and store result in rid update a
-And I check status where packet status is PROCESSED, and registration ID is the saved rid update a
-And I verify notification where notification type is updated, and email is the saved email
-And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
-And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
-And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update template b
-And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved update template b and store result in rid update b
-And I check status where packet status is PROCESSED, and registration ID is the saved rid update b
-And I verify notification where notification type is updated, and email is the saved email
-And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
-Then I reprocess packet where registration ID is the saved rid update a, and packet type is UPDATE
-Then I check ridstage where registration ID is the saved rid update a, and RID stage is CREATE_DRAFT, and stage status is FAILED
-And I delete packet data
-
-  @scenario_261
-  @Negative_Test
-  @persona_ResidentMaleAdult
-  @group_NA
-  Scenario: Resident gets UIN then two Lost UIN packets are processed. Reprocess the first Lost packet after a later Lost packet exists verify it is treated as stale CREATE_DRAFT fails and status becomes REREGISTER
-Given I get ping health where component is packetcreator
-And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
-And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
-And I get ping health where component is targetenv
-And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
-And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
-And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in rid new
-And I check status where packet status is PROCESSED, and registration ID is rid new
-And I get uin by rid where source registration ID is rid new and store result in UIN
-And I get email by uin where resident UIN is the saved UIN and store result in email
-And I verify notification where notification type is UIN Generated, and email is the saved email
-And I wait where wait seconds is 90
-And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
-And I get packet template where packet type is LOST, and persona file path is the saved persona file path and store result in lost template1
-And I packetcreator where packet type is LOST, and template path is lost template1 and store result in lost zip1
-And I ridsync where packet type is LOST, and packet zip path is the saved lost zip1 and store result in rid lost1
-And I packetsync where packet zip path is the saved lost zip1
-And I check status where packet status is PROCESSED, and registration ID is rid lost1
-And I get packet template where packet type is LOST, and persona file path is the saved persona file path and store result in lost template2
-And I packetcreator where packet type is LOST, and template path is lost template2 and store result in lost zip2
-And I ridsync where packet type is LOST, and packet zip path is the saved lost zip2 and store result in rid lost2
-And I packetsync where packet zip path is the saved lost zip2
-And I check status where packet status is PROCESSED, and registration ID is rid lost2
-And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
-Then I reprocess packet where registration ID is rid lost1, and packet type is LOST
-Then I check ridstage where registration ID is rid lost1, and RID stage is CREATE_DRAFT, and stage status is FAILED
-And I delete packet data
-
-  @scenario_262
-  @Positive_Test
-  @persona_ResidentMaleAdult
-  @group_NA
-  Scenario: Resident gets UIN then two Lost UIN packets are processed. Reprocess the latest Lost packet verify it is not stale and remains PROCESSED through PRINT_SERVICE
-Given I get ping health where component is packetcreator
-And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
-And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
-And I get ping health where component is targetenv
-And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
-And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
-And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in rid new
-And I check status where packet status is PROCESSED, and registration ID is rid new
-And I get uin by rid where source registration ID is rid new and store result in UIN
-And I get email by uin where resident UIN is the saved UIN and store result in email
-And I verify notification where notification type is UIN Generated, and email is the saved email
-And I wait where wait seconds is 90
-And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
-And I get packet template where packet type is LOST, and persona file path is the saved persona file path and store result in lost template1
-And I packetcreator where packet type is LOST, and template path is lost template1 and store result in lost zip1
-And I ridsync where packet type is LOST, and packet zip path is the saved lost zip1 and store result in rid lost1
-And I packetsync where packet zip path is the saved lost zip1
-And I check status where packet status is PROCESSED, and registration ID is rid lost1
-And I get packet template where packet type is LOST, and persona file path is the saved persona file path and store result in lost template2
-And I packetcreator where packet type is LOST, and template path is lost template2 and store result in lost zip2
-And I ridsync where packet type is LOST, and packet zip path is the saved lost zip2 and store result in rid lost2
-And I packetsync where packet zip path is the saved lost zip2
-And I check status where packet status is PROCESSED, and registration ID is rid lost2
-And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
-Then I reprocess packet where registration ID is rid lost2, and packet type is LOST
-Then I check ridstage where registration ID is rid lost2, and RID stage is PRINT_SERVICE, and stage status is PROCESSED, and occurrence count is 2
-And I delete packet data
-
-  @scenario_257
+  @scenario_252
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -6847,7 +6931,7 @@ Then I check ridstage where registration ID is the saved child rid2, and RID sta
 Then I check ridstage where registration ID is the saved child rid2, and RID stage is VERIFICATION, and stage status is SUCCESS
 And I delete packet data
 
-  @scenario_263
+  @scenario_253
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_Update
@@ -6880,7 +6964,7 @@ And I bio authentication where device info file is faceDevice, and UIN is the sa
 And I delete mock expect where modality hash value is the saved modality hash value
 And I delete packet data
 
-  @scenario_264
+  @scenario_254
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_Adult_Update
@@ -6915,55 +6999,7 @@ And I demo authentication where demo field is name, and UIN is the saved second 
 Then I check updated uin where parameter 1 is the saved UIN, and parameter 2 is the saved second UIN
 And I delete packet data
 
-  @scenario_265
-  @Negative_Test
-  @persona_ResidentMaleAdult
-  @group_NA
-  Scenario: Lost packet L1 with name and address is processed then Lost packet L2 with a later name update is processed. Country representative reprocess of L1 is rejected as stale CREATE_DRAFT fails and identity remains as L2
-Given I get ping health where component is packetcreator
-And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
-And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
-And I get ping health where component is targetenv
-And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
-And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
-And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in rid new
-And I check status where packet status is PROCESSED, and registration ID is rid new
-And I get uin by rid where source registration ID is rid new and store result in UIN
-And I get email by uin where resident UIN is the saved UIN and store result in email
-And I verify notification where notification type is UIN Generated, and email is the saved email
-And I wait where wait seconds is 90
-And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
-And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name and addressLine1=L1AddressLine, and persona file is the saved persona file path
-And I clone resident data where persona file path is the saved persona file path and store result in old demo persona file path
-And I update resident with uin where persona file path is the saved old demo persona file path, and UIN is the saved UIN
-And I get packet template where packet type is LOST, and persona file path is the saved persona file path and store result in lost template1
-And I packetcreator where packet type is LOST, and template path is lost template1 and store result in lost zip1
-And I ridsync where packet type is LOST, and packet zip path is the saved lost zip1 and store result in rid lost1
-And I packetsync where packet zip path is the saved lost zip1
-And I check status where packet status is PROCESSED, and registration ID is rid lost1
-And I get uin by rid where source registration ID is rid lost1 and store result in lost packet UIN1
-Then I check updated uin where parameter 1 is the saved UIN, and parameter 2 is the saved lost packet UIN1
-And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name and email=lost265l2test, and persona file is the saved persona file path
-And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
-And I get packet template where packet type is LOST, and persona file path is the saved persona file path and store result in lost template2
-And I packetcreator where packet type is LOST, and template path is lost template2 and store result in lost zip2
-And I ridsync where packet type is LOST, and packet zip path is the saved lost zip2 and store result in rid lost2
-And I packetsync where packet zip path is the saved lost zip2
-And I check status where packet status is PROCESSED, and registration ID is rid lost2
-And I get uin by rid where source registration ID is rid lost2 and store result in lost packet UIN2
-Then I check updated uin where parameter 1 is the saved UIN, and parameter 2 is the saved lost packet UIN2
-And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
-Then I reprocess packet where registration ID is rid lost1, and packet type is LOST
-Then I check ridstage where registration ID is rid lost1, and RID stage is CREATE_DRAFT, and stage status is FAILED
-And I get email by uin where resident UIN is the saved UIN and store result in email
-And I generate vid where VID type is Perpetual, and UIN is the saved UIN, and email or phone is the saved email and store result in VID
-And I verify notification where notification type is Successful Generation of VID, and email is the saved email
-And I wait where wait seconds is 90
-And I demo authentication where demo field is emailId, and UIN is the saved UIN, and persona file path is the saved persona file path, and VID is the saved VID
-And I demo authentication where demo field is emailId, and UIN is the saved UIN, and persona file path is the saved old demo persona file path, and VID is the saved VID, and age update flag is ERROR
-And I delete packet data
-
-  @scenario_266
+  @scenario_255
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_External_New
@@ -6988,7 +7024,7 @@ And I verify notification where notification type is updated, and email is the s
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_267
+  @scenario_256
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_External_New
@@ -7013,7 +7049,7 @@ And I verify notification where notification type is updated, and email is the s
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_268
+  @scenario_257
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_External_New
@@ -7038,7 +7074,7 @@ And I verify notification where notification type is updated, and email is the s
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_269
+  @scenario_258
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_External_New
@@ -7063,7 +7099,7 @@ And I verify notification where notification type is updated, and email is the s
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_270
+  @scenario_259
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -7099,7 +7135,7 @@ And I verify notification where notification type is updated, and email is the s
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_271
+  @scenario_260
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_External_New
@@ -7124,7 +7160,7 @@ And I verify notification where notification type is updated, and email is the s
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
-  @scenario_272
+  @scenario_261
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_External_New
@@ -7144,7 +7180,7 @@ And I update demo or bio details where bio type is 0, and miss fields is 0, and 
 And I create and upload external packet where persona file path is CRVS11@invalid, and packet template path is CRVS_UPDATE1, and parameter 3 is the saved persona file path, and parameter 4 is true, and parameter 5 is the saved UIN and store result in second registration ID
 And I delete packet data
 
-  @scenario_273
+  @scenario_262
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_External_New
@@ -7166,7 +7202,7 @@ And I sync external packet where packet zip path is the saved second registratio
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is FAILED
 And I delete packet data
 
-  @scenario_274
+  @scenario_263
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_New
@@ -7191,7 +7227,7 @@ And I sync external packet where packet zip path is the saved second registratio
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is SUCCESS, and sub-status is RPR-WIA-001
 And I delete packet data
 
-  @scenario_275
+  @scenario_264
   @Positive_Test
   @persona_ResidentFemaleAdult
   @group_Adult_New
@@ -7219,7 +7255,7 @@ And I sync external packet where packet zip path is the saved third registration
 Then I check ridstage where registration ID is the saved third registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is SUCCESS
 And I delete packet data
 
-  @scenario_276
+  @scenario_265
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_External_New
@@ -7241,7 +7277,7 @@ And I sync external packet where packet zip path is the saved second registratio
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is FAILED
 And I delete packet data
 
-  @scenario_277
+  @scenario_266
   @Negative_Test
   @persona_ResidentFemaleAdult
   @group_External_New
@@ -7263,7 +7299,7 @@ And I sync external packet where packet zip path is the saved second registratio
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is FAILED
 And I delete packet data
 
-  @scenario_295
+  @scenario_267
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -7283,7 +7319,7 @@ And I verify id repo draft location where registration ID is the saved registrat
 And I delete mock expect where modality hash value is the saved modality hash value
 And I delete packet data
 
-  @scenario_296
+  @scenario_268
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_NA
@@ -7309,43 +7345,7 @@ Then I check ridstage where registration ID is the saved second registration ID,
 And I verify id repo draft location where registration ID is the saved second registration ID, and location phase is rejected
 And I delete packet data
 
-  @scenario_297
-  @Negative_Test
-  @persona_ResidentMaleAdult
-  @group_Adult_New
-  Scenario: When an older packet is reprocessed after a newer packet has already been successfully processed, verify that the older packet's draft data does not overwrite the newer packet's published data
-Given I get ping health where component is packetcreator
-And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
-And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
-And I get ping health where component is targetenv
-And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
-And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
-And I packetcreator where packet type is NEW, and template path is the saved packet template path and store result in packet zip path
-And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path and store result in modality hash value
-And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path, and modality hash map is the saved modality hash value, and delay seconds is 600, and mock ABIS status is Success
-And I ridsync where packet type is NEW, and packet zip path is the saved packet zip path and store result in registration ID
-And I packetsync where packet zip path is the saved packet zip path
-Then I check ridstage where registration ID is the saved registration ID, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is IN_PROGRESS
-And I verify id repo draft location where registration ID is the saved registration ID, and location phase is draft
-And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in new packet template path
-And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved new packet template path and store result in second registration ID
-And I check status where packet status is PROCESSED, and registration ID is the saved second registration ID
-And I get uin by rid where source registration ID is the saved second registration ID and store result in UIN
-And I get email by uin where resident UIN is the saved UIN and store result in email
-And I verify notification where notification type is UIN Generated, and email is the saved email
-Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
-And I verify id repo draft location where registration ID is the saved second registration ID, and location phase is published
-And I verify id repo draft location where registration ID is the saved registration ID, and location phase is draft
-And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
-Then I reprocess packet where registration ID is the saved registration ID, and packet type is NEW
-And I post mock mv where registration ID is the saved registration ID, and manual verification decision is REJECTED
-Then I check ridstage where registration ID is the saved registration ID, and RID stage is MANUAL_ADJUDICATION, and stage status is FAILED, and occurrence count is 2
-And I verify id repo draft location where registration ID is the saved registration ID, and location phase is rejected
-And I verify id repo draft location where registration ID is the saved second registration ID, and location phase is published
-And I delete mock expect where modality hash value is the saved modality hash value
-And I delete packet data
-
-  @scenario_298
+  @scenario_269
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_Update
@@ -7386,6 +7386,701 @@ And I demo authentication where demo field is gender, and UIN is the saved uin a
 And I demo authentication where demo field is name, and UIN is the saved uin after u2, and persona file path is the saved u2 persona file path, and VID is the saved VID, and age update flag is ERROR
 And I demo authentication where demo field is gender, and UIN is the saved uin after u2, and persona file path is the saved persona file path, and VID is the saved VID, and age update flag is ERROR
 And I delete packet data
+
+  @scenario_270
+  @Positive_Test
+  @persona_ResidentFemaleAdult
+  @group_External_New
+  Scenario: Infant external packet creation and process with introducerInfoToken and gets UIN card later we perform crvs external packet update flow for name and then for gender
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 4 and store result in external packet environment details
+And I set context where context key is env_context, and pre-requisite details is the saved external packet environment details, and generate private key is false, and registration status or invalidation flag is EXTERNAL
+And I get ping health where component is targetenv
+And I get resident data where persona type is infant, and guardian flag is false, and gender and biometric flags is Female and store result in persona file path
+And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_NEW, and parameter 3 is the saved persona file path, and parameter 4 is true and store result in registration ID
+And I sync external packet where packet zip path is the saved registration ID
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is PROCESSED
+And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
+And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_UPDATE, and parameter 3 is the saved persona file path, and parameter 4 is true, and parameter 5 is the saved UIN and store result in second registration ID
+And I sync external packet where packet zip path is the saved second registration ID
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is PROCESSED
+And I get uin by rid where source registration ID is the saved second registration ID and store result in second UIN
+And I verify notification where notification type is updated, and email is the saved email
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is gender=Male, and persona file is the saved persona file path
+And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_UPDATE, and parameter 3 is the saved persona file path, and parameter 4 is true, and parameter 5 is the saved UIN and store result in third registration ID
+And I sync external packet where packet zip path is the saved third registration ID
+Then I check ridstage where registration ID is the saved third registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is PROCESSED
+And I get uin by rid where source registration ID is the saved third registration ID and store result in third UIN
+And I verify notification where notification type is updated, and email is the saved email
+Then I check ridstage where registration ID is the saved third registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I delete packet data
+
+
+  @scenario_271
+  @Negative_Test
+  @persona_ResidentFemaleAdult
+  @group_Adult_New
+  Scenario: CRVS external packet update fails for a registration that is still in progress and for a registration that was rejected without a UIN
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I get ping health where component is targetenv
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Female and store result in persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
+And I packetcreator where packet type is NEW, and template path is the saved packet template path and store result in packet zip path
+And I ridsync where packet type is NEW, and packet zip path is the saved packet zip path and store result in registration ID
+And I packetsync where packet zip path is the saved packet zip path
+And I read pre req where pre-requisite data index is 4 and store result in external packet environment details
+And I set context where context key is env_context, and pre-requisite details is the saved external packet environment details, and generate private key is false, and registration status or invalidation flag is EXTERNAL
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
+And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_UPDATE, and parameter 3 is the saved persona file path, and parameter 4 is true, and parameter 5 is the saved registration ID and store result in second registration ID
+And I sync external packet where packet zip path is the saved second registration ID
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is FAILED
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in rejected packet template path
+And I packetcreator where packet type is NEW, and template path is the saved rejected packet template path and store result in rejected packet zip path
+And I rid sync rejected where packet type is NEW, and packet zip path is the saved rejected packet zip path and store result in rejected registration ID
+And I packetsync where packet zip path is the saved rejected packet zip path
+And I check status where packet status is REREGISTER, and registration ID is the saved rejected registration ID
+Then I check ridstage where registration ID is the saved rejected registration ID, and RID stage is VALIDATE_PACKET, and stage status is REJECTED
+And I read pre req where pre-requisite data index is 4 and store result in external packet environment details
+And I set context where context key is env_context, and pre-requisite details is the saved external packet environment details, and generate private key is false, and registration status or invalidation flag is EXTERNAL
+And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_UPDATE, and parameter 3 is the saved persona file path, and parameter 4 is true, and parameter 5 is the saved rejected registration ID and store result in third registration ID
+And I sync external packet where packet zip path is the saved third registration ID
+Then I check ridstage where registration ID is the saved third registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is FAILED
+And I delete packet data
+
+
+  @scenario_272
+  @Negative_Test
+  @persona_ResidentMaleAdult
+  @group_Adult_New
+  Scenario: New registration packet N1 with a different name is stuck on a delayed ABIS response while new packet N2 from the same biometrics is processed. N2 keeps the resident data. Reprocess of N1 is rejected. Demo auth with the processed name succeeds and demo auth with the rejected N1 name fails
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I get ping health where component is targetenv
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in new packet template path
+And I clone resident data where persona file path is the saved persona file path and store result in n1 persona file path
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved n1 persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved n1 persona file path and store result in packet template path
+And I packetcreator where packet type is NEW, and template path is the saved packet template path and store result in packet zip path
+And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and persona path is the saved n1 persona file path and store result in modality hash value
+And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved n1 persona file path, and modality hash map is the saved modality hash value, and delay seconds is delay, and mock ABIS status is Success
+And I ridsync where packet type is NEW, and packet zip path is the saved packet zip path and store result in registration ID
+And I packetsync where packet zip path is the saved packet zip path
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is IN_PROGRESS
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved new packet template path and store result in second registration ID
+And I check status where packet status is PROCESSED, and registration ID is the saved second registration ID
+And I get uin by rid where source registration ID is the saved second registration ID and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
+Then I reprocess packet where registration ID is the saved registration ID, and packet type is NEW
+And I post mock mv where registration ID is the saved registration ID, and manual verification decision is REJECTED
+And I check status where packet status is REJECTED, and registration ID is the saved registration ID
+And I wait where wait seconds is UIN_WAIT_TIME
+And I generate vidwithout otp where VID type is Perpetual, and UIN is the saved UIN and store result in VID
+And I wait where wait seconds is 90
+And I demo authentication where demo field is name, and UIN is the saved UIN, and persona file path is the saved persona file path, and VID is the saved VID
+And I demo authentication where demo field is name, and UIN is the saved UIN, and persona file path is the saved n1 persona file path, and VID is the saved VID, and age update flag is ERROR
+And I delete packet data
+
+
+  @scenario_273
+  @Positive_Test
+  @persona_ResidentMaleAdult
+  @group_Adult_New
+  Scenario: New packet stays in ABIS while id, optional, and evidence are renamed in MinIO and packet manager caches are cleared, then the packet is processed
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I get ping health where component is targetenv
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
+And I packetcreator where packet type is NEW, and template path is the saved packet template path and store result in packet zip path
+And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path and store result in modality hash value
+And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path, and modality hash map is the saved modality hash value, and delay seconds is 240, and mock ABIS status is Success
+And I ridsync where packet type is NEW, and packet zip path is the saved packet zip path and store result in registration ID
+And I packetsync where packet zip path is the saved packet zip path
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is IN_PROGRESS
+And I wait where wait seconds is 60
+And I rename packet objects where registration ID is the saved registration ID, and packet process is NEW, and object action is rename, and hold seconds is 0
+And I clear packet manager cache
+And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I delete packet data
+
+
+  @scenario_274
+  @Negative_Test
+  @persona_ResidentMaleAdult
+  @group_Adult_New
+  Scenario: New registration packet N1 is held on a 3 minute ABIS delay and is processed when the delay completes. New packet N2 with a different name goes to manual adjudication and is rejected. Demo auth with the processed name succeeds and demo auth with the rejected N2 name fails
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I get ping health where component is targetenv
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
+And I packetcreator where packet type is NEW, and template path is the saved packet template path and store result in packet zip path
+And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path and store result in modality hash value
+And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path, and modality hash map is the saved modality hash value, and delay seconds is 180, and mock ABIS status is Success
+And I ridsync where packet type is NEW, and packet zip path is the saved packet zip path and store result in registration ID
+And I packetsync where packet zip path is the saved packet zip path
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is IN_PROGRESS
+And I clone resident data where persona file path is the saved persona file path and store result in n2 persona file path
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved n2 persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved n2 persona file path and store result in new packet template path
+And I generate and upload packet skipping prereg where persona file path is the saved n2 persona file path, and packet template path is the saved new packet template path and store result in second registration ID
+And I post mock mv where registration ID is the saved second registration ID, and manual verification decision is REJECTED
+And I wait where wait seconds is 180
+And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
+And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I check status where packet status is REJECTED, and registration ID is the saved second registration ID
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is MANUAL_ADJUDICATION, and stage status is FAILED
+And I wait where wait seconds is UIN_WAIT_TIME
+And I generate vidwithout otp where VID type is Perpetual, and UIN is the saved UIN and store result in VID
+And I wait where wait seconds is 90
+And I demo authentication where demo field is name, and UIN is the saved UIN, and persona file path is the saved persona file path, and VID is the saved VID
+And I demo authentication where demo field is name, and UIN is the saved UIN, and persona file path is the saved n2 persona file path, and VID is the saved VID, and age update flag is ERROR
+And I delete packet data
+
+
+  @scenario_275
+  @Positive_Test
+  @persona_ResidentMaleAdult
+  @group_Adult_Update
+  Scenario: Update packet U1 is stuck on a 3 minute ABIS delay while update packet U2 with different details is processed. U2 keeps the latest resident data. After the delay completes, U1 is also processed
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I get ping health where component is targetenv
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
+And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
+And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+And I clone resident data where persona file path is the saved persona file path and store result in u1 persona file path
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved u1 persona file path
+And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and persona path is the saved u1 persona file path and store result in modality hash value
+And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved u1 persona file path, and modality hash map is the saved modality hash value, and delay seconds is 180, and mock ABIS status is Success
+And I update resident with uin where persona file path is the saved u1 persona file path, and UIN is the saved UIN
+And I get packet template where packet type is UPDATE, and persona file path is the saved u1 persona file path and store result in update template u1
+And I generate and upload packet skipping prereg where persona file path is the saved u1 persona file path, and packet template path is the saved update template u1 and store result in rid u1
+Then I check ridstage where registration ID is the saved rid u1, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is IN_PROGRESS
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
+And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
+And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update template u2
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved update template u2 and store result in rid u2
+And I check status where packet status is PROCESSED, and registration ID is the saved rid u2
+And I get uin by rid where source registration ID is the saved rid u2 and store result in uin after u2
+And I verify notification where notification type is updated, and email is the saved email
+Then I check ridstage where registration ID is the saved rid u2, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I wait where wait seconds is 180
+And I check status where packet status is PROCESSED, and registration ID is the saved rid u1
+Then I check ridstage where registration ID is the saved rid u1, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I verify notification where notification type is updated, and email is the saved email
+And I wait where wait seconds is UIN_WAIT_TIME
+And I generate vidwithout otp where VID type is Perpetual, and UIN is the saved uin after u2 and store result in VID
+And I wait where wait seconds is 90
+And I demo authentication where demo field is name, and UIN is the saved uin after u2, and persona file path is the saved persona file path, and VID is the saved VID
+And I delete packet data
+
+
+  @scenario_276
+  @Negative_Test
+  @persona_ResidentMaleAdult
+  @group_Adult_Update
+  Scenario: Update packet U1 is stuck on a delayed ABIS response while update packet U2 with different details is processed. U2 keeps the latest resident data. Reprocess of U1 is rejected and a failure notification is sent to the resident
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I get ping health where component is targetenv
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
+And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
+And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+And I clone resident data where persona file path is the saved persona file path and store result in u1 persona file path
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved u1 persona file path
+And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and persona path is the saved u1 persona file path and store result in modality hash value
+And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved u1 persona file path, and modality hash map is the saved modality hash value, and delay seconds is delay, and mock ABIS status is Success
+And I update resident with uin where persona file path is the saved u1 persona file path, and UIN is the saved UIN
+And I get packet template where packet type is UPDATE, and persona file path is the saved u1 persona file path and store result in update template u1
+And I generate and upload packet skipping prereg where persona file path is the saved u1 persona file path, and packet template path is the saved update template u1 and store result in rid u1
+Then I check ridstage where registration ID is the saved rid u1, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is IN_PROGRESS
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
+And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
+And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update template u2
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved update template u2 and store result in rid u2
+And I check status where packet status is PROCESSED, and registration ID is the saved rid u2
+And I get uin by rid where source registration ID is the saved rid u2 and store result in uin after u2
+And I verify notification where notification type is updated, and email is the saved email
+Then I check ridstage where registration ID is the saved rid u2, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
+And I post mock mv where registration ID is the saved rid u1, and manual verification decision is REJECTED
+Then I reprocess packet where registration ID is the saved rid u1, and packet type is UPDATE
+And I check status where packet status is REJECTED, and registration ID is the saved rid u1
+Then I check ridstage where registration ID is the saved rid u1, and RID stage is MANUAL_ADJUDICATION, and stage status is FAILED
+And I verify notification where notification type is Registration Failed, and email is the saved email
+And I wait where wait seconds is UIN_WAIT_TIME
+And I generate vidwithout otp where VID type is Perpetual, and UIN is the saved uin after u2 and store result in VID
+And I wait where wait seconds is 90
+And I demo authentication where demo field is name, and UIN is the saved uin after u2, and persona file path is the saved persona file path, and VID is the saved VID
+And I demo authentication where demo field is name, and UIN is the saved uin after u2, and persona file path is the saved u1 persona file path, and VID is the saved VID, and age update flag is ERROR
+And I delete packet data
+
+
+  @scenario_277
+  @Positive_Test
+  @persona_ResidentMaleAdult
+  @group_Adult_New
+  Scenario: New registration packet N1 is held on a 3 minute ABIS delay and is processed when the delay completes. New packet N2 from the same resident data goes to manual adjudication and is processed, so both packets are processed
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I get ping health where component is targetenv
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
+And I packetcreator where packet type is NEW, and template path is the saved packet template path and store result in packet zip path
+And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path and store result in modality hash value
+And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path, and modality hash map is the saved modality hash value, and delay seconds is 180, and mock ABIS status is Success
+And I ridsync where packet type is NEW, and packet zip path is the saved packet zip path and store result in registration ID
+And I packetsync where packet zip path is the saved packet zip path
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is IN_PROGRESS
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in new packet template path
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved new packet template path and store result in second registration ID
+And I post mock mv where registration ID is the saved second registration ID, and manual verification decision is PROCESSED
+And I wait where wait seconds is 180
+And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
+And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I check status where packet status is PROCESSED, and registration ID is the saved second registration ID
+And I get uin by rid where source registration ID is the saved second registration ID and store result in second UIN
+And I get email by uin where resident UIN is the saved second UIN and store result in second email
+And I verify notification where notification type is UIN Generated, and email is the saved second email
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is MANUAL_ADJUDICATION, and stage status is SUCCESS
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I wait where wait seconds is UIN_WAIT_TIME
+And I generate vidwithout otp where VID type is Perpetual, and UIN is the saved UIN and store result in VID
+And I wait where wait seconds is 90
+And I demo authentication where demo field is name, and UIN is the saved UIN, and persona file path is the saved persona file path, and VID is the saved VID
+And I delete packet data
+
+
+  @scenario_278
+  @Positive_Test
+  @persona_ResidentMaleAdult
+  @group_NA
+  Scenario: Lost UIN packet L1 is stuck on a delayed ABIS response. Lost UIN packet L2 for the same resident is processed and left as the effective latest transaction. L1 stays stuck and is not taken further
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I get ping health where component is targetenv
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in rid new
+And I check status where packet status is PROCESSED, and registration ID is rid new
+And I get uin by rid where source registration ID is rid new and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+And I wait where wait seconds is 90
+And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
+And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path and store result in modality hash value
+And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path, and modality hash map is the saved modality hash value, and delay seconds is delay, and mock ABIS status is Success
+And I get packet template where packet type is LOST, and persona file path is the saved persona file path and store result in lost template1
+And I packetcreator where packet type is LOST, and template path is lost template1 and store result in lost zip1
+And I ridsync where packet type is LOST, and packet zip path is the saved lost zip1 and store result in rid lost1
+And I packetsync where packet zip path is the saved lost zip1
+Then I check ridstage where registration ID is rid lost1, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is IN_PROGRESS
+And I get packet template where packet type is LOST, and persona file path is the saved persona file path and store result in lost template2
+And I packetcreator where packet type is LOST, and template path is lost template2 and store result in lost zip2
+And I ridsync where packet type is LOST, and packet zip path is the saved lost zip2 and store result in rid lost2
+And I packetsync where packet zip path is the saved lost zip2
+And I check status where packet status is PROCESSED, and registration ID is rid lost2
+And I get uin by rid where source registration ID is rid lost2 and store result in second UIN
+Then I check updated uin where parameter 1 is the saved UIN, and parameter 2 is the saved second UIN
+And I get email by uin where resident UIN is the saved second UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+Then I check ridstage where registration ID is rid lost2, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I wait where wait seconds is UIN_WAIT_TIME
+And I generate vidwithout otp where VID type is Perpetual, and UIN is the saved second UIN and store result in VID
+And I wait where wait seconds is 90
+And I demo authentication where demo field is name, and UIN is the saved second UIN, and persona file path is the saved persona file path, and VID is the saved VID
+And I delete packet data
+
+
+  @scenario_279
+  @Positive_Test
+  @persona_ResidentMaleAdult
+  @group_Adult_Update
+  Scenario: Resident gets a UIN. A biometric update with a low quality image waits for correction. The biometric correction packet is stuck on a 15 minute ABIS delay while a name update is processed. Reprocessing the correction keeps the updated name
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I get ping health where component is targetenv
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is email=additionalReqId_287, and persona file is the saved persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
+And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
+And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+And I wait where wait seconds is 90
+And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
+And I clone resident data where persona file path is the saved persona file path and store result in low quality persona file path
+And I update demo or bio details where bio type is face and finger and iris, and miss fields is 0, and update attributes is 0, and persona file is the saved low quality persona file path
+And I update resident with uin where persona file path is the saved low quality persona file path, and UIN is the saved UIN
+And I get packet template where packet type is UPDATE, and persona file path is the saved low quality persona file path, and biometric quality score is 10 and store result in low quality update template
+And I generate and upload packet skipping prereg where persona file path is the saved low quality persona file path, and packet template path is the saved low quality update template and store result in rid low quality
+Then I check ridstage where registration ID is the saved rid low quality, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is SUCCESS, and sub-status is RPR-WIA-001
+Then I get additional req id where email prefix is additionalReqId_287 and store result in additional req id
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in correction persona file path
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is email=additionalReqId_287, and persona file is the saved correction persona file path
+And I get packet template where packet type is BIOMETRIC_CORRECTION, and persona file path is the saved correction persona file path and store result in correction template
+And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and persona path is the saved correction persona file path and store result in modality hash value
+And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved correction persona file path, and modality hash map is the saved modality hash value, and delay seconds is 900, and mock ABIS status is Success
+And I packetcreator where packet type is BIOMETRIC_CORRECTION, and template path is the saved correction template, and additional info request ID is additional req id and store result in correction zip
+And I ridsync where packet type is BIOMETRIC_CORRECTION, and packet zip path is the saved correction zip, and additional info request ID is additional req id and store result in rid correction
+And I packetsync where packet zip path is the saved correction zip
+Then I check ridstage where registration ID is the saved rid correction, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is IN_PROGRESS
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
+And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
+And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update template
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved update template and store result in rid update
+And I check status where packet status is PROCESSED, and registration ID is the saved rid update
+And I get uin by rid where source registration ID is the saved rid update and store result in uin after update
+And I verify notification where notification type is updated, and email is the saved email
+Then I check ridstage where registration ID is the saved rid update, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I wait where wait seconds is 900
+Then I reprocess packet where registration ID is the saved rid correction, and packet type is BIOMETRIC_CORRECTION
+And I check status where packet status is PROCESSED, and registration ID is the saved rid correction
+Then I check ridstage where registration ID is the saved rid correction, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I wait where wait seconds is UIN_WAIT_TIME
+And I generate vidwithout otp where VID type is Perpetual, and UIN is the saved uin after update and store result in VID
+And I wait where wait seconds is 90
+And I demo authentication where demo field is name, and UIN is the saved uin after update, and persona file path is the saved persona file path, and VID is the saved VID
+And I demo authentication where demo field is name, and UIN is the saved uin after update, and persona file path is the saved low quality persona file path, and VID is the saved VID, and age update flag is ERROR
+And I delete packet data
+
+
+  @scenario_280
+  @Positive_Test
+  @persona_ResidentMaleAdult
+  @group_NA
+  Scenario: Lost UIN packet stays in ABIS while id, optional, and evidence are renamed in MinIO and packet manager caches are cleared, then the packet is processed
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I get ping health where component is targetenv
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
+And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
+And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+And I wait where wait seconds is 90
+And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
+And I get packet template where packet type is LOST, and persona file path is the saved persona file path and store result in lost template
+And I packetcreator where packet type is LOST, and template path is the saved lost template and store result in packet zip path
+And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path and store result in modality hash value
+And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path, and modality hash map is the saved modality hash value, and delay seconds is 240, and mock ABIS status is Success
+And I ridsync where packet type is LOST, and packet zip path is the saved packet zip path and store result in rid lost
+And I packetsync where packet zip path is the saved packet zip path
+Then I check ridstage where registration ID is the saved rid lost, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is IN_PROGRESS
+And I wait where wait seconds is 60
+And I rename packet objects where registration ID is the saved rid lost, and packet process is LOST, and object action is rename, and hold seconds is 0
+And I clear packet manager cache
+And I check status where packet status is PROCESSED, and registration ID is the saved rid lost
+Then I check ridstage where registration ID is the saved rid lost, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I delete packet data
+
+
+  @scenario_281
+  @Positive_Test
+  @persona_ResidentMaleAdult
+  @group_Adult_Update
+  Scenario: Update packet stays in ABIS while id, optional, and evidence are renamed in MinIO and packet manager caches are cleared, then the packet is processed
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I get ping health where component is targetenv
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
+And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
+And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+And I wait where wait seconds is 90
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
+And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
+And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update packet template path
+And I packetcreator where packet type is UPDATE, and template path is the saved update packet template path and store result in packet zip path
+And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path and store result in modality hash value
+And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path, and modality hash map is the saved modality hash value, and delay seconds is 240, and mock ABIS status is Success
+And I ridsync where packet type is UPDATE, and packet zip path is the saved packet zip path and store result in second registration ID
+And I packetsync where packet zip path is the saved packet zip path
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is IN_PROGRESS
+And I wait where wait seconds is 60
+And I rename packet objects where registration ID is the saved second registration ID, and packet process is UPDATE, and object action is rename, and hold seconds is 0
+And I clear packet manager cache
+And I check status where packet status is PROCESSED, and registration ID is the saved second registration ID
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I delete packet data
+
+
+  @scenario_282
+  @Positive_Test
+  @persona_ResidentMaleAdult
+  @group_NA
+  Scenario: Biometric correction packet stays in ABIS while id, optional, and evidence are renamed in MinIO and packet manager caches are cleared, then the packet is processed
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I get ping health where component is targetenv
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is email=additionalReqId_290, and persona file is the saved persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path, and biometric quality score is 10 and store result in packet template path
+And I packetcreator where packet type is NEW, and template path is the saved packet template path and store result in packet zip path
+And I ridsync where packet type is NEW, and packet zip path is the saved packet zip path and store result in registration ID
+And I packetsync where packet zip path is the saved packet zip path
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is SUCCESS, and sub-status is RPR-WIA-001
+Then I get additional req id where email prefix is additionalReqId_290 and store result in additional req id
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path2
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is email=additionalReqId_290, and persona file is the saved persona file path2
+And I get packet template where packet type is BIOMETRIC_CORRECTION, and persona file path is the saved persona file path2 and store result in template path2
+And I packetcreator where packet type is BIOMETRIC_CORRECTION, and template path is the saved template path2, and additional info request ID is additional req id and store result in zip packet path2
+And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path2 and store result in modality hash value
+And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path2, and modality hash map is the saved modality hash value, and delay seconds is 240, and mock ABIS status is Success
+And I ridsync where packet type is BIOMETRIC_CORRECTION, and packet zip path is the saved zip packet path2, and additional info request ID is additional req id and store result in second registration ID
+And I packetsync where packet zip path is the saved zip packet path2
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is IN_PROGRESS
+And I wait where wait seconds is 60
+And I rename packet objects where registration ID is the saved second registration ID, and packet process is BIOMETRIC_CORRECTION-1, and object action is rename, and hold seconds is 0
+And I clear packet manager cache
+And I check status where packet status is PROCESSED, and registration ID is the saved second registration ID
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I delete packet data
+
+
+  @scenario_283
+  @Positive_Test
+  @persona_ResidentMaleAdult
+  @group_Minor_New
+  Scenario: Minor packet stays in ABIS while id, optional, and evidence are renamed in MinIO and packet manager caches are cleared, then the packet is processed
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I get ping health where component is targetenv
+And I get resident data where persona type is minor, and guardian flag is true, and gender and biometric flags is Male and store result in child persona file path
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in parent persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved parent persona file path and store result in parent packet template path
+And I generate and upload packet skipping prereg where persona file path is the saved parent persona file path, and packet template path is the saved parent packet template path and store result in parent registration ID
+And I check status where packet status is PROCESSED, and registration ID is the saved parent registration ID
+And I get uin by rid where source registration ID is the saved parent registration ID and store result in parent UIN
+And I get email by uin where resident UIN is the saved parent UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+And I update resident with rid where persona file path is the saved parent persona file path, and registration ID is the saved parent registration ID
+And I update resident with guardian skipping pre reg where guardian persona file path is the saved parent persona file path, and child persona file path is the saved child persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved child persona file path and store result in child packet template path
+And I packetcreator where packet type is NEW, and template path is the saved child packet template path and store result in packet zip path
+And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and persona path is the saved child persona file path and store result in modality hash value
+And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved child persona file path, and modality hash map is the saved modality hash value, and delay seconds is 240, and mock ABIS status is Success
+And I ridsync where packet type is NEW, and packet zip path is the saved packet zip path and store result in child registration ID
+And I packetsync where packet zip path is the saved packet zip path
+Then I check ridstage where registration ID is the saved child registration ID, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is IN_PROGRESS
+And I wait where wait seconds is 60
+And I rename packet objects where registration ID is the saved child registration ID, and packet process is NEW, and object action is rename, and hold seconds is 0
+And I clear packet manager cache
+And I check status where packet status is PROCESSED, and registration ID is the saved child registration ID
+Then I check ridstage where registration ID is the saved child registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I delete packet data
+
+
+  @scenario_284
+  @Positive_Test
+  @persona_ResidentMaleAdult
+  @group_NA
+  Scenario: When multiple Lost UIN packets are uploaded for the same resident while earlier packets are pending, verify that reprocessing an older packet does not overwrite the latest successful transaction
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I get ping health where component is targetenv
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in rid new
+And I check status where packet status is PROCESSED, and registration ID is rid new
+And I get uin by rid where source registration ID is rid new and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+And I wait where wait seconds is 90
+And I clone resident data where persona file path is the saved persona file path and store result in l1 persona file path
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved l1 persona file path
+And I update resident with uin where persona file path is the saved l1 persona file path, and UIN is the saved UIN
+And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and persona path is the saved l1 persona file path and store result in modality hash value
+And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved l1 persona file path, and modality hash map is the saved modality hash value, and delay seconds is 180, and mock ABIS status is Success
+And I get packet template where packet type is LOST, and persona file path is the saved l1 persona file path and store result in lost template1
+And I packetcreator where packet type is LOST, and template path is lost template1 and store result in lost zip1
+And I ridsync where packet type is LOST, and packet zip path is the saved lost zip1 and store result in rid lost1
+And I packetsync where packet zip path is the saved lost zip1
+Then I check ridstage where registration ID is rid lost1, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is IN_PROGRESS
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
+And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
+And I get packet template where packet type is LOST, and persona file path is the saved persona file path and store result in lost template2
+And I packetcreator where packet type is LOST, and template path is lost template2 and store result in lost zip2
+And I ridsync where packet type is LOST, and packet zip path is the saved lost zip2 and store result in rid lost2
+And I packetsync where packet zip path is the saved lost zip2
+And I check status where packet status is PROCESSED, and registration ID is rid lost2
+And I get uin by rid where source registration ID is rid lost2 and store result in second UIN
+Then I check updated uin where parameter 1 is the saved UIN, and parameter 2 is the saved second UIN
+And I get email by uin where resident UIN is the saved second UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+Then I check ridstage where registration ID is rid lost2, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I wait where wait seconds is 180
+Then I reprocess packet where registration ID is rid lost1, and packet type is LOST
+And I check status where packet status is PROCESSED, and registration ID is rid lost1
+Then I check ridstage where registration ID is rid lost1, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I wait where wait seconds is UIN_WAIT_TIME
+And I generate vidwithout otp where VID type is Perpetual, and UIN is the saved second UIN and store result in VID
+And I wait where wait seconds is 90
+And I demo authentication where demo field is name, and UIN is the saved second UIN, and persona file path is the saved persona file path, and VID is the saved VID
+And I demo authentication where demo field is name, and UIN is the saved second UIN, and persona file path is the saved l1 persona file path, and VID is the saved VID, and age update flag is ERROR
+And I delete packet data
+
+
+  @scenario_285
+  @Positive_Test
+  @persona_ResidentMaleAdult
+  @group_Adult_Update
+  Scenario: When multiple update packets U1, U2 and U3 for the same resident are uploaded while earlier packets are pending/stuck, verify that processing occurs based on the packet creation/update timestamp and does not result in data regression
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I get ping health where component is targetenv
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
+And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
+And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+And I wait where wait seconds is 90
+And I clone resident data where persona file path is the saved persona file path and store result in u1 persona file path
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved u1 persona file path
+And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and persona path is the saved u1 persona file path and store result in modality hash value
+And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved u1 persona file path, and modality hash map is the saved modality hash value, and delay seconds is 180, and mock ABIS status is Success
+And I update resident with uin where persona file path is the saved u1 persona file path, and UIN is the saved UIN
+And I get packet template where packet type is UPDATE, and persona file path is the saved u1 persona file path and store result in update template u1
+And I generate and upload packet skipping prereg where persona file path is the saved u1 persona file path, and packet template path is the saved update template u1 and store result in rid u1
+Then I check ridstage where registration ID is the saved rid u1, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is IN_PROGRESS
+And I clone resident data where persona file path is the saved persona file path and store result in u2 persona file path
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved u2 persona file path
+And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and persona path is the saved u2 persona file path and store result in modality hash value
+And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved u2 persona file path, and modality hash map is the saved modality hash value, and delay seconds is 180, and mock ABIS status is Success
+And I update resident with uin where persona file path is the saved u2 persona file path, and UIN is the saved UIN
+And I get packet template where packet type is UPDATE, and persona file path is the saved u2 persona file path and store result in update template u2
+And I generate and upload packet skipping prereg where persona file path is the saved u2 persona file path, and packet template path is the saved update template u2 and store result in rid u2
+Then I check ridstage where registration ID is the saved rid u2, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is IN_PROGRESS
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
+And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
+And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update template u3
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved update template u3 and store result in rid u3
+And I check status where packet status is PROCESSED, and registration ID is the saved rid u3
+And I get uin by rid where source registration ID is the saved rid u3 and store result in uin after u3
+And I verify notification where notification type is updated, and email is the saved email
+Then I check ridstage where registration ID is the saved rid u3, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I wait where wait seconds is 180
+And I check status where packet status is PROCESSED, and registration ID is the saved rid u2
+Then I check ridstage where registration ID is the saved rid u2, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I verify notification where notification type is updated, and email is the saved email
+And I check status where packet status is PROCESSED, and registration ID is the saved rid u1
+Then I check ridstage where registration ID is the saved rid u1, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I verify notification where notification type is updated, and email is the saved email
+And I wait where wait seconds is UIN_WAIT_TIME
+And I generate vidwithout otp where VID type is Perpetual, and UIN is the saved uin after u3 and store result in VID
+And I wait where wait seconds is 90
+And I demo authentication where demo field is name, and UIN is the saved uin after u3, and persona file path is the saved persona file path, and VID is the saved VID
+And I demo authentication where demo field is name, and UIN is the saved uin after u3, and persona file path is the saved u2 persona file path, and VID is the saved VID, and age update flag is ERROR
+And I demo authentication where demo field is name, and UIN is the saved uin after u3, and persona file path is the saved u1 persona file path, and VID is the saved VID, and age update flag is ERROR
+And I delete packet data
+
+
+  @scenario_286
+  @Positive_Test
+  @persona_ResidentMaleAdult
+  @group_Adult_Update
+  Scenario: When multiple update packets U1, U2 and U3 for the same resident are uploaded while earlier packets are pending/stuck, verify that reprocessing occurs based on the packet creation/update timestamp and does not result in data regression
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I get ping health where component is targetenv
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
+And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
+And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
+And I get email by uin where resident UIN is the saved UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+And I wait where wait seconds is 90
+And I clone resident data where persona file path is the saved persona file path and store result in u1 persona file path
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved u1 persona file path
+And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and persona path is the saved u1 persona file path and store result in modality hash value
+And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved u1 persona file path, and modality hash map is the saved modality hash value, and delay seconds is 180, and mock ABIS status is Success
+And I update resident with uin where persona file path is the saved u1 persona file path, and UIN is the saved UIN
+And I get packet template where packet type is UPDATE, and persona file path is the saved u1 persona file path and store result in update template u1
+And I generate and upload packet skipping prereg where persona file path is the saved u1 persona file path, and packet template path is the saved update template u1 and store result in rid u1
+Then I check ridstage where registration ID is the saved rid u1, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is IN_PROGRESS
+And I clone resident data where persona file path is the saved persona file path and store result in u2 persona file path
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved u2 persona file path
+And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and persona path is the saved u2 persona file path and store result in modality hash value
+And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved u2 persona file path, and modality hash map is the saved modality hash value, and delay seconds is 180, and mock ABIS status is Success
+And I update resident with uin where persona file path is the saved u2 persona file path, and UIN is the saved UIN
+And I get packet template where packet type is UPDATE, and persona file path is the saved u2 persona file path and store result in update template u2
+And I generate and upload packet skipping prereg where persona file path is the saved u2 persona file path, and packet template path is the saved update template u2 and store result in rid u2
+Then I check ridstage where registration ID is the saved rid u2, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is IN_PROGRESS
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
+And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
+And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update template u3
+And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved update template u3 and store result in rid u3
+And I check status where packet status is PROCESSED, and registration ID is the saved rid u3
+And I get uin by rid where source registration ID is the saved rid u3 and store result in uin after u3
+And I verify notification where notification type is updated, and email is the saved email
+Then I check ridstage where registration ID is the saved rid u3, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I wait where wait seconds is 180
+Then I reprocess packet where registration ID is the saved rid u2, and packet type is UPDATE
+And I check status where packet status is PROCESSED, and registration ID is the saved rid u2
+Then I check ridstage where registration ID is the saved rid u2, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+Then I reprocess packet where registration ID is the saved rid u1, and packet type is UPDATE
+And I check status where packet status is PROCESSED, and registration ID is the saved rid u1
+Then I check ridstage where registration ID is the saved rid u1, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I wait where wait seconds is UIN_WAIT_TIME
+And I generate vidwithout otp where VID type is Perpetual, and UIN is the saved uin after u3 and store result in VID
+And I wait where wait seconds is 90
+And I demo authentication where demo field is name, and UIN is the saved uin after u3, and persona file path is the saved persona file path, and VID is the saved VID
+And I demo authentication where demo field is name, and UIN is the saved uin after u3, and persona file path is the saved u2 persona file path, and VID is the saved VID, and age update flag is ERROR
+And I demo authentication where demo field is name, and UIN is the saved uin after u3, and persona file path is the saved u1 persona file path, and VID is the saved VID, and age update flag is ERROR
+And I delete packet data
+
 
   @scenario_AFTER_SUITE
   @Positive_Test
