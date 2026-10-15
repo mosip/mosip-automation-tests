@@ -253,7 +253,12 @@ public class ReadableDslStepCodecTest {
         if (featureFile.exists()) {
             java.util.List<io.mosip.testrig.dslrig.ivv.core.dtos.Scenario> scenarios =
                     new GherkinFeatureParser().parseScenarios(featureFile);
-            assertTrue(scenarios.stream().anyMatch(s -> "268".equals(s.getId())));
+            assertFalse(scenarios.isEmpty());
+            java.util.Set<String> ids = new java.util.HashSet<>();
+            for (io.mosip.testrig.dslrig.ivv.core.dtos.Scenario scenario : scenarios) {
+                assertTrue(scenario.getId() != null && !scenario.getId().isBlank());
+                assertTrue("duplicate scenario id " + scenario.getId(), ids.add(scenario.getId()));
+            }
         }
     }
 
