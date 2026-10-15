@@ -55,6 +55,7 @@ public class TestRunner {
 		String timeStamp = String.valueOf(Calendar.getInstance().getTimeInMillis());
 		dslConfigManager.init();
 		AdminTestUtil.init();
+		BaseTestCaseUtil.init();
 		BaseTestCase.currentModule = BaseTestCase.runContext + GlobalConstants.DSL;
 		KeycloakUserManager.removeUser();
 		KeycloakUserManager.createUsers();

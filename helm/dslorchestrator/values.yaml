@@ -474,6 +474,7 @@ dslorchestrator:
       s3-host: 'http://minio.minio:9000'
       s3-user-key: 'admin'
       s3-region: ''
+      minio-bucket: 'packet-manager'
     db:
       db-port: '5432'
       db-su-user: 'postgres'

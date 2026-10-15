@@ -5598,9 +5598,10 @@ And I read pre req where pre-requisite data index is 4 and store result in exter
 And I set context where context key is env_context, and pre-requisite details is the saved external packet environment details, and generate private key is false, and registration status or invalidation flag is EXTERNAL
 And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_DEATH, and parameter 3 is the saved persona file path, and parameter 4 is true, and parameter 5 is the saved UIN and store result in second registration ID
 And I sync external packet where packet zip path is the saved second registration ID
-Then I check ridstage where registration ID is the saved second registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is SUCCESS
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is PROCESSED
 And I get uin by rid where source registration ID is the saved second registration ID and store result in second UIN
 And I verify notification where notification type is updated, and email is the saved email
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
   @scenario_207
@@ -5615,7 +5616,7 @@ And I get ping health where component is targetenv
 And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
 And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_NEW, and parameter 3 is the saved persona file path and store result in registration ID
 And I sync external packet where packet zip path is the saved registration ID
-And I check status where packet status is REREGISTER, and registration ID is the saved registration ID
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is FAILED
 And I delete packet data
 
   @scenario_208
@@ -5630,7 +5631,7 @@ And I get ping health where component is targetenv
 And I get resident data where persona type is minor, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
 And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_NEW, and parameter 3 is the saved persona file path and store result in registration ID
 And I sync external packet where packet zip path is the saved registration ID
-And I check status where packet status is REREGISTER, and registration ID is the saved registration ID
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is FAILED
 And I delete packet data
 
   @scenario_209
@@ -8108,4 +8109,3 @@ And I delete certificates and onboarding partners
 And I masterdata delete
 And I write persona data
 And I clear run cache
-

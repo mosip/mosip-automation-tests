@@ -279,6 +279,10 @@ public class EmailableReport implements IReporter {
 		writer.print(
 				".knownissueodd td, .knownissueeven td {background-color: #fff9db; color: #333; text-align:center;}");
 		writer.print(".stacktrace {white-space:pre;font-family:monospace}");
+		writer.print(
+				"pre {max-width:100%; max-height:28rem; overflow:auto; white-space:pre-wrap; word-break:break-word; box-sizing:border-box;}");
+		writer.print(
+				"textarea[name='message'], textarea[name='headers'] {max-width:100%; max-height:28rem; overflow:auto; box-sizing:border-box;}");
 		writer.print(".totop {font-size:85%;text-align:center;border-bottom:2px solid #000}");
 		writer.print(".box {padding: 10px; border-radius: 5px; color: #FFF; word-wrap: break-word; max-width: 100%;}");
 		writer.print(".orange-bg {background-color: #FFA500;}");

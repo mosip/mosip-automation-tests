@@ -1643,7 +1643,17 @@
     resize: vertical !important;
   }
   
-  .report-main pre:not(.http-payload),
+  .report-main pre:not(.http-payload) {
+    max-width: 100%;
+    max-height: min(55vh, 28rem);
+    overflow: auto;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+    word-break: break-word;
+    box-sizing: border-box;
+    font-family: var(--mono);
+    font-size: var(--fs-mono);
+  }
   .report-main code {
     max-width: 100%;
     overflow-wrap: anywhere;

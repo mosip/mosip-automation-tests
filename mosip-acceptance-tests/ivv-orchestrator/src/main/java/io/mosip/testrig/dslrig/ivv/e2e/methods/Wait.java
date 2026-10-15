@@ -28,6 +28,7 @@ public class Wait extends BaseTestCaseUtil implements StepInterface {
 		long waitTime = DEFAULT_WAIT_TIME;
 
 		String uinWaitTime = dslConfigManager.getUinWaitTime();
+		String nextPacketUploadWaitTime = dslConfigManager.getNextPacketUploadWaitTime();
 
 		String param = (step.getParameters() != null && !step.getParameters().isEmpty())
 				? step.getParameters().get(0)
@@ -40,16 +41,20 @@ public class Wait extends BaseTestCaseUtil implements StepInterface {
 
 			} else if ("PACKET_UPLOAD_WAIT_TIME".equalsIgnoreCase(param)) {
 
-				String bufferSeconds = MasterDataUtil.getValueFromRegprocActuator(
-						"/mosip-config/registration-processor-default.properties",
-						"registration.processor.bio.dedupe.reprocess.buffer.time");
-				if (bufferSeconds == null || bufferSeconds.isBlank()) {
-					throw new RigInternalError(
-							"registration.processor.bio.dedupe.reprocess.buffer.time was not found in regproc actuator env");
+				if (nextPacketUploadWaitTime != null && !nextPacketUploadWaitTime.isBlank()) {
+					waitTime = TIME_IN_MILLISEC * Long.parseLong(nextPacketUploadWaitTime.trim());
+				} else {
+					String bufferSeconds = MasterDataUtil.getValueFromRegprocActuator(
+							dslConfigManager.getproperty("regprocActuatorPropertySection"),
+							dslConfigManager.getproperty("bioDedupeReprocessBufferTimeKey"));
+					if (bufferSeconds == null || bufferSeconds.isBlank()) {
+						throw new RigInternalError(
+								"registration.processor.bio.dedupe.reprocess.buffer.time was not found in regproc actuator env");
+					}
+					logger.info("PACKET_UPLOAD_WAIT_TIME from registration.processor.bio.dedupe.reprocess.buffer.time: "
+							+ bufferSeconds + " seconds");
+					waitTime = TIME_IN_MILLISEC * Long.parseLong(bufferSeconds.trim());
 				}
-				logger.info("PACKET_UPLOAD_WAIT_TIME from registration.processor.bio.dedupe.reprocess.buffer.time: "
-						+ bufferSeconds + " seconds");
-				waitTime = TIME_IN_MILLISEC * Long.parseLong(bufferSeconds.trim());
 
 			} else if ("UIN_WAIT_TIME".equalsIgnoreCase(param)) {
 
