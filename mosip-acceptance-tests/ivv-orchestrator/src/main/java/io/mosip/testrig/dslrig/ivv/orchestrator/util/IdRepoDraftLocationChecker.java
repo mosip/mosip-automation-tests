@@ -27,14 +27,14 @@ public final class IdRepoDraftLocationChecker {
 	private static final Logger logger = Logger.getLogger(IdRepoDraftLocationChecker.class);
 	private static final String[] OBJECTS = { "demographic", "biometric" };
 
-	enum Phase {
+	public enum Phase {
 		DRAFT, PUBLISHED, REJECTED
 	}
 
 	private IdRepoDraftLocationChecker() {
 	}
 
-	static Phase parsePhase(String phase) throws RigInternalError {
+	public static Phase parsePhase(String phase) throws RigInternalError {
 		if ("draft".equalsIgnoreCase(phase)) {
 			return Phase.DRAFT;
 		}
@@ -48,7 +48,7 @@ public final class IdRepoDraftLocationChecker {
 		throw new RigInternalError("location phase must be draft, published, or rejected, got: " + phase);
 	}
 
-	static void verify(String rid, Phase phase) throws RigInternalError {
+	public static void verify(String rid, Phase phase) throws RigInternalError {
 		pollUntilVerified(new S3Adapter(), idrepoBucket(), rid, phase);
 	}
 
