@@ -25,11 +25,7 @@ public class S3Adapter {
 	public static Logger logger = Logger.getLogger(S3Adapter.class); 
 	private AmazonS3 connection = null;
 
-	private int maxRetry = 2;
-
 	private int maxConnection = 200;
-
-	private int retry = 0;
 
 	private boolean useAccountAsBucketname = true;
 
@@ -51,7 +47,7 @@ public class S3Adapter {
 			connection = AmazonS3ClientBuilder.standard()
 					.withCredentials(new AWSStaticCredentialsProvider(awsCredentials)).enablePathStyleAccess()
 					.withClientConfiguration(
-							new ClientConfiguration().withMaxConnections(maxConnection).withMaxErrorRetry(maxRetry))
+							new ClientConfiguration().withMaxConnections(maxConnection).withMaxErrorRetry(0))
 					.withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(dslConfigManager.getS3Host(),
 							dslConfigManager.getS3Region()))
 					.build();
@@ -59,21 +55,9 @@ public class S3Adapter {
 			logger.info("Checking MinIO bucket " + bucketName);
 			connection.doesBucketExistV2(bucketName);
 			logger.info("MinIO bucket check finished for " + bucketName);
-			retry = 0;
 		} catch (Exception e) {
 			logger.error("MinIO connection failed for bucket " + bucketName + ": " + e.getMessage(), e);
-			if (retry >= maxRetry) {
-
-				retry = 0;
-				connection = null;
-
-
-			} else {
-				connection = null;
-				retry = retry + 1;
-
-				getConnection(bucketName);
-			}
+			connection = null;
 		}
 		return connection;
 	}

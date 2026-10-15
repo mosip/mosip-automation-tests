@@ -8,6 +8,7 @@ import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
+import io.mosip.testrig.dslrig.ivv.orchestrator.util.IdRepoDraftLocationChecker;
 
 /**
  * Confirms demographic and biometric objects are in the idrepo draft location, published

@@ -1,12 +1,11 @@
-package io.mosip.testrig.dslrig.ivv.e2e.methods;
+package io.mosip.testrig.dslrig.ivv.orchestrator.util;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.List;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.testng.Reporter;
@@ -23,7 +22,7 @@ import io.mosip.testrig.dslrig.ivv.orchestrator.S3Adapter;
  * under {@code idrepo/{uinHash}}, where {@code uinHash} is {@code idrepo.uin.uin_hash} with the
  * leading {@code 17_} prefix stripped.
  */
-final class IdRepoDraftLocationChecker {
+public final class IdRepoDraftLocationChecker {
 
 	private static final Logger logger = Logger.getLogger(IdRepoDraftLocationChecker.class);
 	private static final String[] OBJECTS = { "demographic", "biometric" };
@@ -226,17 +225,7 @@ final class IdRepoDraftLocationChecker {
 		if (rid == null || !rid.matches("\\d+")) {
 			throw new RigInternalError("RID must be numeric to compute the idrepo draft hash: " + rid);
 		}
-		try {
-			MessageDigest digest = MessageDigest.getInstance("SHA-256");
-			byte[] hashed = digest.digest(rid.getBytes(StandardCharsets.UTF_8));
-			StringBuilder hex = new StringBuilder(hashed.length * 2);
-			for (byte b : hashed) {
-				hex.append(String.format("%02X", b));
-			}
-			return hex.toString();
-		} catch (Exception e) {
-			throw new RigInternalError("Failed to hash RID " + rid + ": " + e.getMessage());
-		}
+		return DigestUtils.sha256Hex(rid).toUpperCase();
 	}
 
 	/**
