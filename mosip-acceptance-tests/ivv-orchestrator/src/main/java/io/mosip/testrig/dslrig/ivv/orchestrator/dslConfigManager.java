@@ -400,6 +400,26 @@ public class dslConfigManager extends ConfigManager {
 		return false;
 	}
 
+	/** True when the scenario group matches any value in scenariosFlowToSkip. Empty list skips nothing. */
+	public static synchronized boolean isInTobeGroupSkipList(String stringToFind) {
+		String toSkipList = ConfigManager.getproperty("scenariosFlowToSkip");
+		if (toSkipList == null || toSkipList.trim().isEmpty() || stringToFind == null)
+			return false;
+
+		List<String> toBeSkipList = Arrays.asList(toSkipList.split(","));
+		if (IsDebugEnabled())
+			LOGGER.info("toSkipList:  " + toSkipList + ", toBeSkipList : " + toBeSkipList
+					+ ", stringToFind : " + stringToFind);
+		for (String string : toBeSkipList) {
+			String token = string.trim();
+			if (token.isEmpty())
+				continue;
+			if (stringToFind.toLowerCase().contains(token.toLowerCase()))
+				return true;
+		}
+		return false;
+	}
+
 	public static Properties getConfigProperties() {
 		Properties properties = new Properties();
 		for (Map.Entry<String, Object> entry : propertiesMap.entrySet()) {

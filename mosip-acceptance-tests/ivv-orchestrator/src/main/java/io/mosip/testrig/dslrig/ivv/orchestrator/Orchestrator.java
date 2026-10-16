@@ -312,7 +312,8 @@ public class Orchestrator {
 				String toExecuteList = ConfigManager.getproperty("scenariosToExecute");
 				if (scenario.getId().equalsIgnoreCase("0") || scenario.getId().equalsIgnoreCase("AFTER_SUITE")
 						|| (dslConfigManager.isInTobeExecuteList(scenario.getId())
-								&& dslConfigManager.isInTobeGroupExecuteList(scenario.getGroupName()))) {
+								&& dslConfigManager.isInTobeGroupExecuteList(scenario.getGroupName())
+								&& !dslConfigManager.isInTobeGroupSkipList(scenario.getGroupName()))) {
 					if (toExecuteList.contains("@@") && !scenario.getId().equalsIgnoreCase("0")
 							&& !scenario.getId().equalsIgnoreCase("AFTER_SUITE")) {
 
