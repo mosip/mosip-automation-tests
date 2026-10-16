@@ -841,6 +841,31 @@ public class BaseTestCaseUtil extends BaseStep {
 		}
 	}
 
+	public static String getRegprocPropertyFromActuator(String propertyKey) {
+		getRegprocWaitFromActuator();
+		if (regProcActuatorResponseArray == null || propertyKey == null || propertyKey.isBlank()) {
+			return null;
+		}
+		try {
+			for (int i = 0, size = regProcActuatorResponseArray.length(); i < size; i++) {
+				JSONObject eachJson = regProcActuatorResponseArray.getJSONObject(i);
+				JSONObject properties = eachJson.optJSONObject(GlobalConstants.PROPERTIES);
+				if (properties == null || !properties.has(propertyKey)) {
+					continue;
+				}
+				String value = properties.getJSONObject(propertyKey).optString(GlobalConstants.VALUE, "");
+				if (value != null && !value.isBlank()) {
+					logger.info("regproc actuator " + propertyKey + "=" + value + " from "
+							+ eachJson.optString("name"));
+					return value.trim();
+				}
+			}
+		} catch (Exception e) {
+			logger.error(GlobalConstants.EXCEPTION_STRING_2 + e);
+		}
+		return null;
+	}
+
 	protected String resolveScenarioVariable(String value) throws RigInternalError {
 		return resolveScenarioVariable(step, value);
 	}
