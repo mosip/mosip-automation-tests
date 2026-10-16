@@ -56,7 +56,7 @@ public final class ScenarioStepExecutor {
 			st.setStep(step);
 
 			if (state.isAfterSuiteClearCacheOnly() && !(st instanceof ClearRunCache)) {
-				String skipStepMsg = identifier + " - skipped (enableDebug=yes, running only clear run cache)";
+				String skipStepMsg = identifier + " - skipped (running only clear run cache)";
 				logger.info(skipStepMsg);
 				extentTest.skip(skipStepMsg);
 				state.setStepIndex(stepIndex + 1);

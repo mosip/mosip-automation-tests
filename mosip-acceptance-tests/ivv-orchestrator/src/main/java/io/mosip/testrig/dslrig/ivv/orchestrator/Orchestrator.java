@@ -579,21 +579,11 @@ public class Orchestrator {
 
 		String testLevel = BaseTestCase.testLevel;
 		String identifier = null;
-		boolean afterSuiteClearCacheOnly = scenario.getId().equalsIgnoreCase("AFTER_SUITE")
-				&& dslConfigManager.IsDebugEnabled();
+		boolean afterSuiteClearCacheOnly = scenario.getId().equalsIgnoreCase("AFTER_SUITE");
 		if (afterSuiteClearCacheOnly) {
-			String msg = "enableDebug=yes: running only the 'I clear run cache' step of AFTER_SUITE; "
-					+ "skipping the rest of the teardown";
+			String msg = "AFTER_SUITE runs only 'I clear run cache'; other teardown steps are skipped";
 			logger.info(msg);
 			extentTest.info(msg);
-		}
-		if (scenario.getId().equalsIgnoreCase("AFTER_SUITE") && beforeSuiteFailed) {
-			String skipMsg = "Skipping AFTER_SUITE teardown because Scenario 0 (before suite) failed — "
-					+ "WritePreReq(1/2/3) data was never stored. Fix Scenario 0 (track2b steps 17-25 for index 2) first.";
-			logger.error(skipMsg);
-			extentTest.skip(skipMsg);
-			updateRunStatistics(scenario);
-			throw new SkipException(skipMsg);
 		}
 		if (testLevel == null || testLevel.isEmpty() || testLevel.equalsIgnoreCase("regression")) {
 			logger.info("Running Scenario #" + scenario.getId());

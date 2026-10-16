@@ -6,7 +6,8 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @persona_ResidentMaleAdult
   @group_NA
   Scenario: Before Suite setup
-Given I load known issues by env
+Given I clear run cache
+And I load known issues by env
 And I user where user action is ADD_User, and user index or master user is dsl-0, and password or zone flag is Techno@123
 And I user where user action is ADD_User, and user index or master user is 0, and password or zone flag is Techno@123
 And I user where user action is ADD_User, and user index or master user is 1, and password or zone flag is Techno@123 and store result in registration officer 1

@@ -54,61 +54,61 @@ public final class Scenario0ParallelRunner {
 
 	/** User/center/machine track 1 through WritePreReq(1). */
 
-	private static final int TRACK1_FROM = 3;
+	private static final int TRACK1_FROM = 4;
 
-	private static final int TRACK1_TO = 13;
+	private static final int TRACK1_TO = 14;
 
 	/** User2 only in parallel with track1; center2 runs sequentially after track1 (avoids masterdata API races). */
 
-	private static final int TRACK2A_FROM = 14;
+	private static final int TRACK2A_FROM = 15;
 
-	private static final int TRACK2A_TO = 14;
+	private static final int TRACK2A_TO = 15;
 
-	private static final int STEP_CENTER_CREATE_2 = 15;
+	private static final int STEP_CENTER_CREATE_2 = 16;
 
 	/** Machine + zone setup for track 2 (needs $$center2 from track2a). */
 
-	private static final int TRACK2B_FROM = 18;
+	private static final int TRACK2B_FROM = 19;
 
-	private static final int TRACK2B_TO = 26;
+	private static final int TRACK2B_TO = 27;
 
 	/** User3 + center3 (independent of track2; original order runs after step 29). */
 
-	private static final int TRACK3A_FROM = 28;
+	private static final int TRACK3A_FROM = 29;
 
-	private static final int TRACK3A_TO = 29;
+	private static final int TRACK3A_TO = 30;
 
 	/** Machine + zone setup for track 3 (needs $$center3 from track3a). */
 
-	private static final int TRACK3B_FROM = 30;
+	private static final int TRACK3B_FROM = 31;
 
-	private static final int TRACK3B_TO = 38;
+	private static final int TRACK3B_TO = 39;
 
 
 
-	private static final int PHASE2_FROM = 16;
+	private static final int PHASE2_FROM = 17;
 
-	private static final int PHASE2_TO = 17;
+	private static final int PHASE2_TO = 18;
 
 	/** setContext($$details2) — must run immediately after track2 WritePreReq, before track3 overwrites shared keys. */
-	private static final int SET_CONTEXT_DETAILS2 = 27;
+	private static final int SET_CONTEXT_DETAILS2 = 28;
 
 	/** setContext($$details3) — must run immediately after track3 WritePreReq. */
-	private static final int SET_CONTEXT_DETAILS3 = 39;
+	private static final int SET_CONTEXT_DETAILS3 = 40;
 
 	/** External-packet user and WritePreReq(4). */
 
-	private static final int PHASE_FINAL_SETUP_FROM = 40;
+	private static final int PHASE_FINAL_SETUP_FROM = 41;
 
-	private static final int PHASE_FINAL_SETUP_TO = 41;
+	private static final int PHASE_FINAL_SETUP_TO = 42;
 
-	private static final int STEP_CLEAR_DEVICE_CERT_CACHE = 42;
+	private static final int STEP_CLEAR_DEVICE_CERT_CACHE = 43;
 
-	private static final int STEP_GENERATE_AUTH_CERTS = 43;
+	private static final int STEP_GENERATE_AUTH_CERTS = 44;
 
-	private static final int STEP_UPLOAD_DEVICE_CERT = 44;
+	private static final int STEP_UPLOAD_DEVICE_CERT = 45;
 
-	private static final int STEP_WARM_RUN_CACHE = 45;
+	private static final int STEP_WARM_RUN_CACHE = 46;
 
 
 
@@ -156,9 +156,9 @@ public final class Scenario0ParallelRunner {
 
 		try {
 
-			logger.info("Scenario 0 parallel setup: running steps 0-2 sequentially");
+			logger.info("Scenario 0 parallel setup: running steps 0-3 sequentially (clear run cache, then prefix)");
 
-			store = stepRangeExecutor.execute(masterScenario, store, 0, 2, willRetry);
+			store = stepRangeExecutor.execute(masterScenario, store, 0, 3, willRetry);
 
 
 

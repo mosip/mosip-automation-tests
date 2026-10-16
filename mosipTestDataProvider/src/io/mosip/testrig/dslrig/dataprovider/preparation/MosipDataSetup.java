@@ -84,6 +84,10 @@ public class MosipDataSetup {
 		MasterdataCache.putByNamespace(runContextNamespace, key, value);
 	}
 
+	public static void removeCache(String key, String runContextNamespace) {
+		MasterdataCacheStore.remove(runContextNamespace, key);
+	}
+
 	static Object readCacheRaw(String key, String runContextNamespace) {
 		return MasterdataCacheStore.get(runContextNamespace, key);
 	}
