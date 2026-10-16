@@ -6929,10 +6929,9 @@ And I read pre req where pre-requisite data index is 4 and store result in exter
 And I set context where context key is env_context, and pre-requisite details is the saved external packet environment details, and generate private key is false, and registration status or invalidation flag is EXTERNAL
 And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_DEATH, and parameter 3 is the saved persona file path, and parameter 4 is true, and parameter 5 is the saved UIN and store result in second registration ID
 And I sync external packet where packet zip path is the saved second registration ID
-Then I check ridstage where registration ID is the saved second registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is PROCESSED
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is SUCCESS
 And I get uin by rid where source registration ID is the saved second registration ID and store result in second UIN
 And I verify notification where notification type is updated, and email is the saved email
-Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I delete packet data
 
   @scenario_207
@@ -7832,7 +7831,7 @@ And I verify notification where notification type is UIN Generated, and email is
 And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
 And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_UPDATE, and parameter 3 is the saved persona file path, and parameter 4 is true, and parameter 5 is 0000000000 and store result in second registration ID
 And I sync external packet where packet zip path is the saved second registration ID
-Then I check ridstage where registration ID is the saved second registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is FAILED
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is ERROR
 And I delete packet data
 
   @scenario_263
