@@ -55,9 +55,7 @@ public class Wait extends BaseTestCaseUtil implements StepInterface {
 					logger.info("PACKET_UPLOAD_WAIT_TIME from registration.processor.bio.dedupe.reprocess.buffer.time: "
 							+ packetUploadSeconds + " seconds");
 				}
-				long adjustedSeconds = Math.max(0, packetUploadSeconds - 120);
-				logger.info("PACKET_UPLOAD_WAIT_TIME adjusted by -120 seconds: " + adjustedSeconds + " seconds");
-				waitTime = TIME_IN_MILLISEC * adjustedSeconds;
+				waitTime = TIME_IN_MILLISEC * packetUploadSeconds;
 
 			} else if ("UIN_WAIT_TIME".equalsIgnoreCase(param)) {
 
