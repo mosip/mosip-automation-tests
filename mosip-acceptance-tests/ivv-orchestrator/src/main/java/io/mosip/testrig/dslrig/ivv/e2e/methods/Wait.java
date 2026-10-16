@@ -39,9 +39,11 @@ public class Wait extends BaseTestCaseUtil implements StepInterface {
 				waitTime = TIME_IN_MILLISEC * 30;
 
 			} else if ("PACKET_UPLOAD_WAIT_TIME".equalsIgnoreCase(param)) {
-
+				long packetUploadSeconds;
 				if (nextPacketUploadWaitTime != null && !nextPacketUploadWaitTime.isBlank()) {
-					waitTime = TIME_IN_MILLISEC * Long.parseLong(nextPacketUploadWaitTime.trim());
+					packetUploadSeconds = Long.parseLong(nextPacketUploadWaitTime.trim());
+					logger.info("PACKET_UPLOAD_WAIT_TIME from nextPacketUploadWaitTime: " + packetUploadSeconds
+							+ " seconds");
 				} else {
 					String bufferSeconds = getRegprocPropertyFromActuator(
 							"registration.processor.bio.dedupe.reprocess.buffer.time");
@@ -49,10 +51,13 @@ public class Wait extends BaseTestCaseUtil implements StepInterface {
 						throw new RigInternalError(
 								"registration.processor.bio.dedupe.reprocess.buffer.time was not found in regproc actuator env");
 					}
+					packetUploadSeconds = Long.parseLong(bufferSeconds.trim());
 					logger.info("PACKET_UPLOAD_WAIT_TIME from registration.processor.bio.dedupe.reprocess.buffer.time: "
-							+ bufferSeconds + " seconds");
-					waitTime = TIME_IN_MILLISEC * Long.parseLong(bufferSeconds.trim());
+							+ packetUploadSeconds + " seconds");
 				}
+				long adjustedSeconds = Math.max(0, packetUploadSeconds - 120);
+				logger.info("PACKET_UPLOAD_WAIT_TIME adjusted by -120 seconds: " + adjustedSeconds + " seconds");
+				waitTime = TIME_IN_MILLISEC * adjustedSeconds;
 
 			} else if ("UIN_WAIT_TIME".equalsIgnoreCase(param)) {
 
