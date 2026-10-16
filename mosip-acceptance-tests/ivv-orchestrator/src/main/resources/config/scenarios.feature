@@ -154,7 +154,7 @@ And I update demo or bio details where bio type is 0, and miss fields is 0, and 
 And I get packet template where packet type is NEW, and persona file path is the saved n1 persona file path and store result in packet template path
 And I packetcreator where packet type is NEW, and template path is the saved packet template path and store result in packet zip path
 And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and persona path is the saved n1 persona file path and store result in modality hash value
-And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved n1 persona file path, and modality hash map is the saved modality hash value, and delay seconds is delay, and mock ABIS status is Success
+And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved n1 persona file path, and modality hash map is the saved modality hash value, and delay seconds is 600, and mock ABIS status is Success
 And I ridsync where packet type is NEW, and packet zip path is the saved packet zip path and store result in registration ID
 And I packetsync where packet zip path is the saved packet zip path
 Then I check ridstage where registration ID is the saved registration ID, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is IN_PROGRESS
