@@ -4,7 +4,7 @@ Feature: MOSIP DSL end-to-end acceptance tests
   @scenario_0
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Suite_Setup
   Scenario: Before Suite setup
 Given I clear run cache
 And I load known issues by env
@@ -273,7 +273,7 @@ And I delete packet data
   @scenario_9
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Lost_UIN
   Scenario: Resident gets UIN then two Lost UIN packets are processed. Reprocess the first Lost packet after a later Lost packet exists verify it is treated as stale CREATE_DRAFT fails and status becomes REREGISTER
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -306,7 +306,7 @@ And I delete packet data
   @scenario_10
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Lost_UIN
   Scenario: Resident gets UIN then two Lost UIN packets are processed. Reprocess the latest Lost packet verify it is not stale and remains PROCESSED through PRINT_SERVICE
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -339,7 +339,7 @@ And I delete packet data
   @scenario_11
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Lost_UIN
   Scenario: Lost packet L1 with name and address is processed then Lost packet L2 with a later name update is processed. Country representative reprocess of L1 is rejected as stale CREATE_DRAFT fails and identity remains as L2
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -524,7 +524,7 @@ And I delete packet data
   @scenario_17
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_Update
   Scenario: A differently abled resident walks into registration center completes the process and gets UIN card. Later update his iris and downloads UIN card
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -555,7 +555,7 @@ And I delete packet data
   @scenario_18
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Minor_New
   Scenario: Resident walks into registration center wants to register his child with his RID. But the child packet goes on hold as his packet got rejected
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -577,7 +577,7 @@ And I delete packet data
   @scenario_19
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Duplicate_Registration
   Scenario: Resident walks into registration center completes the process and gets UIN card. Same resident tries to get another UIN again
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -600,7 +600,7 @@ And I delete packet data
   @scenario_20
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Duplicate_Registration
   Scenario: Resident walks into registration center completes the process and gets UIN card. Same resident tries to get another UIN again with biometric exception
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -624,7 +624,7 @@ And I delete packet data
   @scenario_21
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Duplicate_Registration
   Scenario: Resident walks into registration center gives demo details of already registered another resident but different biometrics
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -650,7 +650,7 @@ And I delete packet data
   @scenario_22
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Duplicate_Registration
   Scenario: Resident walks into registration center and tries to register again by providing different demo details but same biometrics
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -674,7 +674,7 @@ And I delete packet data
   @scenario_23
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Lost_UIN
   Scenario: Resident walks into registration center and tries to retrieve UIN without providing biometrics
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -692,7 +692,7 @@ And I delete packet data
   @scenario_24
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_Update
   Scenario: Resident walks into registration center completes the process and gets UIN card. Later updates his demo details in registration center and post successful processing downloads the EUIN using resident Portal
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -723,7 +723,7 @@ And I delete packet data
   @scenario_25
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Lost_UIN
   Scenario: A non registered Resident walks into registration center without UIN and tries to retrieve the UIN
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -741,7 +741,7 @@ And I delete packet data
   @scenario_26
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_New
   Scenario: Resident walks into registration center and completes the process and gets UIN card without providing documents
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -757,7 +757,7 @@ And I delete packet data
   @scenario_27
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_New
   Scenario: Resident walks into registration center tries to get UIN without providing biometric
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -773,7 +773,7 @@ And I delete packet data
   @scenario_28
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Lost_UIN
   Scenario: Resident walks into registration center tries to get Lost UIN without providing biometric
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -798,7 +798,7 @@ And I delete packet data
   @scenario_29
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_New
   Scenario: Non-resident walks into registration center and completes the process gets UIN for him
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -818,7 +818,7 @@ And I delete packet data
   @scenario_30
   @Postive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Minor_New
   Scenario: Resident walks into registration center with his child and completes the process gets UIN cards for both
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -842,7 +842,7 @@ And I delete packet data
   @scenario_31
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Preregistration
   Scenario: Resident booked pre-registration with support documents. walk-ins to registration center completes the process and gets UIN card. Later performs bio authentication with face
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -875,7 +875,7 @@ And I delete packet data
   @scenario_32
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_New_Exception
   Scenario: A differently abled resident walks in to registration center completes the process and gets UIN card. Later performs biometric authentication using left little finger
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -905,7 +905,7 @@ And I delete packet data
   @scenario_33
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_Auth
   Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later performs biometric authentication using right finger both using UIN and VID. Also performs eSignet biometric authentication using right finger both using UIN and VID
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -933,7 +933,7 @@ And I delete packet data
   @scenario_34
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_Update
   Scenario: Resident walks into registration center completes the process and gets UIN card. Later updates both finger face biometrics and does eKYC using face biometric
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -968,7 +968,7 @@ And I delete packet data
   @scenario_35
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_Update
   Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later updates iris biometric and does eKYC using face biometric both using UIN and VID
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1002,7 +1002,7 @@ And I delete packet data
   @scenario_36
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_Update
   Scenario: Resident walks into registration center completes the process and gets UIN card. Later updates left index biometrics and does eKYC using face biometric
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1036,7 +1036,7 @@ And I delete packet data
   @scenario_37
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_Update
   Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later updates his phone number and does EKYC with OTP both using UIN and VID
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1068,7 +1068,7 @@ And I delete packet data
   @scenario_38
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_Update
   Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later updates his phone number address and performs OTP authentication both using UIN and VID. Also performs eSignet OTP authentication using right finger both using UIN and VID
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1104,7 +1104,7 @@ And I delete packet data
   @scenario_39
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_Auth
   Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later performs multi factor authentication using face biometrics phone number and OTP both using UIN and VID
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1127,7 +1127,7 @@ And I delete packet data
   @scenario_40
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_Auth
   Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later performs multi factor authentication using face biometrics date of birth and OTP both using UIN and VID
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1150,7 +1150,7 @@ And I delete packet data
   @scenario_41
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_Update
   Scenario: Resident walks into registration center completes the process and gets UIN card. Later updates his address and performs demographic authentication to download EUIN
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1181,7 +1181,7 @@ And I delete packet data
   @scenario_42
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_Update
   Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later updates his email and perform OTP authentication both using UIN and VID. Also performs eSignet OTP authentication using right finger both using UIN and VID
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1218,7 +1218,7 @@ And I delete packet data
   @scenario_43
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Minor_New
   Scenario: Resident child walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later updates his name and perform demographic authentication both using UIN and VID
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1261,7 +1261,7 @@ And I delete packet data
   @scenario_44
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_Auth
   Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later updates left index biometrics and perform biometric authentication with face both using UIN and VID
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1296,7 +1296,7 @@ And I delete packet data
   @scenario_45
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_New_Exception
   Scenario: A differently abled resident walksin to registration center and completes the process and gets UIN card. Later perform EKYC Bio both using UIN and VID
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1319,7 +1319,7 @@ And I delete packet data
   @scenario_46
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_New
   Scenario: Resident walks into registration center completes the process and gets UIN card after previous UIN application is rejected with different center
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1355,7 +1355,7 @@ And I delete packet data
   @scenario_47
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_New
   Scenario: Resident booked pre-registration with support documents. walks into registration center tries to get UIN after previous UIN application is in progress with different center
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 2 and store result in environment 2 details
@@ -1387,7 +1387,7 @@ And I delete packet data
   @scenario_48
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_New
   Scenario: Resident walks into registration same center where his previous application got rejected and completes the process and gets UIN card
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1409,7 +1409,7 @@ And I delete packet data
   @scenario_49
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_Auth
   Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later gets eKYC done both using UIN VID and face auth
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1432,7 +1432,7 @@ And I delete packet data
   @scenario_50
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_Auth
   Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later gets eKYC done both using UIN VID and right ring finger auth
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1455,7 +1455,7 @@ And I delete packet data
   @scenario_51
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_Auth
   Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later gets eKYC done both using UIN VID and right iris auth
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1478,7 +1478,7 @@ And I delete packet data
   @scenario_52
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_New_Exception
   Scenario: A differently abled resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later gets eKYC done both using UIN VID and face auth
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1503,7 +1503,7 @@ And I delete packet data
   @scenario_53
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_Auth
   Scenario: Resident walks into registration center completes the process and gets UIN card and generates temporary VID. Later gets eKYC done both using UIN VID and face auth
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1526,7 +1526,7 @@ And I delete packet data
   @scenario_54
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_Auth
   Scenario: Resident walks into registration center completes the process and gets UIN card and generates temporary VID. Later gets eKYC done both using UIN VID and left ring finger auth
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1549,7 +1549,7 @@ And I delete packet data
   @scenario_55
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_Auth
   Scenario: Resident walks into registration center completes the process and gets UIN card and generates temporary VID. Later gets eKYC done both using UIN VID and left iris auth
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1572,7 +1572,7 @@ And I delete packet data
   @scenario_56
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_New_Exception
   Scenario: A differently abled resident walks into registration center completes the process and gets UIN card and generates temporary VID. Later gets eKYC done both using UIN VID and face auth
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1595,7 +1595,7 @@ And I delete packet data
   @scenario_57
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_New
   Scenario: Resident walks into registration center completes the process and gets UIN card. When the packet is created and uploaded with supervisor and operator biometrics
 Given I get ping health where component is packetcreator
 And I wait where wait seconds is 35
@@ -1642,7 +1642,7 @@ And I delete packet data
   @scenario_58
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Packet_Upload
   Scenario: Resident walks into registration center completes the process but while the packet getting uploaded packet got Corrupted
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1662,7 +1662,7 @@ And I delete packet data
   @scenario_59
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Minor_New
   Scenario: Resident Minor Child walks into registration center to get UIN card. Later tries to get another UIN by providing different Guardian
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1699,7 +1699,7 @@ And I delete packet data
   @scenario_60
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Minor_New
   Scenario: Resident Minor Child walks into registration center to get UIN card. Later tries to get another UIN by providing same Guardian
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1728,7 +1728,7 @@ And I delete packet data
   @scenario_61
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Lost_UIN
   Scenario: Resident walks into registration center completes the process and gets UIN card. Resident lost UIN and walks in to registration center to retrieve the UIN
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1756,7 +1756,7 @@ And I delete packet data
   @scenario_62
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Quality_Correction
   Scenario: Resident walks into registration center completes the process but due to low biometric image quality correction flow is initiated. Resident provides biometrics with good quality and gets the UIN card
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1786,7 +1786,7 @@ And I delete packet data
   @scenario_63
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Packet_Upload
   Scenario: Resident walks into registration center completes the process but while the packet getting created packet has invalid hash
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1803,7 +1803,7 @@ And I delete packet data
   @scenario_64
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Minor_New
   Scenario: Resident walks into registration center with his child and completes the process. But Guardian packet rejected hence introducer RID is not valid in infant packet
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1830,7 +1830,7 @@ And I delete packet data
   @scenario_65
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Preregistration
   Scenario: Resident booked pre-registration without documents trying to update prereg status
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1847,7 +1847,7 @@ And I delete packet data
   @scenario_66
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Packet_Upload
   Scenario: Resident walks into registration center completes the process but supervisor rejects packet during packet processing
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1865,7 +1865,7 @@ And I delete packet data
   @scenario_67
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_New
   Scenario: Resident walks into get UIN card and different resident tries to get UIN both resident having same demo and different biometric details
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1888,7 +1888,7 @@ And I delete packet data
   @scenario_68
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Duplicate_Registration
   Scenario: Resident walks into registration center completes the process but the packet goes for manual adjudication as biometric matches with other resident
 Given I read pre req where pre-requisite data index is 1 and store result in environment 1 details
 And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
@@ -1910,7 +1910,7 @@ And I delete packet data
   @scenario_69
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Duplicate_Registration
   Scenario: Resident walks into registration center completes the process and gets UIN card. Same resident tries to get another UIN with different name
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1934,7 +1934,7 @@ And I delete packet data
   @scenario_70
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Duplicate_Registration
   Scenario: Resident walks into registration center completes the process and gets UIN card. Same resident tries to get another UIN with same demo details and same biometrics
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1956,7 +1956,7 @@ And I delete packet data
   @scenario_71
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Duplicate_Registration
   Scenario: Resident walks into registration center completes the process and gets UIN card. Same resident tries to get another UIN by providing different demo details and same biometrics
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -1981,7 +1981,7 @@ And I delete packet data
   @scenario_72
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Packet_Upload
   Scenario: Resident walks into registration center completes the process. But packet gets uploaded without supervisor Id  without supervisor Password and valid operator details
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 2 and store result in environment 2 details
@@ -1997,7 +1997,7 @@ And I delete packet data
   @scenario_73
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Packet_Upload
   Scenario: Resident walks into registration center completes the process. But packet gets uploaded with invalid supervisor Id  invalid supervisor Password and valid operator details
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 2 and store result in environment 2 details
@@ -2013,7 +2013,7 @@ And I delete packet data
   @scenario_74
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Packet_Upload
   Scenario: Resident walks into registration center completes the process. But packet gets uploaded with valid supervisor Id invalid supervisor Password and valid operator details
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 3 and store result in environment 3 details
@@ -2029,7 +2029,7 @@ And I delete packet data
   @scenario_75
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Packet_Upload
   Scenario: Resident walks into registration center completes the process. But packet gets uploaded with null operator Id  null operator password and valid operator details
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 2 and store result in environment 2 details
@@ -2045,7 +2045,7 @@ And I delete packet data
   @scenario_76
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Packet_Upload
   Scenario: Resident walks into registration center completes the process. But packet gets uploaded with Invalid operator Id  Valid operator password and valid operator details
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 3 and store result in environment 3 details
@@ -2061,7 +2061,7 @@ And I delete packet data
   @scenario_77
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Packet_Upload
   Scenario: Resident walks into registration center completes the process. But packet gets uploaded with Valid operator Id  invalid operator password and valid supervisor details
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 2 and store result in environment 2 details
@@ -2077,7 +2077,7 @@ And I delete packet data
   @scenario_78
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Packet_Upload
   Scenario: Resident walks into registration center completes the process. But packet gets uploaded with supervisor and operator cbeff file and without password auth
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 2 and store result in environment 2 details
@@ -2104,7 +2104,7 @@ And I delete packet data
   @scenario_79
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Packet_Upload
   Scenario: Resident walks into registration center completes the process. But packet gets uploaded without supervisor and operator cbeff file and without password auth
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 2 and store result in environment 2 details
@@ -2131,7 +2131,7 @@ And I delete packet data
   @scenario_80
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Packet_Upload
   Scenario: Resident walks into registration center completes the process and gets UIN card. When the packet is created and uploaded with supervisor biometric and without operator biometrics
 Given I get ping health where component is packetcreator
 And I wait where wait seconds is 45
@@ -2178,7 +2178,7 @@ And I delete packet data
   @scenario_81
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Preregistration
   Scenario: Resident booked pre-registration with support documents. Later cancels booked appointment and changes the slot. walk-ins to registration center completes the process and gets UIN card
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -2220,7 +2220,7 @@ And I delete packet data
   @scenario_83
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Preregistration
   Scenario: Resident booked pre-registration with support documents and already used the appoinment. walks in to registration center with consumed PRID to get the UIN
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -2248,7 +2248,7 @@ And I delete packet data
   @scenario_84
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Syncdata
   Scenario: Check Syncdata response with upper key index and user with valid roles
 Given I get ping health where component is packetcreator
 And I user where user action is ADD_User, and user index or master user is 52, and password or zone flag is Techno@123 and store result in user52
@@ -2278,7 +2278,7 @@ And I delete packet data
   @scenario_85
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Syncdata
   Scenario: Update machine from centerA to centerB and verify syncdata client settings with centerA
 Given I get ping health where component is packetcreator
 And I wait where wait seconds is 30
@@ -2322,7 +2322,7 @@ And I delete packet data
   @scenario_86
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Syncdata
   Scenario: Inactive machine and verify syncdata client settings calls
 Given I get ping health where component is packetcreator
 And I wait where wait seconds is 40
@@ -2354,7 +2354,7 @@ And I delete packet data
   @scenario_87
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Syncdata
   Scenario: Decomission machine and verify syncdata client settings calls
 Given I get ping health where component is packetcreator
 And I wait where wait seconds is 50
@@ -2381,7 +2381,7 @@ And I delete packet data
   @scenario_88
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Syncdata
   Scenario: Decommission center and verify USER_DETAILS syncdata calls
 Given I get ping health where component is packetcreator
 And I wait where wait seconds is 60
@@ -2409,7 +2409,7 @@ And I delete packet data
   @scenario_89
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Syncdata
   Scenario: Deactivate center and verify CLIENT_SETTINGS syncdata client settings calls
 Given I get ping health where component is packetcreator
 And I wait where wait seconds is 70
@@ -2440,7 +2440,7 @@ And I delete packet data
   @scenario_90
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_ABIS_Reprocess
   Scenario: Resident walks into registration center completes the process but packet gets reprocessed before Abis returns for success check
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -2462,7 +2462,7 @@ And I delete packet data
   @scenario_91
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_ABIS_Reprocess
   Scenario: Resident walks into registration center completes the process but packet gets reprocessed before Abis returns for fail check
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -2485,7 +2485,7 @@ And I delete packet data
   @scenario_92
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_New_Exception
   Scenario: Resident walks into registration center completes the process with biometric exception for iris and gets UIN card. Later updates Biometric data for face and iris and performs authentication with face biometrics
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -2523,7 +2523,7 @@ And I delete packet data
   @scenario_93
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Packet_Upload
   Scenario: Resident walks into registration center completes the process and gets UIN card. When the packet is created and uploaded with operator and without supervisor biometrics
 Given I get ping health where component is packetcreator
 And I wait where wait seconds is 55
@@ -2570,7 +2570,7 @@ And I delete packet data
   @scenario_94
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Packet_Upload
   Scenario: Resident walks into registration center completes the process but the device certificate got expired before uploading the packet
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -2585,7 +2585,7 @@ And I delete packet data
   @scenario_95
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Quality_Correction
   Scenario: Resident walks into registration center completes the process. But due to low biometric image quality.. correction flow is initiated. Resident provides biometrics with good quality but invalid correction request ID
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -2607,7 +2607,7 @@ And I delete packet data
   @scenario_96
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Quality_Correction
   Scenario: Resident walks into registration center completes the process. But due to low biometric image quality. correction flow is initiated. Resident provides biometrics with good quality but biometrics matches with other resident biometrics
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -2633,7 +2633,7 @@ And I delete packet data
   @scenario_97
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Quality_Correction
   Scenario: Resident walks into registration center completes the process. But due to low biometric image quality. correction flow is initiated. Resident provides biometrics with good quality but multiple correction packets with same correction Request ID. Only first correction packet will be processed and gets UIN card
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -2667,7 +2667,7 @@ And I delete packet data
   @scenario_98
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Quality_Correction
   Scenario: Resident walks into registration center completes the process. But due to low biometric image quality. correction flow is initiated. Resident provides biometrics but still quality is not good. After max number of corrections (correction packets)the original packet gets rejected
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -2700,7 +2700,7 @@ And I delete packet data
   @scenario_99
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Quality_Correction
   Scenario: Resident walks into registration center completes the process. But due to low biometric image quality. correction flow is initiated. Resident provides biometrics with good quality but by then packet kicks-in for the original packet
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -2729,7 +2729,7 @@ And I delete packet data
   @scenario_100
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Quality_Correction
   Scenario: Resident walks into registration center completes the process. But due to low biometric image quality. correction flow is initiated. Resident provides biometrics with good quality but by the time correction packet timeout happens. So the original packet gets rejected
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -2758,7 +2758,7 @@ And I delete packet data
   @scenario_101
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Minor_New
   Scenario: Resident Minor Child walks into registration center wants to get UIN Guardian Details. Later again tries to get another UIN
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -2788,7 +2788,7 @@ And I delete packet data
   @scenario_102
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Inji_Face
   Scenario: Inji - Resident walks into registration center completes the process with low(30KB) face image size and gets UIN card
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -2811,7 +2811,7 @@ And I delete packet data
   @scenario_103
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Inji_Face
   Scenario: Inji - Resident walks into registration center completes the process with high(276KB) face image size and gets UIN card
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -2834,7 +2834,7 @@ And I delete packet data
   @scenario_104
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Duplicate_Registration
   Scenario: Two resident walks into registration center tries to get UIN with different demographic details and same biometrics except one finger
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -2864,7 +2864,7 @@ And I delete packet data
   @scenario_105
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Duplicate_Registration
   Scenario: Two resident walks into registration center tries to get UIN with same demographic details and same biometrics except one finger
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -2899,7 +2899,7 @@ And I delete packet data
   @scenario_106
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_New
   Scenario: Resident walks into registration center completes the process with only face biometrics and without exception
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -2915,7 +2915,7 @@ And I delete packet data
   @scenario_107
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_New
   Scenario: Resident walks into registration center completes the process without biometrics and exception
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -3168,7 +3168,7 @@ And I delete packet data
   @scenario_116
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Lost_UIN
   Scenario: Resident walks into registration center tries get Lost UIN but Biometric did not match
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -3193,7 +3193,7 @@ And I delete packet data
   @scenario_117
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Minor_New
   Scenario: Resident Minor Child walks  into registration center tries get UIN when the parent packet is in the queue for manual verification reject child packet only when parent packet is rejected
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -3222,7 +3222,7 @@ And I delete packet data
   @scenario_118
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Infant_New
   Scenario: Resident Infant tries to get UIN without Introducer
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -3238,7 +3238,7 @@ And I delete packet data
   @scenario_119
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_Auth
   Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later performs demographic authentication using name both using UIN and VID
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -3264,7 +3264,7 @@ And I delete packet data
   @scenario_120
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Minor_New
   Scenario: Resident Minor walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later performs eKYC demographic authentication using name both using UIN and VID
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -3296,7 +3296,7 @@ And I delete packet data
   @scenario_121
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Infant_New
   Scenario: Resident Infant walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later performs demographic authentication using name both using UIN and VID
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -3330,7 +3330,7 @@ And I delete packet data
   @scenario_122
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Lost_UIN
   Scenario: Resident walks into registration center gets the lost UIN updates his demo graphic details Later performs demo Auth
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -3371,7 +3371,7 @@ And I delete packet data
   @scenario_123
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Lost_UIN
   Scenario: Resident walks into registration center gets the lost UIN updates his Biometric data Later performs Bio Auth
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -3443,7 +3443,7 @@ And I delete packet data
   @scenario_125
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Packet_Upload
   Scenario: Resident walks into registration center gets the UIN but during packet generation CBEFF is invalid
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -3459,7 +3459,7 @@ And I delete packet data
   @scenario_126
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_Update
   Scenario: Resident walks into registration center tries to update the UIN with invalid UIN
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -3477,7 +3477,7 @@ And I delete packet data
   @scenario_127
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Infant_New
   Scenario: Resident Infant walks into registration center gets the UIN with finger and eye exception
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -3558,7 +3558,7 @@ And I delete packet data
   @scenario_130
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_New_Exception
   Scenario: Resident walks into registration center gets the UIN  with All finger and eye exception mark walk-ins to reg-client to get UIN card
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -3841,7 +3841,7 @@ And I delete packet data
   @scenario_139
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Lost_UIN
   Scenario: Resident walks into registration center completes the process and gets UIN card. Resident lost UIN and walks into registration center and updates his phone number and address and then retrieves the UIN
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -3870,7 +3870,7 @@ And I delete packet data
   @scenario_140
   @Negative_Test
   @persona_ResidentFemaleAdult
-  @group_NA
+  @group_Adult_New
   Scenario: Resident walks into registration center tries to register with predefined blocklisted word in her name
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -4165,7 +4165,7 @@ And I delete packet data
   @scenario_153
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Offline_Packet
   Scenario: Machine got unmapped from the center before generating the offline packet
 Given I user where user action is ADD_User, and user index or master user is 6, and password or zone flag is Techno@123 and store result in user6
 And I center where call type is CREATE, and user details is the saved user6, and center index is 6, and center active flag is T and store result in center6
@@ -4194,7 +4194,7 @@ And I delete packet data
   @scenario_154
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Offline_Packet
   Scenario: An offline packet is generated and machine got unmapped from the center before packet is uploaded
 Given I user where user action is ADD_User, and user index or master user is 7, and password or zone flag is Techno@123 and store result in user7
 And I center where call type is CREATE, and user details is the saved user7, and center index is 7, and center active flag is T and store result in center7
@@ -4391,7 +4391,7 @@ And I delete packet data
   @scenario_163
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_New
   Scenario: Resident walks into center to get UIN but supervisor rejects the packet . Same resident tries to get Uin again
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -4416,7 +4416,7 @@ And I delete packet data
   @scenario_164
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Packet_Upload
   Scenario: Resident walks into center to get Uin but packet is created with invalid hash. Same resident tries to get Uin by providing all details again
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -4439,7 +4439,7 @@ And I delete packet data
   @scenario_165
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Packet_Upload
   Scenario: Packet is created and uploaded with inactive center
 Given I user where user action is ADD_User, and user index or master user is 156, and password or zone flag is Techno@123 and store result in user156
 And I center where call type is CREATE, and user details is the saved user156, and center index is 156, and center active flag is T and store result in center156
@@ -4489,7 +4489,7 @@ And I delete packet data
   @scenario_167
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Packet_Upload
   Scenario: Packet is created and uploaded with inactive machine
 Given I user where user action is ADD_User, and user index or master user is 8, and password or zone flag is Techno@123 and store result in user8
 And I center where call type is CREATE, and user details is the saved user8, and center index is 8, and center active flag is T and store result in center8
@@ -4535,7 +4535,7 @@ And I delete packet data
   @scenario_169
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_Auth
   Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID by phone number. Later gets eKYC done both using UIN VID and face auth
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -4558,7 +4558,7 @@ And I delete packet data
   @scenario_170
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_Auth
   Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID through phone number. Later performs biometric authentication using right finger both using UIN and VID. Also performs eSignet biometric authentication using right finger both using UIN and VID
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -4618,7 +4618,7 @@ And I delete packet data
   @scenario_173
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Duplicate_Registration
   Scenario: A non registered resident walks into registration center without UIN and tries to retrieve the UIN.  Now new Resident tries to get UIN with the same demographic details
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -4642,7 +4642,7 @@ And I delete packet data
   @scenario_174
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_Auth
   Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later performs demographic authentication with age less than actual age both using UIN and VID
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -4665,7 +4665,7 @@ And I delete packet data
   @scenario_175
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_Auth
   Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later performs demographic authentication with exact dob both using UIN and VID
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -5161,7 +5161,7 @@ And I delete packet data
   @scenario_191
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_New_Exception
   Scenario: A differently abled resident walks into registration center completes the process with IRIS as exception and gets UIN card Later performs biometric authentication using Face Fingerprint and IRIS
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -5188,7 +5188,7 @@ And I delete packet data
   @scenario_192
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_New_Exception
   Scenario: A differently abled resident walks into registration center completes the process with Fingerprints as exception and gets UIN card Later performs biometric authentication using Face Fingerprint and IRIS
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -5215,7 +5215,7 @@ And I delete packet data
   @scenario_193
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_New_Exception
   Scenario: A differently abled resident walks into registration center completes the process with IRIS and Finger as exception and gets UIN card Later performs biometric authentication using Face Fingerprint and IRIS
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -5242,7 +5242,7 @@ And I delete packet data
   @scenario_194
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_New_Exception
   Scenario: A differently abled resident walks into registration center completes the process with out any exception and gets UIN card Later performs biometric authentication using Face Fingerprint and IRIS
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -5267,7 +5267,7 @@ And I delete packet data
   @scenario_195
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_New_Exception
   Scenario: A differently abled resident walks into registration center completes the process with both thumbs as exception and gets UIN card Later performs biometric authentication using IRIS Face Fingerprint that are exception and with fingerprints that are not marked as exception
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -5349,7 +5349,7 @@ And I delete packet data
   @scenario_198
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Infant_Update
   Scenario: Resident created Infant packet and got UIN and later updated the UIN to a Minor then do bio authentication
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -5389,7 +5389,7 @@ And I delete packet data
   @scenario_199
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Infant_Update
   Scenario: Resident created Infant packet and got UIN and later updated the UIN to a adult then do bio authentication
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -5470,7 +5470,7 @@ And I delete packet data
   @scenario_201
   @Negative_Test
   @persona_ResidentFemaleAdult
-  @group_External_New
+  @group_CRVS_New
   Scenario: Infant external packet creation and process with out introducerInfoToken
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 4 and store result in external packet environment details
@@ -5489,7 +5489,7 @@ And I delete packet data
   @scenario_202
   @Postive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_Update
   Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later updates name with VID and perform biometric authentiction with name both using UIN and VID
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -5561,7 +5561,7 @@ And I delete packet data
   @scenario_205
   @Positive_Test
   @persona_ResidentFemaleAdult
-  @group_External_New
+  @group_CRVS_New
   Scenario: Infant external packet creation and process with introducerInfoToken
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 4 and store result in external packet environment details
@@ -5580,7 +5580,7 @@ And I delete packet data
   @scenario_206
   @Positive_Test
   @persona_ResidentFemaleAdult
-  @group_Adult_New
+  @group_CRVS_Death
   Scenario: Resident walks into registration center completes the process and gets UIN card later we perform crvs external packet death flow
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -5608,7 +5608,7 @@ And I delete packet data
   @scenario_207
   @Negative_Test
   @persona_ResidentFemaleAdult
-  @group_External_New
+  @group_CRVS_New
   Scenario: Adult external packet creation and process with out introducerInfoToken
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 4 and store result in external packet environment details
@@ -5623,7 +5623,7 @@ And I delete packet data
   @scenario_208
   @Negative_Test
   @persona_ResidentFemaleAdult
-  @group_External_New
+  @group_CRVS_New
   Scenario: Minor external packet creation and process with out introducerInfoToken
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 4 and store result in external packet environment details
@@ -5638,7 +5638,7 @@ And I delete packet data
   @scenario_209
   @Negative_Test
   @persona_ResidentFemaleAdult
-  @group_External_New
+  @group_CRVS_New
   Scenario: Creation and processing of an external infant packet without an introducerInfoToken and with an invalid source and packet type
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 4 and store result in external packet environment details
@@ -5651,7 +5651,7 @@ And I delete packet data
   @scenario_210
   @Negative_Test
   @persona_ResidentFemaleAdult
-  @group_External_New
+  @group_CRVS_New
   Scenario: Infant external packet creation with DOB as future dates and process with out introducerInfoToken
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 4 and store result in external packet environment details
@@ -5667,7 +5667,7 @@ And I delete packet data
   @scenario_211
   @Negative_Test
   @persona_ResidentFemaleAdult
-  @group_External_New
+  @group_CRVS_New
   Scenario: Infant external packet creation without necessary data and process with out introducerInfoToken
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 4 and store result in external packet environment details
@@ -5712,7 +5712,7 @@ And I delete packet data
   @scenario_213
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Minor_New
   Scenario: Resident walks into registration center with his child and completes the process. But Adult and Child packet uploaded at same time in Child packet adult RID is captured as introducer but Introducer packet is Rejected
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -5739,7 +5739,7 @@ And I delete packet data
   @scenario_214
   @Positive_Test
   @persona_ResidentFemaleAdult
-  @group_Adult_New
+  @group_CRVS_Death
   Scenario: Adult resident walks into registration center completes the process and gets UIN card later we perform crvs external packet death flow without the token
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -5767,7 +5767,7 @@ And I delete packet data
   @scenario_215
   @Positive_Test
   @persona_ResidentFemaleAdult
-  @group_Adult_New
+  @group_CRVS_Death
   Scenario: Infant external packet creation and process with introducerInfoToken and gets UIN card later we perform crvs external packet death flow
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 4 and store result in external packet environment details
@@ -5791,7 +5791,7 @@ And I delete packet data
   @scenario_216
   @Positive_Test
   @persona_ResidentFemaleAdult
-  @group_Adult_New
+  @group_CRVS_Death
   Scenario: Resident Infant walks into registration center gets UIN with parent RID details and later we perform crvs external packet death flow
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -5824,7 +5824,7 @@ And I delete packet data
   @scenario_217
   @Negative_Test
   @persona_ResidentFemaleAdult
-  @group_Adult_New
+  @group_CRVS_Death
   Scenario: Resident walks into registration center completes the process and gets UIN card later we perform crvs external packet death flow with invalid source and process
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -5846,7 +5846,7 @@ And I delete packet data
   @scenario_218
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_Update
   Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later updates face and finger with VID and perform biometric authentiction with face both using UIN and VID
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -5900,7 +5900,7 @@ And I delete packet data
   @scenario_220
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_New_Exception
   Scenario: A differently abled resident walk-ins to registration center completes the process and gets UIN card. Later performs biometric delegated  authentication using face modality with UIN and VID
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -6136,7 +6136,7 @@ And I delete packet data
   @scenario_227
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_ABIS_Reprocess
   Scenario: Resident generates UIN ABIS response is delayed and first UIN biometric is updated successfully during packet reprocessing
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -6168,7 +6168,7 @@ And I delete packet data
   @scenario_228
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Packet_Upload
   Scenario: Resident walks into registration center completes the process with invalid type of packet and gets error at upload stage
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -6240,7 +6240,7 @@ And I delete packet data
   @scenario_230
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_Update
   Scenario: Resident walks into registration center completes the process  gets UIN card . Resident then updates name and gets updated UIN try to authenticate with old name
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -6272,7 +6272,7 @@ And I delete packet data
   @scenario_231
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_New
   Scenario: Resident walks into the registration center completes the process with gender marked as Other and gets the UIN card.
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -6327,7 +6327,7 @@ And I delete packet data
   @scenario_233
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_New_Exception
   Scenario: Resident updates only one fingerprint that was previously marked exception and performs bio authentication
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -6358,7 +6358,7 @@ And I delete packet data
   @scenario_234
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_New_Exception
   Scenario: Resident updates only one iris that was previously marked exception and performs bio authentication.
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -6389,7 +6389,7 @@ And I delete packet data
   @scenario_235
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Preregistration
   Scenario: Resident booked pre-registration with support documents later changes the appointment slot. walk-ins to registration center completes the process and gets UIN card
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -6616,7 +6616,7 @@ And I delete packet data
   @scenario_243
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_ABIS_Reprocess
   Scenario: Mock ABIS holds the packet in queue longer than the reprocessor interval (delay from actuator) reprocessor runs while ABIS is still pending then bio dedupe completes. Asserts BIOGRAPHIC_VERIFICATION REPROCESS and post-reprocess outcome explicit biometric dedupe skip when regproc records it otherwise a second bio dedupe cycle (pass strictSkip as second arg to require skip-only).
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -6640,7 +6640,7 @@ And I delete packet data
   @scenario_244
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Lost_UIN
   Scenario: Resident creates a Lost packet that gets rejected then reuses the same biometrics from the rejected Lost flow packet to create a new packet which gets processed successfully
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -6666,7 +6666,7 @@ And I delete packet data
   @scenario_245
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Lost_UIN
   Scenario: Create a new registration packet and process it then create a Lost packet for the same persona UIN with same biometrics and verify packet upload transaction and processing
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -6689,7 +6689,7 @@ And I delete packet data
   @scenario_246
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Adult_New
   Scenario: Registration packet is built without required name demographic fields in identity JSON; processing fails at packet validation
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -6797,7 +6797,7 @@ And I delete packet data
   @scenario_249
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Lost_UIN
   Scenario: Resident completes NEW registration gets UIN then submits Lost UIN packet verify it is processed successfully same UIN is retained and notification is sent
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -6827,7 +6827,7 @@ And I delete packet data
   @scenario_250
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Quality_Correction
   Scenario: Resident submits NEW packet with low biometric quality packet waits at correction stage biometric correction with good quality is processed successfully and UIN is generated
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -6898,7 +6898,7 @@ And I delete packet data
   @scenario_252
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Minor_New
   Scenario: Resident registers as both guardian and introducer for two different minors
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -6937,7 +6937,7 @@ And I delete packet data
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_Update
-  Scenario: Resident gets UIN then biometric UPDATE packet is stuck in ABIS with error. Authentication with old biometric data succeeds because identity was not updated
+  Scenario: Resident gets UIN then biometric UPDATE packet stays in ABIS for at least 10 minutes. Authentication with old biometric data succeeds because identity was not updated
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
 And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
@@ -6955,7 +6955,7 @@ And I update demo or bio details where bio type is iris and face, and miss field
 And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
 And I update resident with uin where persona file path is the saved old bio persona file path, and UIN is the saved UIN
 And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path and store result in modality hash value
-And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path, and modality hash map is the saved modality hash value, and delay seconds is delay, and mock ABIS status is 10 and Error
+And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path, and modality hash map is the saved modality hash value, and delay seconds is 600, and mock ABIS status is Success
 And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update packet template path
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved update packet template path and store result in second registration ID
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is REPROCESS
@@ -7004,7 +7004,7 @@ And I delete packet data
   @scenario_255
   @Positive_Test
   @persona_ResidentFemaleAdult
-  @group_External_New
+  @group_CRVS_Update
   Scenario: Infant external packet creation and process with introducerInfoToken and gets UIN card later we perform crvs external packet update flow for name
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 4 and store result in external packet environment details
@@ -7029,7 +7029,7 @@ And I delete packet data
   @scenario_256
   @Positive_Test
   @persona_ResidentFemaleAdult
-  @group_External_New
+  @group_CRVS_Update
   Scenario: Infant external packet creation and process with introducerInfoToken and gets UIN card later we perform crvs external packet update flow for date of birth
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 4 and store result in external packet environment details
@@ -7054,7 +7054,7 @@ And I delete packet data
   @scenario_257
   @Positive_Test
   @persona_ResidentFemaleAdult
-  @group_External_New
+  @group_CRVS_Update
   Scenario: Infant external packet creation and process with introducerInfoToken and gets UIN card later we perform crvs external packet update flow for gender
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 4 and store result in external packet environment details
@@ -7079,7 +7079,7 @@ And I delete packet data
   @scenario_258
   @Positive_Test
   @persona_ResidentFemaleAdult
-  @group_External_New
+  @group_CRVS_Update
   Scenario: Infant external packet creation and process with introducerInfoToken and gets UIN card later we perform crvs external packet update flow for name and date of birth
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 4 and store result in external packet environment details
@@ -7104,7 +7104,7 @@ And I delete packet data
   @scenario_259
   @Positive_Test
   @persona_ResidentFemaleAdult
-  @group_Adult_New
+  @group_CRVS_Update
   Scenario: Resident Infant walks into registration center gets UIN with parent RID details and later we perform crvs external packet update flow
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -7140,7 +7140,7 @@ And I delete packet data
   @scenario_260
   @Positive_Test
   @persona_ResidentFemaleAdult
-  @group_External_New
+  @group_CRVS_Update
   Scenario: Infant external packet creation and process with introducerInfoToken and gets UIN card later we perform crvs external packet update flow without the token
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 4 and store result in external packet environment details
@@ -7165,7 +7165,7 @@ And I delete packet data
   @scenario_261
   @Negative_Test
   @persona_ResidentFemaleAdult
-  @group_External_New
+  @group_CRVS_Update
   Scenario: Infant external packet creation and process with introducerInfoToken and gets UIN card later we perform crvs external packet update flow with invalid source and process
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 4 and store result in external packet environment details
@@ -7185,7 +7185,7 @@ And I delete packet data
   @scenario_262
   @Negative_Test
   @persona_ResidentFemaleAdult
-  @group_External_New
+  @group_CRVS_Update
   Scenario: Infant external packet creation and process with introducerInfoToken and gets UIN card later we perform crvs external packet update flow without UIN
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 4 and store result in external packet environment details
@@ -7207,7 +7207,7 @@ And I delete packet data
   @scenario_263
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_Adult_New
+  @group_CRVS_Update
   Scenario: Resident walks into registration center completes the process and gets UIN card later we perform crvs external packet update flow for adult with biometrics
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -7232,7 +7232,7 @@ And I delete packet data
   @scenario_264
   @Positive_Test
   @persona_ResidentFemaleAdult
-  @group_Adult_New
+  @group_CRVS_Death_Update
   Scenario: Resident walks into registration center completes the process and gets UIN card later we perform crvs external packet death flow and then crvs external packet update flow
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -7260,7 +7260,7 @@ And I delete packet data
   @scenario_265
   @Negative_Test
   @persona_ResidentFemaleAdult
-  @group_External_New
+  @group_CRVS_Update
   Scenario: Infant external packet creation and process with introducerInfoToken and gets UIN card later we perform crvs external packet update flow with future date of birth
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 4 and store result in external packet environment details
@@ -7282,7 +7282,7 @@ And I delete packet data
   @scenario_266
   @Negative_Test
   @persona_ResidentFemaleAdult
-  @group_External_New
+  @group_CRVS_Update
   Scenario: Infant external packet creation and process with introducerInfoToken and gets UIN card later we perform crvs external packet update flow without necessary demographic data (missing name fields: fullName/firstName/lastName/middleName, and DOB set to future date 04/24/2027)
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 4 and store result in external packet environment details
@@ -7304,7 +7304,7 @@ And I delete packet data
   @scenario_267
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_ABIS_Reprocess
   Scenario: Packet held in ABIS stores demographic and biometric data only in the idrepo draft location and publishes it after processing
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -7324,7 +7324,7 @@ And I delete packet data
   @scenario_268
   @Negative_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Duplicate_Registration
   Scenario: Duplicate packet rejected in manual adjudication removes draft data from idrepo draft location and leaves no stale data
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -7392,7 +7392,7 @@ And I delete packet data
   @scenario_270
   @Positive_Test
   @persona_ResidentFemaleAdult
-  @group_External_New
+  @group_CRVS_Update
   Scenario: Infant external packet creation and process with introducerInfoToken and gets UIN card later we perform crvs external packet update flow for name and then for gender
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 4 and store result in external packet environment details
@@ -7425,7 +7425,7 @@ And I delete packet data
   @scenario_271
   @Negative_Test
   @persona_ResidentFemaleAdult
-  @group_Adult_New
+  @group_CRVS_Update
   Scenario: CRVS external packet update fails for a registration that is still in progress and for a registration that was rejected without a UIN
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -7690,7 +7690,7 @@ And I delete packet data
   @scenario_278
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Lost_UIN
   Scenario: Lost UIN packet L1 is stuck on a delayed ABIS response. Lost UIN packet L2 for the same resident is processed and left as the effective latest transaction. L1 stays stuck and is not taken further
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -7787,7 +7787,7 @@ And I delete packet data
   @scenario_280
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Lost_UIN
   Scenario: Lost UIN packet stays in ABIS while id, optional, and evidence are renamed in MinIO and packet manager caches are cleared, then the packet is processed
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -7854,7 +7854,7 @@ And I delete packet data
   @scenario_282
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Quality_Correction
   Scenario: Biometric correction packet stays in ABIS while id, optional, and evidence are renamed in MinIO and packet manager caches are cleared, then the packet is processed
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -7922,7 +7922,7 @@ And I delete packet data
   @scenario_284
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Lost_UIN
   Scenario: When multiple Lost UIN packets are uploaded for the same resident while earlier packets are pending, verify that reprocessing an older packet does not overwrite the latest successful transaction
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
@@ -8030,7 +8030,7 @@ And I delete packet data
   @scenario_AFTER_SUITE
   @Positive_Test
   @persona_ResidentMaleAdult
-  @group_NA
+  @group_Suite_Teardown
   Scenario: Test suite run Pre-Requisite data tear down
 Given I skip
 Given I get ping health where component is packetcreator
