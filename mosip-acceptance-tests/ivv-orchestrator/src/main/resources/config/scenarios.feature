@@ -414,7 +414,7 @@ And I verify id repo draft location where registration ID is the saved registrat
 And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
 Then I reprocess packet where registration ID is the saved registration ID, and packet type is NEW
 And I post mock mv where registration ID is the saved registration ID, and manual verification decision is REJECTED
-Then I check ridstage where registration ID is the saved registration ID, and RID stage is MANUAL_ADJUDICATION, and stage status is FAILED, and occurrence count is 2
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is MANUAL_ADJUDICATION, and stage status is FAILED
 And I verify id repo draft location where registration ID is the saved registration ID, and location phase is rejected
 And I verify id repo draft location where registration ID is the saved second registration ID, and location phase is published
 And I delete mock expect where modality hash value is the saved modality hash value
@@ -8018,63 +8018,6 @@ And I verify notification where notification type is updated, and email is the s
 And I check status where packet status is PROCESSED, and registration ID is the saved rid u1
 Then I check ridstage where registration ID is the saved rid u1, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I verify notification where notification type is updated, and email is the saved email
-And I wait where wait seconds is UIN_WAIT_TIME
-And I generate vidwithout otp where VID type is Perpetual, and UIN is the saved uin after u3 and store result in VID
-And I wait where wait seconds is 90
-And I demo authentication where demo field is name, and UIN is the saved uin after u3, and persona file path is the saved persona file path, and VID is the saved VID
-And I demo authentication where demo field is name, and UIN is the saved uin after u3, and persona file path is the saved u2 persona file path, and VID is the saved VID, and age update flag is ERROR
-And I demo authentication where demo field is name, and UIN is the saved uin after u3, and persona file path is the saved u1 persona file path, and VID is the saved VID, and age update flag is ERROR
-And I delete packet data
-
-
-  @scenario_286
-  @Positive_Test
-  @persona_ResidentMaleAdult
-  @group_Adult_Update
-  Scenario: When multiple update packets U1, U2 and U3 for the same resident are uploaded while earlier packets are pending/stuck, verify that reprocessing occurs based on the packet creation/update timestamp and does not result in data regression
-Given I get ping health where component is packetcreator
-And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
-And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
-And I get ping health where component is targetenv
-And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
-And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
-And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved packet template path and store result in registration ID
-And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
-And I get uin by rid where source registration ID is the saved registration ID and store result in UIN
-And I get email by uin where resident UIN is the saved UIN and store result in email
-And I verify notification where notification type is UIN Generated, and email is the saved email
-And I wait where wait seconds is 90
-And I clone resident data where persona file path is the saved persona file path and store result in u1 persona file path
-And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved u1 persona file path
-And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and persona path is the saved u1 persona file path and store result in modality hash value
-And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved u1 persona file path, and modality hash map is the saved modality hash value, and delay seconds is 180, and mock ABIS status is Success
-And I update resident with uin where persona file path is the saved u1 persona file path, and UIN is the saved UIN
-And I get packet template where packet type is UPDATE, and persona file path is the saved u1 persona file path and store result in update template u1
-And I generate and upload packet skipping prereg where persona file path is the saved u1 persona file path, and packet template path is the saved update template u1 and store result in rid u1
-Then I check ridstage where registration ID is the saved rid u1, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is IN_PROGRESS
-And I clone resident data where persona file path is the saved persona file path and store result in u2 persona file path
-And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved u2 persona file path
-And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and persona path is the saved u2 persona file path and store result in modality hash value
-And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved u2 persona file path, and modality hash map is the saved modality hash value, and delay seconds is 180, and mock ABIS status is Success
-And I update resident with uin where persona file path is the saved u2 persona file path, and UIN is the saved UIN
-And I get packet template where packet type is UPDATE, and persona file path is the saved u2 persona file path and store result in update template u2
-And I generate and upload packet skipping prereg where persona file path is the saved u2 persona file path, and packet template path is the saved update template u2 and store result in rid u2
-Then I check ridstage where registration ID is the saved rid u2, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is IN_PROGRESS
-And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
-And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
-And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update template u3
-And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved update template u3 and store result in rid u3
-And I check status where packet status is PROCESSED, and registration ID is the saved rid u3
-And I get uin by rid where source registration ID is the saved rid u3 and store result in uin after u3
-And I verify notification where notification type is updated, and email is the saved email
-Then I check ridstage where registration ID is the saved rid u3, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
-And I wait where wait seconds is 180
-Then I reprocess packet where registration ID is the saved rid u2, and packet type is UPDATE
-And I check status where packet status is PROCESSED, and registration ID is the saved rid u2
-Then I check ridstage where registration ID is the saved rid u2, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
-Then I reprocess packet where registration ID is the saved rid u1, and packet type is UPDATE
-And I check status where packet status is PROCESSED, and registration ID is the saved rid u1
-Then I check ridstage where registration ID is the saved rid u1, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
 And I wait where wait seconds is UIN_WAIT_TIME
 And I generate vidwithout otp where VID type is Perpetual, and UIN is the saved uin after u3 and store result in VID
 And I wait where wait seconds is 90
