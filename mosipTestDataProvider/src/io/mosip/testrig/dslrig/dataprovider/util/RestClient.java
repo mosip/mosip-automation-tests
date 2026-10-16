@@ -324,10 +324,11 @@ public class RestClient {
 							mapPathParam);
 				}
 
-				if (response.getStatusCode() == 401) {
+				if (isAuthRejected(response)) {
 					if (nLoop >= 1)
 						bDone = true;
 					else {
+						RestClientAuth.discardCachedToken(contextKey, role);
 						initToken(contextKey);
 						nLoop++;
 					}
@@ -1312,6 +1313,20 @@ public class RestClient {
 		return RestClientAuth.initToken_crvs1(contextKey);
 	}
 
+
+	/**
+	 * Kernel auth rejection is HTTP 400 with body code {@code KER-ATH-401}, not HTTP 401.
+	 */
+	static boolean isAuthRejected(Response response) {
+		if (response == null) {
+			return false;
+		}
+		if (response.getStatusCode() == 401) {
+			return true;
+		}
+		String body = response.getBody() == null ? "" : response.getBody().asString();
+		return body != null && body.contains("KER-ATH-401");
+	}
 
 	static void checkErrorResponse(String response, String url) {
 

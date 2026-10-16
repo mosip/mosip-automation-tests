@@ -574,8 +574,21 @@ public class PacketMakerService {
 			if (invalidDateValue.equals("invalidCreationDate")) {
 				updatePacketMetaInfo(identityObj, METADATA, "creationDate", null, true);
 			} else if (invalidDateValue.contains("CreationDate")) {
-				String offsetValue = invalidDateValue.split("=")[1];
-				String updatedDate = APIRequestUtil.getAdjustedUTCDate(offsetValue);
+				String offsetValue = invalidDateValue.split("=", 2)[1];
+				String updatedDate;
+				if ("current".equalsIgnoreCase(offsetValue)) {
+					Object shared = VariableManager.getVariableValue(contextKey, "sharedCreationDate");
+					if (shared == null || shared.toString().isBlank()) {
+						updatedDate = APIRequestUtil.getUTCDateTime(null);
+						VariableManager.setVariableValue(contextKey, "sharedCreationDate", updatedDate);
+					} else {
+						updatedDate = shared.toString();
+					}
+				} else if (offsetValue.contains("T")) {
+					updatedDate = offsetValue;
+				} else {
+					updatedDate = APIRequestUtil.getAdjustedUTCDate(offsetValue);
+				}
 				updatePacketMetaInfo(identityObj, METADATA, "creationDate", updatedDate, true);
 			} else {
 				updatePacketMetaInfo(identityObj, METADATA, "creationDate", APIRequestUtil.getUTCDateTime(null),

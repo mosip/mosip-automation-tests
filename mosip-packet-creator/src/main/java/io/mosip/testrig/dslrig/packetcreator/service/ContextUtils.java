@@ -86,6 +86,7 @@ public class ContextUtils {
 	        pp.forEach((k, v) ->
 	                VariableManager.setVariableValue(ctxName, k.toString(), v.toString())
 	        );
+	        VariableManager.removeVariableValue(ctxName, "sharedCreationDate");
             CommonUtil.initializeUTCDateFormat(ctxName); 
 	        Object generatePrivateKeyObj =
 	                VariableManager.getVariableValue(ctxName, "generatePrivateKey");

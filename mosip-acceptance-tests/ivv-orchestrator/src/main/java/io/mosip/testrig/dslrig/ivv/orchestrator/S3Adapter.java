@@ -19,8 +19,10 @@ import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.internal.AWSS3V4Signer;
+import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 import io.mosip.kernel.core.util.StringUtils;
 
@@ -31,8 +33,6 @@ public class S3Adapter {
 	private int maxRetry = 20;
 
 	private int maxConnection = 200;
-
-	private int retry = 0;
 
 	private boolean useAccountAsBucketname = true;
 
@@ -66,21 +66,12 @@ public class S3Adapter {
 							normalizeUrl(dslConfigManager.getS3Host()), signingRegion(dslConfigManager.getS3Region())))
 					.build();
 
+			logger.info("Checking MinIO bucket " + bucketName);
 			connection.doesBucketExistV2(bucketName);
-			retry = 0;
+			logger.info("MinIO bucket check finished for " + bucketName);
 		} catch (Exception e) {
-			if (retry >= maxRetry) {
-
-				retry = 0;
-				connection = null;
-
-
-			} else {
-				connection = null;
-				retry = retry + 1;
-
-				getConnection(bucketName);
-			}
+			logger.error("MinIO connection failed for bucket " + bucketName + ": " + e.getMessage(), e);
+			connection = null;
 		}
 		return connection;
 	}
@@ -110,6 +101,40 @@ public class S3Adapter {
 			connection.putObject(putObjectRequest);
 			return true;
 		}
+
+	public long objectSize(String bucket, String key) {
+		AmazonS3 client = getConnection(bucket);
+		if (client == null) {
+			throw new IllegalStateException("MinIO connection failed for bucket " + bucket);
+		}
+		return client.getObjectMetadata(bucket, key).getContentLength();
+	}
+
+	public List<String> listObjectKeys(String bucket, String prefix) {
+		AmazonS3 client = getConnection(bucket);
+		if (client == null) {
+			throw new IllegalStateException("MinIO connection failed for bucket " + bucket);
+		}
+		List<String> keys = new ArrayList<>();
+		try {
+			ObjectListing listing = client.listObjects(bucket, prefix);
+			while (listing != null) {
+				if (listing.getObjectSummaries() != null) {
+					for (S3ObjectSummary summary : listing.getObjectSummaries()) {
+						keys.add(summary.getKey());
+					}
+				}
+				if (listing.isTruncated()) {
+					listing = client.listNextBatchOfObjects(listing);
+				} else {
+					break;
+				}
+			}
+		} catch (Exception e) {
+			logger.warn("Failed to list objects in bucket " + bucket + " with prefix " + prefix + ": " + e.getMessage());
+		}
+		return keys;
+	}
 
 	/**
 	 * MinIO has no rename. Copy the object to the new key and delete the original.

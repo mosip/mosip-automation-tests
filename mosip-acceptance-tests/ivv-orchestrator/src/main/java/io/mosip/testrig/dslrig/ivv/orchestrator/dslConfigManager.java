@@ -90,6 +90,33 @@ public class dslConfigManager extends ConfigManager {
 		return ConfigManager.getproperty("threadCount");
 	}
 
+	/** When true, long Wait steps park/resume via {@code ScenarioParkScheduler}. */
+	public static boolean isParkResumeEnabled() {
+		try {
+			String v = ConfigManager.getproperty("parkResumeEnabled");
+			if (v == null || v.isBlank()) {
+				return false;
+			}
+			return "yes".equalsIgnoreCase(v.trim()) || "true".equalsIgnoreCase(v.trim());
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	/**
+	 * Max scenarios TestNG may submit concurrently when park/resume is on.
+	 * Derived from {@code threadCount}: {@code max(threadCount * 10, 50)}.
+	 */
+	public static int getMaxInFlightScenarios() {
+		int threadCount = 8;
+		try {
+			threadCount = Math.max(1, Integer.parseInt(getThreadCount().trim()));
+		} catch (Exception ignored) {
+			threadCount = 8;
+		}
+		return Math.max(threadCount * 10, 50);
+	}
+
 	public static int getMaxSuiteTime() {
 		try {
 		    return Integer.parseInt(ConfigManager.getproperty("maxSuiteTime"));
@@ -368,6 +395,26 @@ public class dslConfigManager extends ConfigManager {
 					+ ", stringToFind : " + stringToFind);
 		for (String string : toBeExecuteList) {
 			if (stringToFind.toLowerCase().contains(string.toLowerCase()))
+				return true;
+		}
+		return false;
+	}
+
+	/** True when the scenario group matches any value in scenariosFlowToSkip. Empty list skips nothing. */
+	public static synchronized boolean isInTobeGroupSkipList(String stringToFind) {
+		String toSkipList = ConfigManager.getproperty("scenariosFlowToSkip");
+		if (toSkipList == null || toSkipList.trim().isEmpty() || stringToFind == null)
+			return false;
+
+		List<String> toBeSkipList = Arrays.asList(toSkipList.split(","));
+		if (IsDebugEnabled())
+			LOGGER.info("toSkipList:  " + toSkipList + ", toBeSkipList : " + toBeSkipList
+					+ ", stringToFind : " + stringToFind);
+		for (String string : toBeSkipList) {
+			String token = string.trim();
+			if (token.isEmpty())
+				continue;
+			if (stringToFind.toLowerCase().contains(token.toLowerCase()))
 				return true;
 		}
 		return false;
