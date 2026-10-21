@@ -59,7 +59,22 @@ public class dslConfigManager extends ConfigManager {
 		}
 
 		init(moduleSpecificPropertiesMap);
+		alignAuthCertsPathWithSignatureLookup();
 		baseUrl = getpacketUtilityBaseUrl();
+	}
+
+	/**
+	 * Partner p12 files are written under {@code authCertsPath}. On Windows that
+	 * property is {@code /home/mosip/authcerts} (for example {@code D:\home\mosip\authcerts}),
+	 * but device-certificate upload reads {@code %TEMP%\AUTHCERTS}. Clearing the
+	 * property on Windows makes key generation use the same temp folder. Linux keeps
+	 * {@code /home/mosip/authcerts}.
+	 */
+	private static void alignAuthCertsPathWithSignatureLookup() {
+		String os = System.getProperty("os.name", "").toLowerCase();
+		if (os.contains("windows")) {
+			propertiesMap.put("authCertsPath", "");
+		}
 	}
 
 	public static Properties loadProperties() {
