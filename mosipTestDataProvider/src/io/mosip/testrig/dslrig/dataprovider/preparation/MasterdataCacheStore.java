@@ -93,6 +93,16 @@ public final class MasterdataCacheStore {
 		getOrCreateCache(runContextNamespace).put(key, MosipDataSetup.toCacheValue(value));
 	}
 
+	public static void remove(String runContextNamespace, String key) {
+		if (key == null) {
+			return;
+		}
+		Cache<String, Object> cache = CACHES.get(toCacheNamespace(runContextNamespace));
+		if (cache != null) {
+			cache.remove(key);
+		}
+	}
+
 	public static void clearNamespace(String runContextNamespace) {
 		if (runContextNamespace == null || runContextNamespace.isBlank()) {
 			return;

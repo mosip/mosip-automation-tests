@@ -232,6 +232,36 @@ public class ReadableDslStepCodecTest {
                 "e2e_demoAuthentication(name,$$uin,$$oldDemoPersonaFilePath,$$vid,ERROR)");
     }
 
+    @Test
+    public void roundTripVerifyIdRepoDraftLocation() {
+        assertRoundTrip("e2e_verifyIdRepoDraftLocation($$rid,draft)");
+        assertRoundTrip("e2e_verifyIdRepoDraftLocation($$rid,published)");
+        assertRoundTrip("e2e_verifyIdRepoDraftLocation($$rid,rejected)");
+    }
+
+    @Test
+    public void decodeVerifyIdRepoDraftLocationRejected() {
+        assertDecodeToDsl(
+                "I verify id repo draft location where registration ID is the saved registration ID, and location phase is rejected",
+                "e2e_verifyIdRepoDraftLocation($$rid,rejected)");
+    }
+
+    @Test
+    public void testParseMasterFeatureFile() throws Exception {
+        java.io.File featureFile = new java.io.File(
+                "../ivv-orchestrator/src/main/resources/config/scenarios.feature");
+        if (featureFile.exists()) {
+            java.util.List<io.mosip.testrig.dslrig.ivv.core.dtos.Scenario> scenarios =
+                    new GherkinFeatureParser().parseScenarios(featureFile);
+            assertFalse(scenarios.isEmpty());
+            java.util.Set<String> ids = new java.util.HashSet<>();
+            for (io.mosip.testrig.dslrig.ivv.core.dtos.Scenario scenario : scenarios) {
+                assertTrue(scenario.getId() != null && !scenario.getId().isBlank());
+                assertTrue("duplicate scenario id " + scenario.getId(), ids.add(scenario.getId()));
+            }
+        }
+    }
+
     private static void assertRoundTrip(String dsl) {
         String encoded = ReadableDslStepCodec.encode(dsl);
         String decoded = ReadableDslStepCodec.decode(encoded);
