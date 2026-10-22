@@ -45,41 +45,92 @@ public final class ReportTreeViewEnhancer {
     private static final String REPORT_TREE_FILTER_SCRIPT =
             "<script>(function(){var nav=document.getElementById('report-scenario-tree');"
                     + "if(!nav)return;var bar=nav.querySelector('.tree-filter-toolbar');"
-                    + "if(!bar)return;"
+                    + "if(!bar)return;var q=bar.querySelector('.tree-search');"
+                    + "var empty=nav.querySelector('.tree-search-empty');"
+                    + "function active(){var b=bar.querySelector('.tree-filter-chip.is-active');"
+                    + "return b?(b.getAttribute('data-tree-filter')||'all'):'all';}"
+                    + "function apply(){var f=active();var needle=(q&&q.value||'').trim().toLowerCase();var shown=0;"
+                    + "nav.querySelectorAll('li.tree-scenario-node').forEach(function(li){"
+                    + "var s=li.getAttribute('data-status')||'';"
+                    + "var name=(li.getAttribute('data-name')||'').toLowerCase();"
+                    + "var show=(f==='all'||s===f)&&(!needle||name.indexOf(needle)>=0);"
+                    + "if(!show){var det=li.querySelector('details.tree-steps-details');if(det)det.open=false;}"
+                    + "li.style.display=show?'':'none';if(show)shown++;});"
+                    + "if(empty)empty.hidden=shown!==0;}"
                     + "bar.addEventListener('click',function(e){"
                     + "var t=e.target;if(!t||!t.closest)return;var btn=t.closest('.tree-filter-chip');"
-                    + "if(!btn)return;var f=btn.getAttribute('data-tree-filter')||'all';"
+                    + "if(!btn)return;"
                     + "bar.querySelectorAll('.tree-filter-chip').forEach(function(b){"
                     + "var on=b===btn;b.classList.toggle('is-active',on);b.setAttribute('aria-pressed',on?'true':'false');});"
-                    + "nav.querySelectorAll('li.tree-scenario-node').forEach(function(li){"
-                    + "var s=li.getAttribute('data-status')||'';var show=f==='all'||s===f;"
-                    + "if(!show){var det=li.querySelector('details.tree-steps-details');if(det)det.open=false;}"
-                    + "li.style.display=show?'':'none';});});})();</script>";
+                    + "apply();});"
+                    + "if(q)q.addEventListener('input',apply);"
+                    + "var next=bar.querySelector('.tree-next-fail');var failIdx=-1;"
+                    + "if(next)next.addEventListener('click',function(){"
+                    + "var nodes=[];nav.querySelectorAll('li.tree-scenario-node').forEach(function(li){"
+                    + "if(li.getAttribute('data-status')==='fail'&&li.style.display!=='none')nodes.push(li);});"
+                    + "if(!nodes.length)return;failIdx=(failIdx+1)%nodes.length;"
+                    + "var a=nodes[failIdx].querySelector('a.tree-link--scenario');if(a)a.click();});"
+                    + "apply();})();</script>";
+
+    private static final String REPORT_UX_MARKER = "report-ux-v1";
+
+    private static final String REPORT_UX_SCRIPT =
+            "<script>(function(){/*" + REPORT_UX_MARKER + "*/"
+                    + "document.querySelectorAll('.report-main .scenario-detail-card').forEach(function(card){"
+                    + "var inner=card.querySelector('.scenario-detail-card__inner');"
+                    + "if(!inner||inner.querySelector('.scenario-fold-body'))return;"
+                    + "var h3=inner.querySelector('h3');if(!h3)return;"
+                    + "h3.classList.add('scenario-fold-head');"
+                    + "var body=document.createElement('div');body.className='scenario-fold-body';body.hidden=true;"
+                    + "var n=h3.nextSibling;while(n){var nx=n.nextSibling;body.appendChild(n);n=nx;}"
+                    + "inner.appendChild(body);"
+                    + "h3.addEventListener('click',function(e){"
+                    + "if(e.target.closest&&e.target.closest('a,button'))return;"
+                    + "var open=body.hidden;body.hidden=!open;card.classList.toggle('is-open',open);});});"
+                    + "document.querySelectorAll('.report-main textarea').forEach(function(ta){"
+                    + "if(ta.getAttribute('data-copy-ready'))return;ta.setAttribute('data-copy-ready','1');"
+                    + "var b=document.createElement('button');b.type='button';b.className='report-copy-btn';b.textContent='Copy';"
+                    + "b.addEventListener('click',function(){var v=ta.value||'';"
+                    + "function ok(){b.textContent='Copied';setTimeout(function(){b.textContent='Copy';},1200);}"
+                    + "if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(v).then(ok,function(){ta.select();try{document.execCommand('copy');ok();}catch(e){}});} "
+                    + "else {ta.select();try{document.execCommand('copy');ok();}catch(e){}}});"
+                    + "if(ta.parentNode)ta.parentNode.insertBefore(b,ta);});})();</script>";
 
 
-    // scrollIntoView handles content-visibility:auto natively (spec requires browsers to
-    // expand skipped content before scrolling). The old getBoundingClientRect approach
-    // returned placeholder heights (contain-intrinsic-size: 480px) for off-screen
-    // scenario sections, causing clicks to land at the wrong position until the content
-    // happened to be rendered — requiring 2-3 clicks to navigate reliably.
+    // content-visibility:auto skips layout for off-screen scenario cards and substitutes
+    // contain-intrinsic-size (480px). scrollIntoView then uses those placeholders, so a
+    // click on a far scenario stops around the middle of a long report. Before scrolling,
+    // force real layout only for cards up to the target (later cards stay skipped so the
+    // first paint stays cheap). Instant scroll; smooth animation starts against the
+    // placeholder height and stops short.
+    private static final String REPORT_MAIN_SCROLL_MARKER = "cv-scroll-v3";
+
     private static final String REPORT_MAIN_SCROLL_SCRIPT =
-            "<script>(function(){"
-                    + "function s(el,sm){if(!el)return;el.scrollIntoView({behavior:sm?'smooth':'auto',block:'start'})}"
-                    + "function h(hash,sm){if(!hash||hash.charAt(0)!=='#')return;"
-                    + "var el=document.getElementById(hash.slice(1));if(el)s(el,sm)}"
+            "<script>(function(){/*" + REPORT_MAIN_SCROLL_MARKER + "*/"
+                    + "function reveal(el){var cards=document.querySelectorAll('.report-main .scenario-detail-card');"
+                    + "for(var i=0;i<cards.length;i++){var c=cards[i];c.style.contentVisibility='visible';"
+                    + "if(c===el||c.contains(el))break;}}"
+                    + "function openFold(el){var card=el.closest&&el.closest('.scenario-detail-card');if(!card)return;"
+                    + "var body=card.querySelector('.scenario-fold-body');"
+                    + "if(body){body.hidden=false;card.classList.add('is-open');}}"
+                    + "function s(el){if(!el)return;openFold(el);reveal(el);void el.offsetHeight;"
+                    + "el.scrollIntoView({behavior:'auto',block:'start'});"
+                    + "requestAnimationFrame(function(){el.scrollIntoView({behavior:'auto',block:'start'})})}"
+                    + "function h(hash){if(!hash||hash.charAt(0)!=='#')return;"
+                    + "var el=document.getElementById(hash.slice(1));if(el)s(el)}"
                     + "function navClick(e){var a=e.target.closest&&e.target.closest('a[href^=\"#\"]');"
                     + "if(!a||!a.closest('.report-sidebar'))return;"
                     + "var id=a.getAttribute('href');if(!id||id==='#')return;"
-                    + "e.preventDefault();h(id,true);try{history.replaceState(null,'',id)}catch(x){}}"
+                    + "e.preventDefault();h(id);try{history.replaceState(null,'',id)}catch(x){}}"
                     + "function mainClick(e){var a=e.target.closest&&e.target.closest('a[href^=\"#\"]');"
                     + "if(!a||!a.closest('.report-main'))return;"
                     + "var id=a.getAttribute('href');if(!id||id==='#')return;"
                     + "var el=document.getElementById(id.slice(1));if(!el||!el.closest('.report-main'))return;"
-                    + "e.preventDefault();h(id,true)}"
+                    + "e.preventDefault();h(id)}"
                     + "function init(){document.querySelector('.report-sidebar')?.addEventListener('click',navClick);"
                     + "document.querySelector('.report-main')?.addEventListener('click',mainClick);"
-                    + "h(location.hash||'#report-exec-summary',false);"
-                    + "if(!document.getElementById('report-exec-summary'))h('#summary',false)}"
+                    + "h(location.hash||'#report-exec-summary');"
+                    + "if(!document.getElementById('report-exec-summary'))h('#summary')}"
                     + "if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);"
                     + "else init()})();</script>";
 
@@ -485,6 +536,7 @@ public final class ReportTreeViewEnhancer {
                                 + REPORT_THEME_SCRIPT
                                 + REPORT_TREE_ACCORDION_SCRIPT
                                 + REPORT_TREE_FILTER_SCRIPT
+                                + REPORT_UX_SCRIPT
                                 + REPORT_MAIN_SCROLL_SCRIPT
                                 + "\n</body>");
 
@@ -538,10 +590,9 @@ public final class ReportTreeViewEnhancer {
                 out.replace(
                         "href=\"#summary\" role=\"treeitem\"><span class=\"tree-icon\"",
                         "href=\"#report-exec-summary\" role=\"treeitem\"><span class=\"tree-icon\"");
-        // Upgrade old getBoundingClientRect-based scroll script to the scrollIntoView
-        // version so that re-enhanced existing reports also get the navigation fix.
+        out = upgradeReportUx(out);
         out = upgradeScrollScript(out);
-        if (!out.contains("h(location.hash||'#report-exec-summary'")) {
+        if (!out.contains(REPORT_MAIN_SCROLL_MARKER)) {
             String inject = REPORT_MAIN_SCROLL_SCRIPT + "\n";
             if (out.contains("</body>")) {
                 out = replaceFirstLiteral(out, "</body>", inject + "</body>");
@@ -553,17 +604,41 @@ public final class ReportTreeViewEnhancer {
         // wrapScenarioDetailCards now detects already-wrapped H3s and skips them, calling
         // it here is safe: it only wraps the orphaned H3s that still lack a section.
         out = wrapScenarioDetailCards(out);
-        return stripScenarioDetailCardChrome(out);
+        return stripScenarioDetailCardChrome(stripSlowestStrip(out));
+    }
+
+
+    private static String upgradeReportUx(String html) {
+        if (html.contains(REPORT_UX_MARKER)) {
+            return html;
+        }
+        String sig = "nav.querySelectorAll('li.tree-scenario-node')";
+        int sigIdx = html.indexOf(sig);
+        String inject = REPORT_TREE_FILTER_SCRIPT + REPORT_UX_SCRIPT;
+        if (sigIdx >= 0) {
+            int scriptStart = html.lastIndexOf("<script>", sigIdx);
+            int scriptEnd = html.indexOf("</script>", sigIdx);
+            if (scriptStart >= 0 && scriptEnd >= 0) {
+                return html.substring(0, scriptStart) + inject + html.substring(scriptEnd + 9);
+            }
+        }
+        if (html.contains("</body>")) {
+            return replaceFirstLiteral(html, "</body>", inject + "\n</body>");
+        }
+        return html;
     }
 
 
     private static String upgradeScrollScript(String html) {
-        // Detect old getBoundingClientRect-based scroll script by its unique signature.
-        // content-visibility:auto causes getBoundingClientRect to return placeholder
-        // heights for off-screen elements, so the calculated scroll position is wrong
-        // until the element has been rendered — requiring multiple clicks to navigate.
-        String oldSignature = "getBoundingClientRect().top-p.getBoundingClientRect().top+p.scrollTop";
+        if (html.contains(REPORT_MAIN_SCROLL_MARKER)) {
+            return html;
+        }
+        String oldSignature = "h(location.hash||'#report-exec-summary'";
         int sigIdx = html.indexOf(oldSignature);
+        if (sigIdx < 0) {
+            oldSignature = "getBoundingClientRect().top-p.getBoundingClientRect().top+p.scrollTop";
+            sigIdx = html.indexOf(oldSignature);
+        }
         if (sigIdx < 0) {
             return html;
         }
@@ -757,31 +832,72 @@ public final class ReportTreeViewEnhancer {
             counts.merge(r.status, 1, Integer::sum);
         }
         int nAll = rows.size();
+        int nFail = counts.getOrDefault("fail", 0);
+        String defaultFilter = nFail > 0 ? "fail" : "all";
         StringBuilder sb = new StringBuilder();
         sb.append("<div class=\"tree-filter-toolbar\" role=\"toolbar\" aria-label=\"Filter scenarios by outcome\">");
+        sb.append("<input class=\"tree-search\" type=\"search\" placeholder=\"Search scenarios\" aria-label=\"Search scenarios\">");
         sb.append("<div class=\"tree-filter-chips\">");
-        sb.append(
-                "<button type=\"button\" class=\"tree-filter-chip is-active\" data-tree-filter=\"all\" aria-pressed=\"true\">All<span class=\"tree-filter-chip-n\" aria-hidden=\"true\">(");
-        sb.append(nAll).append(")</span></button>");
+        appendFilterChip(sb, "all", "All", nAll, "all".equals(defaultFilter));
 
         List<String> filterOrder = List.of("pass", "ignore", "known", "skip", "fail", "unknown");
         for (String key : filterOrder) {
             int cnt = counts.getOrDefault(key, 0);
             if (cnt == 0) continue;
-            sb.append("<button type=\"button\" class=\"tree-filter-chip tree-filter-chip--")
-                    .append(key)
-                    .append("\" data-tree-filter=\"")
-                    .append(key)
-                    .append("\" aria-pressed=\"false\">")
-                    .append(scenarioStatusLabel(key))
-                    .append("<span class=\"tree-filter-chip-n\" aria-hidden=\"true\">(")
-                    .append(cnt)
-                    .append(")</span></button>");
+            appendFilterChip(sb, key, scenarioStatusLabel(key), cnt, key.equals(defaultFilter));
         }
-        sb.append("</div></div>");
+        sb.append("</div>");
+        if (nFail > 0) {
+            sb.append("<button type=\"button\" class=\"tree-next-fail\">Next failure</button>");
+        }
+        sb.append("</div>");
         return sb.toString();
     }
 
+    private static void appendFilterChip(StringBuilder sb, String key, String label, int count, boolean active) {
+        sb.append("<button type=\"button\" class=\"tree-filter-chip");
+        if (!"all".equals(key)) {
+            sb.append(" tree-filter-chip--").append(key);
+        }
+        if (active) {
+            sb.append(" is-active");
+        }
+        sb.append("\" data-tree-filter=\"").append(key).append("\" aria-pressed=\"")
+                .append(active ? "true" : "false")
+                .append("\">")
+                .append(label)
+                .append("<span class=\"tree-filter-chip-n\" aria-hidden=\"true\">(")
+                .append(count)
+                .append(")</span></button>");
+    }
+
+    private static String stripSlowestStrip(String html) {
+        String marker = "<div class=\"tree-slow\"";
+        int start = html.indexOf(marker);
+        if (start < 0) {
+            return html;
+        }
+        int depth = 0;
+        int i = start;
+        while (i < html.length()) {
+            int open = html.indexOf("<div", i);
+            int close = html.indexOf("</div>", i);
+            if (close < 0) {
+                return html;
+            }
+            if (open >= 0 && open < close) {
+                depth++;
+                i = open + 4;
+                continue;
+            }
+            depth--;
+            i = close + 6;
+            if (depth == 0) {
+                return html.substring(0, start) + html.substring(i);
+            }
+        }
+        return html;
+    }
 
     private static String suiteLifecycleTreeClass(String scenarioName) {
         if (scenarioName == null) {
@@ -814,6 +930,8 @@ public final class ReportTreeViewEnhancer {
                     .append(suiteLifecycleTreeClass(r.name))
                     .append("\" data-status=\"")
                     .append(st)
+                    .append("\" data-name=\"")
+                    .append(escapeHtml(r.name))
                     .append("\" role=\"none\">");
             parts.append("<a class=\"tree-link tree-link--scenario\" href=\"#")
                     .append(r.anchor)
@@ -877,7 +995,9 @@ public final class ReportTreeViewEnhancer {
             }
             parts.append("</li>");
         }
-        parts.append("</ul></nav>");
+        parts.append("</ul>");
+        parts.append("<p class=\"tree-search-empty\" hidden>No scenarios match.</p>");
+        parts.append("</nav>");
         return parts.toString();
     }
 
