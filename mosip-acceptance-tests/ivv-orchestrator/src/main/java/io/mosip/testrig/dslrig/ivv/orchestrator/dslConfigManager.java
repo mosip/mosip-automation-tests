@@ -95,7 +95,7 @@ public class dslConfigManager extends ConfigManager {
 		try {
 			String v = ConfigManager.getproperty("parkResumeEnabled");
 			if (v == null || v.isBlank()) {
-				return false;
+				return true;
 			}
 			return "yes".equalsIgnoreCase(v.trim()) || "true".equalsIgnoreCase(v.trim());
 		} catch (Exception e) {
