@@ -27,6 +27,8 @@ public final class ScenarioParkScheduler {
 	private static volatile ScenarioParkScheduler instance;
 
 	private final LinkedBlockingQueue<ScenarioExecutionState> readyQueue = new LinkedBlockingQueue<>();
+	/** Scenarios whose park expired; drained before {@link #readyQueue} so they are not stuck behind new scenarios. */
+	private final LinkedBlockingQueue<ScenarioExecutionState> resumeQueue = new LinkedBlockingQueue<>();
 	private final DelayQueue<ScenarioExecutionState> parkQueue = new DelayQueue<>();
 	private final ExecutorService workers;
 	private final Thread unparker;
@@ -97,9 +99,11 @@ public final class ScenarioParkScheduler {
 		ON_WORKER.set(Boolean.TRUE);
 		try {
 			while (!shutdown.get() && !Thread.currentThread().isInterrupted()) {
-				ScenarioExecutionState state;
+				ScenarioExecutionState state = resumeQueue.poll();
 				try {
-					state = readyQueue.poll(500, TimeUnit.MILLISECONDS);
+					if (state == null) {
+						state = readyQueue.poll(100, TimeUnit.MILLISECONDS);
+					}
 				} catch (InterruptedException ie) {
 					Thread.currentThread().interrupt();
 					break;
@@ -109,7 +113,7 @@ public final class ScenarioParkScheduler {
 				}
 				bindReporter(state);
 				String scenarioId = state.getScenario() != null ? state.getScenario().getId() : "?";
-				if (state.getStepIndex() > 0) {
+				if (state.getStepIndex() > 0 && !state.isRepeatingStep()) {
 					String resumeMsg = "Resuming scenario " + scenarioId + " at step index " + state.getStepIndex();
 					logger.info(resumeMsg);
 					if (state.getExtentTest() != null) {
@@ -142,7 +146,7 @@ public final class ScenarioParkScheduler {
 				if (state == null) {
 					continue;
 				}
-				readyQueue.offer(state);
+				resumeQueue.offer(state);
 			} catch (InterruptedException ie) {
 				Thread.currentThread().interrupt();
 				break;

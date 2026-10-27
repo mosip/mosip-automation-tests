@@ -404,6 +404,11 @@ public class Orchestrator {
 			beforeSuiteExeuted = true;
 			logger.info("Scenario 0 not in this run; skipping before-suite gate.");
 		}
+		// Longest scenarios start first so they are not what the suite is still waiting on at the end.
+		Map<Scenario, Long> estimatedSeconds = new java.util.IdentityHashMap<>();
+		for (Scenario scenario : filteredScenarios) {
+			estimatedSeconds.put(scenario, estimateScenarioSeconds(scenario));
+		}
 		filteredScenarios.sort((a, b) -> {
 			if (a.getId().equalsIgnoreCase("0")) {
 				return -1;
@@ -417,7 +422,7 @@ public class Orchestrator {
 			if (b.getId().equalsIgnoreCase("AFTER_SUITE")) {
 				return -1;
 			}
-			return 0;
+			return Long.compare(estimatedSeconds.get(b), estimatedSeconds.get(a));
 		});
 		suiteRequiresScenario0 = filteredScenarios.stream().anyMatch(s -> s.getId().equalsIgnoreCase("0"));
 		if (!suiteRequiresScenario0) {
@@ -442,6 +447,58 @@ public class Orchestrator {
 				: Integer.parseInt(dslConfigManager.getThreadCount());
 		System.setProperty("testng.threadcount", String.valueOf(testngThreadProp));
 		return dataArray;
+	}
+
+	/**
+	 * Rough run time of a scenario from its steps: explicit waits plus typical packet-processing
+	 * polls (~100 s per checkStatus and ~60 s per CheckRIDStage in full runs). Only used for ordering.
+	 */
+	private static long estimateScenarioSeconds(Scenario scenario) {
+		long seconds = 0;
+		if (scenario.getSteps() == null) {
+			return seconds;
+		}
+		for (Scenario.Step step : scenario.getSteps()) {
+			String name = step.getName() == null ? "" : step.getName();
+			String param = (step.getParameters() != null && !step.getParameters().isEmpty())
+					? step.getParameters().get(0)
+					: null;
+			if (name.equalsIgnoreCase("Wait")) {
+				seconds += estimateWaitSeconds(param);
+			} else if (name.equalsIgnoreCase("WaitTillReprocessorInterval")) {
+				seconds += 900;
+			} else if (name.equalsIgnoreCase("checkStatus")) {
+				seconds += 100;
+			} else if (name.equalsIgnoreCase("CheckRIDStage")) {
+				seconds += 60;
+			} else {
+				seconds += 2;
+			}
+		}
+		return seconds;
+	}
+
+	private static long estimateWaitSeconds(String param) {
+		if (param == null || param.isBlank()) {
+			return 30;
+		}
+		String configured;
+		long fallback;
+		if ("UIN_WAIT_TIME".equalsIgnoreCase(param)) {
+			configured = dslConfigManager.getUinWaitTime();
+			fallback = 90;
+		} else if ("PACKET_UPLOAD_WAIT_TIME".equalsIgnoreCase(param)) {
+			configured = dslConfigManager.getNextPacketUploadWaitTime();
+			fallback = 900;
+		} else {
+			configured = param;
+			fallback = 30;
+		}
+		try {
+			return (configured == null || configured.isBlank()) ? fallback : Long.parseLong(configured.trim());
+		} catch (NumberFormatException e) {
+			return fallback;
+		}
 	}
 
 	@BeforeMethod
