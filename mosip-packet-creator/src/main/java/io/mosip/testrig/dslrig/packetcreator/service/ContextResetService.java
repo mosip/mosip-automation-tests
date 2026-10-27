@@ -1,5 +1,7 @@
 package io.mosip.testrig.dslrig.packetcreator.service;
 
+import java.beans.Introspector;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -60,6 +62,7 @@ public class ContextResetService {
 		PacketSyncService.clearSlotQueue();
 		MdsPortRegistry.clearAll();
 		MdsCaptureService.clearContextLocks();
+		Introspector.flushCaches();
 		System.gc();
 		logger.info("After-suite clear completed for all contexts; heap used {} MB -> {} MB, committed {} MB",
 				usedBeforeMb, usedHeapMb(runtime), runtime.totalMemory() / (1024 * 1024));
