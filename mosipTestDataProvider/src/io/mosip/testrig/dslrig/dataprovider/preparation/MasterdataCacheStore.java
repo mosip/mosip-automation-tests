@@ -1,5 +1,6 @@
 package io.mosip.testrig.dslrig.dataprovider.preparation;
 
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.cache.Cache;
@@ -124,6 +125,15 @@ public final class MasterdataCacheStore {
 					logger.warn("Failed to destroy masterdata cache {}: {}", cacheName, e.getMessage());
 				}
 			}
+		}
+	}
+
+	/**
+	 * Clears every run-scoped masterdata cache. Called after the suite; unsafe while other runs are active.
+	 */
+	public static void clearAll() {
+		for (String cacheName : new ArrayList<>(CACHES.keySet())) {
+			clearNamespace(cacheName.substring(NAMESPACE_PREFIX.length()));
 		}
 	}
 }

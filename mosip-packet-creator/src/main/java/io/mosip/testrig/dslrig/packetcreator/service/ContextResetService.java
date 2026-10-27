@@ -4,6 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import io.mosip.testrig.dslrig.dataprovider.preparation.MasterdataCacheStore;
+import io.mosip.testrig.dslrig.dataprovider.util.AuthTokenStore;
+import io.mosip.testrig.dslrig.dataprovider.util.internalapi.InternalApiLogCollector;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
 import io.mosip.testrig.dslrig.packetcreator.cache.PacketTemplateCache;
 
@@ -37,11 +40,18 @@ public class ContextResetService {
 	}
 
 	/**
-	 * After-suite clear: run cache, then every context namespace created by set context.
+	 * After-suite clear: run cache, every context namespace created by set context, and all other
+	 * in-memory per-context state (tokens, masterdata, schemas, server context, internal API logs).
 	 */
 	public void clearAfterSuite(String contextKey) {
 		clearRunScopedCache(contextKey);
 		VariableManager.deleteScenarioNamespaces();
+		MasterdataCacheStore.clearAll();
+		AuthTokenStore.clearAll();
+		InternalApiLogCollector.clearAll();
+		SchemaUtil.clearMemoryCache();
+		ContextUtils.clearServerContextCache();
+		logger.info("After-suite clear completed for all contexts");
 	}
 
 	/**

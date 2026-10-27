@@ -207,11 +207,7 @@ public class Orchestrator {
 		if (ScenarioParkScheduler.isInitialized()) {
 			ScenarioParkScheduler.get().shutdown();
 		}
-		if (dslConfigManager.IsDebugEnabled()) {
-			logger.info("Debug mode enabled; suite teardown limited to timing report and extent flush");
-		} else {
-			purgeAllPacketCreatorData();
-		}
+		purgeAllPacketCreatorData();
 		extent.flush();
 	}
 
@@ -221,6 +217,8 @@ public class Orchestrator {
 			HashMap<String, String> queryParams = new HashMap<>();
 			queryParams.put("mountPath", ConfigManager.getproperty("mountPath"));
 			queryParams.put("tempPath", ConfigManager.getproperty("mosip.test.temp"));
+			// The packet creator raises this back to its safe minimum if other requests are still in flight.
+			queryParams.put("minAgeMs", "0");
 			Response response = BaseTestCaseUtil.deleteRequestWithQueryParamWithoutStep(url, queryParams,
 					"purgeAllPacketData");
 			if (response != null && response.getStatusCode() == 200) {

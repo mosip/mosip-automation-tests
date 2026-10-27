@@ -74,6 +74,10 @@ public class ContextUtils {
 		}
 	}
 
+	public static void clearServerContextCache() {
+		SERVER_CONTEXT_CACHE.clear();
+	}
+
 	public String createUpdateServerContext(Properties props, String ctxName) throws IOException {
 	    Path filePath = resolveServerContextPath(ctxName);
 
