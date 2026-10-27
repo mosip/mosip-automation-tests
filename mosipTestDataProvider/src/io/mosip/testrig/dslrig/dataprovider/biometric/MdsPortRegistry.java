@@ -33,6 +33,10 @@ public final class MdsPortRegistry {
 		PORTS.remove(portKey(contextKey));
 	}
 
+	public static void clearAll() {
+		PORTS.clear();
+	}
+
 	private static String portKey(String contextKey) {
 		return "port_" + contextKey.trim();
 	}

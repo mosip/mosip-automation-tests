@@ -819,6 +819,10 @@ public class PacketSyncService {
 		slotQueue.removeIf(SlotEntry::isExpired);
 	}
 
+	public static void clearSlotQueue() {
+		slotQueue.clear();
+	}
+
 	public String bookAppointmentSlot(String preRegID, int nthSlot, boolean bHoliday, String contextKey) {
 		cleanExpiredSlots();
 		if (slotQueue.isEmpty()) {

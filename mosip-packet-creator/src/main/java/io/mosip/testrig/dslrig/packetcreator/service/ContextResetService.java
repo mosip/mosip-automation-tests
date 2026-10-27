@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import io.mosip.testrig.dslrig.dataprovider.biometric.MdsCaptureService;
+import io.mosip.testrig.dslrig.dataprovider.biometric.MdsPortRegistry;
 import io.mosip.testrig.dslrig.dataprovider.preparation.MasterdataCacheStore;
 import io.mosip.testrig.dslrig.dataprovider.util.AuthTokenStore;
 import io.mosip.testrig.dslrig.dataprovider.util.internalapi.InternalApiLogCollector;
@@ -41,9 +43,13 @@ public class ContextResetService {
 
 	/**
 	 * After-suite clear: run cache, every context namespace created by set context, and all other
-	 * in-memory per-context state (tokens, masterdata, schemas, server context, internal API logs).
+	 * in-memory per-context state (tokens, masterdata, schemas, server context, internal API logs,
+	 * prereg appointment slots, MDS ports and locks). Then collects the freed objects so the heap
+	 * shrinks back instead of holding the run's garbage until the next allocation spike.
 	 */
 	public void clearAfterSuite(String contextKey) {
+		Runtime runtime = Runtime.getRuntime();
+		long usedBeforeMb = usedHeapMb(runtime);
 		clearRunScopedCache(contextKey);
 		VariableManager.deleteScenarioNamespaces();
 		MasterdataCacheStore.clearAll();
@@ -51,7 +57,16 @@ public class ContextResetService {
 		InternalApiLogCollector.clearAll();
 		SchemaUtil.clearMemoryCache();
 		ContextUtils.clearServerContextCache();
-		logger.info("After-suite clear completed for all contexts");
+		PacketSyncService.clearSlotQueue();
+		MdsPortRegistry.clearAll();
+		MdsCaptureService.clearContextLocks();
+		System.gc();
+		logger.info("After-suite clear completed for all contexts; heap used {} MB -> {} MB, committed {} MB",
+				usedBeforeMb, usedHeapMb(runtime), runtime.totalMemory() / (1024 * 1024));
+	}
+
+	private static long usedHeapMb(Runtime runtime) {
+		return (runtime.totalMemory() - runtime.freeMemory()) / (1024 * 1024);
 	}
 
 	/**

@@ -43,6 +43,10 @@ public final class MdsCaptureService {
 		return MDS_CONTEXT_LOCKS.computeIfAbsent(key, k -> new Object());
 	}
 
+	public static void clearContextLocks() {
+		MDS_CONTEXT_LOCKS.clear();
+	}
+
 	private static final String FALSE = "false";
 	private static final String LEFTEYE = "leftEye";
 	private static final String RIGHTEYE = "rightEye";
