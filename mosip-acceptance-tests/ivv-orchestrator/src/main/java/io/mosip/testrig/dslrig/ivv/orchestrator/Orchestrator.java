@@ -179,7 +179,7 @@ public class Orchestrator {
 			} catch (Exception ignored) {
 				workers = 8;
 			}
-			ScenarioParkScheduler.init(workers, step -> {
+			ScenarioParkScheduler.init(workers, dslConfigManager.getMaxActiveScenarios(), step -> {
 				Orchestrator orch = parkOrchestratorInstance;
 				if (orch == null) {
 					throw new IllegalStateException("Orchestrator not available for park worker step factory");

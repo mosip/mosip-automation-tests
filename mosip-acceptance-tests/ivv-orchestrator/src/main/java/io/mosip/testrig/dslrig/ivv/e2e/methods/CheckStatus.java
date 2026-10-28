@@ -82,6 +82,7 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 	public void checkStatus(String _ridStatusParam, String _expectedRidProcessed, Scenario.Step step)
 			throws RigInternalError {
 		long waitMs = Long.parseLong(props.getProperty("waitTime"));
+		long maxPollIntervalMs = Math.max(waitMs, getPacketStatusMaxPollIntervalMs());
 		long maxTotalWaitMs = Math.max(getMaxPacketStatusWaitTimeMs(), MIN_PACKET_STATUS_WAIT_MS);
 		int statusSocketTimeoutMs = getPacketStatusSocketTimeoutMs();
 		int maxLoop = Math.max(Integer.parseInt(props.getProperty("loopCount")),
@@ -99,7 +100,8 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 						poll.stopPending("max wait time (" + (maxTotalWaitMs / 60000) + " min) reached");
 						break;
 					}
-					long sleepMs = Math.min(waitMs, poll.deadline - now);
+					long sleepMs = Math.min(pollIntervalMs(waitMs, maxPollIntervalMs, poll.maxCounter()),
+							poll.deadline - now);
 					logger.info("Waiting for " + (sleepMs / 1000) + " sec to get packet processed | Loop: "
 							+ (poll.maxCounter() + 1) + "/" + maxLoop);
 					poll.pollDue = true;
@@ -152,6 +154,12 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 			}
 		}
 
+	}
+
+	/** {@code waitMs} before the first poll, then doubled per completed poll up to {@code maxIntervalMs}. */
+	static long pollIntervalMs(long waitMs, long maxIntervalMs, int pollsDone) {
+		long interval = waitMs << Math.min(Math.max(0, pollsDone), 10);
+		return Math.min(interval, maxIntervalMs);
 	}
 
 	private void pollPendingOnce(PollState poll, int maxLoop, long maxTotalWaitMs, int statusSocketTimeoutMs,
