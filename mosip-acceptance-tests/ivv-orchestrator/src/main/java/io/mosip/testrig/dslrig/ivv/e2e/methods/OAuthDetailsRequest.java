@@ -5,6 +5,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
@@ -12,8 +13,10 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId;
+import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestException;
+import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.SecurityXSSException;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
@@ -43,6 +46,8 @@ public class OAuthDetailsRequest extends BaseTestCaseUtil implements StepInterfa
 		if (dslConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET)) {
 			throw new FeatureNotSupportedError("eSignet is not deployed. Hence skipping the step");
 		}
+
+		ensureCsrfToken();
 
 		String clientId = "";
 
@@ -115,5 +120,18 @@ public class OAuthDetailsRequest extends BaseTestCaseUtil implements StepInterfa
 
 		}
 
+	}
+
+	// eSignet rejects oauth-details/authenticate/send-otp with 403 unless X-XSRF-TOKEN and the
+	// XSRF-TOKEN cookie are set; apitest-commons reads both from BaseTestCase statics.
+	private static synchronized void ensureCsrfToken() throws RigInternalError {
+		if (StringUtils.isNotBlank(BaseTestCase.CSRF_TOKEN) && StringUtils.isNotBlank(BaseTestCase.CSRF_COOKIE)) {
+			return;
+		}
+		try {
+			AdminTestUtil.fetchAndStoreCsrfToken();
+		} catch (IllegalStateException e) {
+			throw new RigInternalError("Unable to fetch eSignet CSRF token: " + e.getMessage());
+		}
 	}
 }
