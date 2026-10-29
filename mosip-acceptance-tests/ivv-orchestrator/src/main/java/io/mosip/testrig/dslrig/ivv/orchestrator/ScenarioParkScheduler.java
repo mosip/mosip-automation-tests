@@ -27,14 +27,24 @@ public final class ScenarioParkScheduler {
 	private static volatile ScenarioParkScheduler instance;
 
 	private final LinkedBlockingQueue<ScenarioExecutionState> readyQueue = new LinkedBlockingQueue<>();
+	/** Scenarios whose park expired; drained before {@link #readyQueue} so they are not stuck behind new scenarios. */
+	private final LinkedBlockingQueue<ScenarioExecutionState> resumeQueue = new LinkedBlockingQueue<>();
 	private final DelayQueue<ScenarioExecutionState> parkQueue = new DelayQueue<>();
+	/**
+	 * Scenarios running a step or parked between packet-status polls. Scenarios parked in a Wait
+	 * step are not counted. Caps how many packets are in processing at once.
+	 */
+	private final AtomicInteger activeScenarios = new AtomicInteger();
+	private final int maxActiveScenarios;
 	private final ExecutorService workers;
 	private final Thread unparker;
 	private final AtomicBoolean shutdown = new AtomicBoolean(false);
 	private final ScenarioStepExecutor.StepFactory stepFactory;
 
-	private ScenarioParkScheduler(int workerCount, ScenarioStepExecutor.StepFactory stepFactory) {
+	private ScenarioParkScheduler(int workerCount, int maxActiveScenarios,
+			ScenarioStepExecutor.StepFactory stepFactory) {
 		this.stepFactory = stepFactory;
+		this.maxActiveScenarios = Math.max(1, maxActiveScenarios);
 		int n = Math.max(1, workerCount);
 		ThreadFactory tf = r -> {
 			Thread t = new Thread(r, "scenario-park-worker-" + WORKER_SEQ.incrementAndGet());
@@ -48,13 +58,14 @@ public final class ScenarioParkScheduler {
 		this.unparker = new Thread(this::unparkLoop, "scenario-park-unparker");
 		this.unparker.setDaemon(true);
 		this.unparker.start();
-		logger.info("ScenarioParkScheduler started with " + n + " workers");
+		logger.info("ScenarioParkScheduler started with " + n + " workers, maxActiveScenarios="
+				+ this.maxActiveScenarios);
 	}
 
-	public static synchronized ScenarioParkScheduler init(int workerCount,
+	public static synchronized ScenarioParkScheduler init(int workerCount, int maxActiveScenarios,
 			ScenarioStepExecutor.StepFactory stepFactory) {
 		if (instance == null) {
-			instance = new ScenarioParkScheduler(workerCount, stepFactory);
+			instance = new ScenarioParkScheduler(workerCount, maxActiveScenarios, stepFactory);
 		}
 		return instance;
 	}
@@ -97,9 +108,21 @@ public final class ScenarioParkScheduler {
 		ON_WORKER.set(Boolean.TRUE);
 		try {
 			while (!shutdown.get() && !Thread.currentThread().isInterrupted()) {
-				ScenarioExecutionState state;
+				ScenarioExecutionState state = resumeQueue.poll();
 				try {
-					state = readyQueue.poll(500, TimeUnit.MILLISECONDS);
+					if (state == null) {
+						if (tryReserveActiveSlot()) {
+							state = readyQueue.poll(100, TimeUnit.MILLISECONDS);
+							if (state == null) {
+								activeScenarios.decrementAndGet();
+							}
+						} else {
+							state = resumeQueue.poll(100, TimeUnit.MILLISECONDS);
+							countResumeAsActive(state);
+						}
+					} else {
+						countResumeAsActive(state);
+					}
 				} catch (InterruptedException ie) {
 					Thread.currentThread().interrupt();
 					break;
@@ -109,7 +132,7 @@ public final class ScenarioParkScheduler {
 				}
 				bindReporter(state);
 				String scenarioId = state.getScenario() != null ? state.getScenario().getId() : "?";
-				if (state.getStepIndex() > 0) {
+				if (state.getStepIndex() > 0 && !state.isRepeatingStep()) {
 					String resumeMsg = "Resuming scenario " + scenarioId + " at step index " + state.getStepIndex();
 					logger.info(resumeMsg);
 					if (state.getExtentTest() != null) {
@@ -121,17 +144,41 @@ public final class ScenarioParkScheduler {
 					ScenarioStepExecutor.Outcome outcome = ScenarioStepExecutor.runUntilYieldOrDone(state,
 							stepFactory);
 					if (outcome == ScenarioStepExecutor.Outcome.YIELD) {
+						if (!state.isRepeatingStep()) {
+							activeScenarios.decrementAndGet();
+						}
 						parkQueue.offer(state);
 					} else {
+						activeScenarios.decrementAndGet();
 						state.getCompletion().complete(null);
 					}
 				} catch (Throwable t) {
+					activeScenarios.decrementAndGet();
 					logger.error("Scenario " + scenarioId + " failed on park worker: " + t.getMessage(), t);
 					state.getCompletion().completeExceptionally(t);
 				}
 			}
 		} finally {
 			ON_WORKER.remove();
+		}
+	}
+
+	private boolean tryReserveActiveSlot() {
+		while (true) {
+			int active = activeScenarios.get();
+			if (active >= maxActiveScenarios) {
+				return false;
+			}
+			if (activeScenarios.compareAndSet(active, active + 1)) {
+				return true;
+			}
+		}
+	}
+
+	/** A scenario parked between polls kept its slot; one coming back from a Wait step takes one again. */
+	private void countResumeAsActive(ScenarioExecutionState state) {
+		if (state != null && !state.isRepeatingStep()) {
+			activeScenarios.incrementAndGet();
 		}
 	}
 
@@ -142,7 +189,7 @@ public final class ScenarioParkScheduler {
 				if (state == null) {
 					continue;
 				}
-				readyQueue.offer(state);
+				resumeQueue.offer(state);
 			} catch (InterruptedException ie) {
 				Thread.currentThread().interrupt();
 				break;

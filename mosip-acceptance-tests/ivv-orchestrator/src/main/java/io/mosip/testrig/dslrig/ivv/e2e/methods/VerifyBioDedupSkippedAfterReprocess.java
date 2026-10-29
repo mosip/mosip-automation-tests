@@ -54,6 +54,7 @@ public class VerifyBioDedupSkippedAfterReprocess extends BaseTestCaseUtil implem
 		boolean skipSeen = false;
 		boolean secondCycleSeen = false;
 		boolean reprocessSeenWithoutBioOutcome = false;
+		boolean completedWithoutNewCycleSeen = false;
 		StringBuilder detail = new StringBuilder();
 
 		for (int attempt = 0; attempt < loopCount && !pass; attempt++) {
@@ -96,7 +97,13 @@ public class VerifyBioDedupSkippedAfterReprocess extends BaseTestCaseUtil implem
 					break;
 				}
 			}
-			if (!skipSeen && hasSecondBioCycle(ordered, reprocessIdx)) {
+			if (!pass && !requireSkipOnly && completedWithoutNewCycle(bioAfter)) {
+				completedWithoutNewCycleSeen = true;
+				pass = true;
+				logger.warn("Biometric dedupe completed after reprocess without a new IN_PROGRESS cycle, so the "
+						+ "pending ABIS request was not sent again. Use strictSkip to require an explicit skip status.");
+			}
+			if (!pass && !skipSeen && hasSecondBioCycle(ordered, reprocessIdx)) {
 				secondCycleSeen = true;
 				if (!requireSkipOnly) {
 					pass = true;
@@ -121,8 +128,17 @@ public class VerifyBioDedupSkippedAfterReprocess extends BaseTestCaseUtil implem
 			throw new RigInternalError("Post-reprocess biometric dedupe assertion failed for rid=" + rid + ". "
 					+ (requireSkipOnly ? "strictSkip was set but no skip signal found. " : "")
 					+ "Details: " + detail + " skipSeen=" + skipSeen + " secondCycleSeen=" + secondCycleSeen
-					+ " reprocessSeenWithoutBioOutcome=" + reprocessSeenWithoutBioOutcome);
+					+ " reprocessSeenWithoutBioOutcome=" + reprocessSeenWithoutBioOutcome
+					+ " completedWithoutNewCycle=" + completedWithoutNewCycleSeen);
 		}
+	}
+
+	private static boolean completedWithoutNewCycle(List<JSONObject> bioAfter) {
+		boolean newCycle = bioAfter.stream()
+				.anyMatch(o -> "IN_PROGRESS".equalsIgnoreCase(o.optString("statusCode")));
+		boolean completed = bioAfter.stream()
+				.anyMatch(o -> "SUCCESS".equalsIgnoreCase(o.optString("statusCode")));
+		return completed && !newCycle;
 	}
 
 	private static boolean hasSecondBioCycle(List<JSONObject> ordered, int reprocessIdx) {

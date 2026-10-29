@@ -92,6 +92,10 @@ public class SchemaUtil {
         }
     }
 
+    public static void clearMemoryCache() {
+        SCHEMA_MEMORY_CACHE.clear();
+    }
+
     public String readSchemaAsString(String file) throws IOException{
         return Files.readString(Path.of(file));
     }

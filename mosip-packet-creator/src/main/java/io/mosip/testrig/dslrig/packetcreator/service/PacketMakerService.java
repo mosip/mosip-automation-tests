@@ -879,13 +879,17 @@ public class PacketMakerService {
 		metaData.put("packetname", rid + UNDERSCORE + type);
 
 		File containerMetaDataTemp = File.createTempFile("pkm", ".cm");
-		writeJSONFile(metaData, containerMetaDataTemp.getAbsolutePath());
-		Map<?, ?> mergedJsonMap = mergeJSON(fileToFix, containerMetaDataTemp.getAbsolutePath());
-		if (!writeJSONFile(mergedJsonMap, fileToFix)) {
-			logger.error("Error creating containerMetaData packet {} ", rid);
-			return false;
+		try {
+			writeJSONFile(metaData, containerMetaDataTemp.getAbsolutePath());
+			Map<?, ?> mergedJsonMap = mergeJSON(fileToFix, containerMetaDataTemp.getAbsolutePath());
+			if (!writeJSONFile(mergedJsonMap, fileToFix)) {
+				logger.error("Error creating containerMetaData packet {} ", rid);
+				return false;
+			}
+			return true;
+		} finally {
+			Files.deleteIfExists(containerMetaDataTemp.toPath());
 		}
-		return true;
 
 	}
 

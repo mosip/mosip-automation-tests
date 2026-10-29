@@ -120,16 +120,42 @@ public class dslConfigManager extends ConfigManager {
 
 	/**
 	 * Max scenarios TestNG may submit concurrently when park/resume is on.
-	 * Derived from {@code threadCount}: {@code max(threadCount * 10, 50)}.
+	 * {@code maxInFlightScenarios} when set, otherwise {@code threadCount * 3}.
 	 */
 	public static int getMaxInFlightScenarios() {
-		int threadCount = 8;
+		int configured = getPositiveIntProperty("maxInFlightScenarios");
+		return configured > 0 ? configured : getWorkerThreadCount() * 3;
+	}
+
+	/**
+	 * Max scenarios running a step or parked between packet-status polls at the same time; scenarios
+	 * parked in a Wait step do not count. New scenarios start only while below this limit.
+	 * {@code maxActiveScenarios} when set, otherwise {@code threadCount}.
+	 */
+	public static int getMaxActiveScenarios() {
+		int configured = getPositiveIntProperty("maxActiveScenarios");
+		return configured > 0 ? configured : getWorkerThreadCount();
+	}
+
+	private static int getWorkerThreadCount() {
 		try {
-			threadCount = Math.max(1, Integer.parseInt(getThreadCount().trim()));
+			return Math.max(1, Integer.parseInt(getThreadCount().trim()));
 		} catch (Exception ignored) {
-			threadCount = 8;
+			return 8;
 		}
-		return Math.max(threadCount * 10, 50);
+	}
+
+	/** Returns the property as a positive int, or 0 when it is missing, blank, or invalid. */
+	private static int getPositiveIntProperty(String key) {
+		try {
+			String v = ConfigManager.getproperty(key);
+			if (v == null || v.isBlank()) {
+				return 0;
+			}
+			return Math.max(0, Integer.parseInt(v.trim()));
+		} catch (Exception e) {
+			return 0;
+		}
 	}
 
 	public static int getMaxSuiteTime() {
@@ -199,7 +225,7 @@ public class dslConfigManager extends ConfigManager {
 			LOGGER.info("toSkippedList:  " + toSkippedList + ", toBeSkippedLsit : " + toBeSkippedLsit
 					+ ", stringToFind : " + stringToFind);
 		for (String string : toBeSkippedLsit) {
-			if (string.equalsIgnoreCase(stringToFind))
+			if (string.trim().equalsIgnoreCase(stringToFind))
 				return true;
 		}
 		return false;

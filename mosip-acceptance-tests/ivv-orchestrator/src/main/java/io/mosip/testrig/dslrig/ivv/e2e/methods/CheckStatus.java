@@ -3,9 +3,13 @@ package io.mosip.testrig.dslrig.ivv.e2e.methods;
 import static org.testng.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -16,10 +20,18 @@ import io.mosip.testrig.dslrig.ivv.core.dtos.Scenario;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
 import io.mosip.testrig.dslrig.ivv.orchestrator.DslReportLogUtil;
+import io.mosip.testrig.dslrig.ivv.orchestrator.ScenarioParkScheduler;
+import io.mosip.testrig.dslrig.ivv.orchestrator.ScenarioYieldException;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 import io.restassured.response.Response;
 
 public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
+	/** Some packets need well over the typical ~2 min; never give up on a packet sooner than this. */
+	private static final long MIN_PACKET_STATUS_WAIT_MS = 7 * 60 * 1000L;
+	/** Poll progress per step, kept while the scenario is parked between polls and the step is re-run. */
+	private static final Map<Scenario.Step, PollState> POLL_STATES = Collections
+			.synchronizedMap(new IdentityHashMap<>());
+
 	private String getRidStatusUrl = "/resident/status/";
 	public static Logger logger = Logger.getLogger(CheckStatus.class);
 	public HashMap<String, String> tempPridAndRid = null;
@@ -62,92 +74,49 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 		}
 	}
 
+	/**
+	 * Polls every RID until it leaves under-processing, {@code loopCount} polls are used, or the
+	 * wall-clock cap passes. On a park worker the scenario is parked between polls (the step re-runs
+	 * and continues from {@link #POLL_STATES}) instead of holding the worker in {@code Thread.sleep}.
+	 */
 	public void checkStatus(String _ridStatusParam, String _expectedRidProcessed, Scenario.Step step)
 			throws RigInternalError {
 		long waitMs = Long.parseLong(props.getProperty("waitTime"));
-		long maxTotalWaitMs = getMaxPacketStatusWaitTimeMs();
+		long maxPollIntervalMs = Math.max(waitMs, getPacketStatusMaxPollIntervalMs());
+		long maxTotalWaitMs = Math.max(getMaxPacketStatusWaitTimeMs(), MIN_PACKET_STATUS_WAIT_MS);
 		int statusSocketTimeoutMs = getPacketStatusSocketTimeoutMs();
+		int maxLoop = Math.max(Integer.parseInt(props.getProperty("loopCount")),
+				(int) ((MIN_PACKET_STATUS_WAIT_MS + waitMs - 1) / waitMs));
+		boolean parkBetweenPolls = dslConfigManager.isParkResumeEnabled()
+				&& ScenarioParkScheduler.isRunningOnWorker();
+		PollState poll = POLL_STATES.computeIfAbsent(step,
+				s -> new PollState(tempPridAndRid.values(), maxTotalWaitMs));
+		boolean parked = false;
 		try {
-			for (String rid : tempPridAndRid.values()) {
-				int counter = 0;
-				String ridStatus = "under processing";
-				String lastPollError = null;
-				boolean gotSuccessfulPoll = false;
-				String stopReason = "max poll loops reached";
-				int maxLoop = Integer.parseInt(props.getProperty("loopCount"));
-				long startTime = System.currentTimeMillis();
-				long deadline = startTime + maxTotalWaitMs;
-				while (counter < maxLoop) {
+			while (poll.hasPending()) {
+				if (!poll.pollDue) {
 					long now = System.currentTimeMillis();
-					if (now >= deadline) {
-						stopReason = "max wait time (" + (maxTotalWaitMs / 60000) + " min) reached";
-						logger.info("Packet status polling stopped: " + stopReason + " for RID " + rid);
+					if (now >= poll.deadline) {
+						poll.stopPending("max wait time (" + (maxTotalWaitMs / 60000) + " min) reached");
 						break;
 					}
-					long remainingMs = deadline - now;
-					long sleepMs = Math.min(waitMs, remainingMs);
-					counter++;
+					long sleepMs = Math.min(pollIntervalMs(waitMs, maxPollIntervalMs, poll.maxCounter()),
+							poll.deadline - now);
 					logger.info("Waiting for " + (sleepMs / 1000) + " sec to get packet processed | Loop: "
-							+ counter + "/" + maxLoop);
+							+ (poll.maxCounter() + 1) + "/" + maxLoop);
+					poll.pollDue = true;
+					if (parkBetweenPolls) {
+						parked = true;
+						throw ScenarioYieldException.repeatStep(sleepMs);
+					}
 					Thread.sleep(sleepMs);
-					now = System.currentTimeMillis();
-					if (now >= deadline) {
-						stopReason = "max wait time (" + (maxTotalWaitMs / 60000) + " min) reached";
-						logger.info("Packet status polling stopped: " + stopReason + " for RID " + rid);
-						break;
-					}
-					int callTimeoutMs = (int) Math.min(statusSocketTimeoutMs, deadline - now);
-					try {
-						Response response = getRequestSilent(baseUrl + getRidStatusUrl + rid, step, callTimeoutMs);
-						ridStatus = response.asString().toLowerCase();
-						gotSuccessfulPoll = true;
-						lastPollError = null;
-						logger.info("RID Status: " + ridStatus + " | Loop Count: " + counter);
-						if (isTerminalPacketStatus(ridStatus)) {
-							stopReason = "status left under-processing";
-							break;
-						}
-						if (!ridStatus.contains("under")) {
-							logger.warn("Ignoring non-terminal status body for RID " + rid
-									+ " on loop " + counter + ": " + ridStatus);
-						}
-					} catch (Exception pollEx) {
-						lastPollError = rootMessage(pollEx);
-						logger.warn("Status poll failed for RID " + rid + " on loop " + counter + ": " + lastPollError);
-						if (System.currentTimeMillis() >= deadline) {
-							stopReason = "max wait time reached after poll error";
-							break;
-						}
-					}
 				}
-				if (!gotSuccessfulPoll && lastPollError != null) {
-					ridStatus = "unknown (poll error)";
-				}
-				String statusUrl = baseUrl + getRidStatusUrl + rid;
-				try {
-					long remainingForFinal = deadline - System.currentTimeMillis();
-					if (remainingForFinal > 0) {
-						int finalTimeoutMs = (int) Math.min(statusSocketTimeoutMs, remainingForFinal);
-						Response finalResponse = getRequest(statusUrl, "Check rid status: " + rid, step,
-								finalTimeoutMs);
-						ridStatus = finalResponse.asString().toLowerCase();
-						gotSuccessfulPoll = true;
-						lastPollError = null;
-					}
-				} catch (Exception finalEx) {
-					lastPollError = rootMessage(finalEx);
-					logger.warn("Final status fetch failed for RID " + rid + ": " + lastPollError);
-					DslReportLogUtil.reportRequestAndResponse("Check rid status: " + rid, null,
-							addContextToUrl(statusUrl, step), null, "Error: " + lastPollError, true);
-					if (!gotSuccessfulPoll) {
-						ridStatus = "unknown (read timed out)";
-					}
-				}
-				String message = buildPacketProcessingReport(rid, ridStatus, _ridStatusParam, startTime, counter,
-						stopReason, lastPollError);
-				logger.info(message);
-				Reporter.log(message, true);
-				ridStatusMap.put(rid, ridStatus);
+				poll.pollDue = false;
+				pollPendingOnce(poll, maxLoop, maxTotalWaitMs, statusSocketTimeoutMs, step);
+			}
+
+			for (RidPoll rp : poll.rids.values()) {
+				reportFinalStatus(rp, poll, _ridStatusParam, statusSocketTimeoutMs, step);
 			}
 			if (ridStatusMap.size() == 1) {
 				var entry = ridStatusMap.entrySet().iterator().next();
@@ -179,8 +148,142 @@ public class CheckStatus extends BaseTestCaseUtil implements StepInterface {
 			Thread.currentThread().interrupt();
 			this.hasError = true;
 			throw new RigInternalError("Packet status check interrupted");
+		} finally {
+			if (!parked) {
+				POLL_STATES.remove(step);
+			}
 		}
 
+	}
+
+	/** {@code waitMs} before the first poll, then doubled per completed poll up to {@code maxIntervalMs}. */
+	static long pollIntervalMs(long waitMs, long maxIntervalMs, int pollsDone) {
+		long interval = waitMs << Math.min(Math.max(0, pollsDone), 10);
+		return Math.min(interval, maxIntervalMs);
+	}
+
+	private void pollPendingOnce(PollState poll, int maxLoop, long maxTotalWaitMs, int statusSocketTimeoutMs,
+			Scenario.Step step) {
+		for (RidPoll rp : poll.rids.values()) {
+			if (rp.done) {
+				continue;
+			}
+			long now = System.currentTimeMillis();
+			if (now >= poll.deadline) {
+				rp.stop("max wait time (" + (maxTotalWaitMs / 60000) + " min) reached");
+				logger.info("Packet status polling stopped: " + rp.stopReason + " for RID " + rp.rid);
+				continue;
+			}
+			rp.counter++;
+			int callTimeoutMs = (int) Math.min(statusSocketTimeoutMs, poll.deadline - now);
+			try {
+				Response response = getRequestSilent(baseUrl + getRidStatusUrl + rp.rid, step, callTimeoutMs);
+				rp.ridStatus = response.asString().toLowerCase();
+				rp.gotSuccessfulPoll = true;
+				rp.lastPollError = null;
+				logger.info("RID Status: " + rp.ridStatus + " | Loop Count: " + rp.counter);
+				if (isTerminalPacketStatus(rp.ridStatus)) {
+					rp.stop("status left under-processing");
+					continue;
+				}
+				if (!rp.ridStatus.contains("under")) {
+					logger.warn("Ignoring non-terminal status body for RID " + rp.rid + " on loop " + rp.counter
+							+ ": " + rp.ridStatus);
+				}
+			} catch (Exception pollEx) {
+				rp.lastPollError = rootMessage(pollEx);
+				logger.warn("Status poll failed for RID " + rp.rid + " on loop " + rp.counter + ": "
+						+ rp.lastPollError);
+				if (System.currentTimeMillis() >= poll.deadline) {
+					rp.stop("max wait time reached after poll error");
+					continue;
+				}
+			}
+			if (rp.counter >= maxLoop) {
+				rp.done = true;
+			}
+		}
+	}
+
+	private void reportFinalStatus(RidPoll rp, PollState poll, String _ridStatusParam, int statusSocketTimeoutMs,
+			Scenario.Step step) {
+		if (!rp.gotSuccessfulPoll && rp.lastPollError != null) {
+			rp.ridStatus = "unknown (poll error)";
+		}
+		String statusUrl = baseUrl + getRidStatusUrl + rp.rid;
+		try {
+			long remainingForFinal = poll.deadline - System.currentTimeMillis();
+			if (remainingForFinal > 0) {
+				int finalTimeoutMs = (int) Math.min(statusSocketTimeoutMs, remainingForFinal);
+				Response finalResponse = getRequest(statusUrl, "Check rid status: " + rp.rid, step, finalTimeoutMs);
+				rp.ridStatus = finalResponse.asString().toLowerCase();
+				rp.gotSuccessfulPoll = true;
+				rp.lastPollError = null;
+			}
+		} catch (Exception finalEx) {
+			rp.lastPollError = rootMessage(finalEx);
+			logger.warn("Final status fetch failed for RID " + rp.rid + ": " + rp.lastPollError);
+			DslReportLogUtil.reportRequestAndResponse("Check rid status: " + rp.rid, null,
+					addContextToUrl(statusUrl, step), null, "Error: " + rp.lastPollError, true);
+			if (!rp.gotSuccessfulPoll) {
+				rp.ridStatus = "unknown (read timed out)";
+			}
+		}
+		String message = buildPacketProcessingReport(rp.rid, rp.ridStatus, _ridStatusParam, poll.startTime,
+				rp.counter, rp.stopReason, rp.lastPollError);
+		logger.info(message);
+		Reporter.log(message, true);
+		ridStatusMap.put(rp.rid, rp.ridStatus);
+	}
+
+	private static final class PollState {
+		final long startTime = System.currentTimeMillis();
+		final long deadline;
+		final Map<String, RidPoll> rids = new LinkedHashMap<>();
+		boolean pollDue;
+
+		PollState(Collection<String> ridValues, long maxTotalWaitMs) {
+			this.deadline = startTime + maxTotalWaitMs;
+			for (String rid : ridValues) {
+				rids.putIfAbsent(rid, new RidPoll(rid));
+			}
+		}
+
+		boolean hasPending() {
+			return rids.values().stream().anyMatch(r -> !r.done);
+		}
+
+		int maxCounter() {
+			return rids.values().stream().mapToInt(r -> r.counter).max().orElse(0);
+		}
+
+		void stopPending(String reason) {
+			for (RidPoll rp : rids.values()) {
+				if (!rp.done) {
+					rp.stop(reason);
+					logger.info("Packet status polling stopped: " + reason + " for RID " + rp.rid);
+				}
+			}
+		}
+	}
+
+	private static final class RidPoll {
+		final String rid;
+		int counter;
+		String ridStatus = "under processing";
+		String lastPollError;
+		boolean gotSuccessfulPoll;
+		String stopReason = "max poll loops reached";
+		boolean done;
+
+		RidPoll(String rid) {
+			this.rid = rid;
+		}
+
+		void stop(String reason) {
+			this.stopReason = reason;
+			this.done = true;
+		}
 	}
 
 	/**
