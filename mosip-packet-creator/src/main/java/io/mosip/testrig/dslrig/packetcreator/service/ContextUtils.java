@@ -42,6 +42,11 @@ public class ContextUtils {
 	private static final String PRIVATE_KEYS_DIR = "privatekeys";
 	private static final String DEFAULT_MDS_PROFILE = "Default";
 	private static final String GENERATED_MDS_PROFILE_PREFIX = "res";
+	private static final String[] SCRATCH_DIR_PREFIXES = { "residents_", "packets_", "preregIds_", "docs_" };
+	private static final String[][] SCRATCH_FILE_PATTERNS = {
+			{ "pkm", ".cm" },
+			{ "Passport_", ".pdf" },
+			{ "DrivingLic_", ".pdf" } };
 
 	@Value("${mosip.test.persona.configpath}")
 	private String personaConfigPath;
@@ -161,25 +166,39 @@ public class ContextUtils {
 
 	public static PacketTempPurge.Stats purgeOrphanScratchDirs(long minAgeMs) throws IOException {
 	    PacketTempPurge.Stats stats = new PacketTempPurge.Stats();
-	    String[] prefixes = { "residents_", "packets_", "preregIds_", "docs_" };
 	    File tmpRoot = new File(System.getProperty("java.io.tmpdir"));
 	    File[] entries = tmpRoot.listFiles();
 	    if (entries == null) {
 	        return stats;
 	    }
 	    for (File entry : entries) {
-	        if (!entry.isDirectory()) {
-	            continue;
-	        }
 	        String name = entry.getName();
-	        for (String prefix : prefixes) {
-	            if (name.startsWith(prefix)) {
-	                PacketTempPurge.deleteIfStale(entry, minAgeMs, stats, logger);
-	                break;
-	            }
+	        boolean orphan = entry.isDirectory()
+	                ? startsWithAny(name, SCRATCH_DIR_PREFIXES)
+	                : isOrphanScratchFile(name);
+	        if (orphan) {
+	            PacketTempPurge.deleteIfStale(entry, minAgeMs, stats, logger);
 	        }
 	    }
 	    return stats;
+	}
+
+	private static boolean isOrphanScratchFile(String name) {
+	    for (String[] prefixAndSuffix : SCRATCH_FILE_PATTERNS) {
+	        if (name.startsWith(prefixAndSuffix[0]) && name.endsWith(prefixAndSuffix[1])) {
+	            return true;
+	        }
+	    }
+	    return false;
+	}
+
+	private static boolean startsWithAny(String name, String[] prefixes) {
+	    for (String prefix : prefixes) {
+	        if (name.startsWith(prefix)) {
+	            return true;
+	        }
+	    }
+	    return false;
 	}
 
 	public static PacketTempPurge.Stats purgeGeneratedResourceArtifacts(String personaConfigPath, long minAgeMs) {
