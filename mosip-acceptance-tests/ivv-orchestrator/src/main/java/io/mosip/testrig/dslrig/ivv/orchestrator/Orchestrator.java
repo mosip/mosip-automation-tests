@@ -657,7 +657,8 @@ public class Orchestrator {
 		logger.info("-- *** Scenario " + scenario.getId() + ": " + scenario.getDescription() + " *** --");
 
 
-		if (dslConfigManager.isInTobeSkippedList("I-" + scenario.getId()) && isFullSuiteRun()) {
+		if ((dslConfigManager.isInTobeSkippedList("I-" + scenario.getId())
+				|| dslConfigManager.isInTobeSkippedList(scenario.getId())) && isFullSuiteRun()) {
 			extentTest.skip("I-" + scenario.getId()
 					+ "Ignoring scenario as it is marked to be excluded in the current environment due to unsupported feature or undeployed service.");
 			failBeforeSuiteIfScenario0Skipped(scenario);

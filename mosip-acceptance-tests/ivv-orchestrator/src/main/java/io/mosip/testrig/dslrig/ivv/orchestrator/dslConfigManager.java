@@ -225,7 +225,7 @@ public class dslConfigManager extends ConfigManager {
 			LOGGER.info("toSkippedList:  " + toSkippedList + ", toBeSkippedLsit : " + toBeSkippedLsit
 					+ ", stringToFind : " + stringToFind);
 		for (String string : toBeSkippedLsit) {
-			if (string.equalsIgnoreCase(stringToFind))
+			if (string.trim().equalsIgnoreCase(stringToFind))
 				return true;
 		}
 		return false;
