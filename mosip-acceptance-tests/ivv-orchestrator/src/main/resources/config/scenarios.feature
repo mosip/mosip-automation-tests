@@ -167,7 +167,7 @@ Then I check ridstage where registration ID is the saved second registration ID,
 And I wait where wait seconds is PACKET_UPLOAD_WAIT_TIME
 And I post mock mv where registration ID is the saved registration ID, and manual verification decision is REJECTED
 Then I reprocess packet where registration ID is the saved registration ID, and packet type is NEW
-And I check status where packet status is REJECTED, and registration ID is the saved registration ID
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is MANUAL_ADJUDICATION, and stage status is FAILED
 And I wait where wait seconds is UIN_WAIT_TIME
 And I generate vidwithout otp where VID type is Perpetual, and UIN is the saved UIN and store result in VID
 And I wait where wait seconds is 90

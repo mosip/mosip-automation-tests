@@ -1,9 +1,11 @@
 package io.mosip.testrig.dslrig.ivv.orchestrator;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -11,17 +13,21 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPOutputStream;
 
 import org.apache.log4j.Logger;
 
 
 public final class ReportTreeViewEnhancer {
+
+    private static final String REPORT_SHELL_CLOSE = "</div></div>";
 
     private static final String REPORT_THEME_SCRIPT =
             "<script>(function(){function s(){var t=document.documentElement.getAttribute('data-theme')||'light',"
@@ -72,29 +78,51 @@ public final class ReportTreeViewEnhancer {
                     + "var a=nodes[failIdx].querySelector('a.tree-link--scenario');if(a)a.click();});"
                     + "apply();})();</script>";
 
-    private static final String REPORT_UX_MARKER = "report-ux-v1";
+    private static final String REPORT_UX_MARKER = "report-ux-v3";
 
+    private static final String[] REPORT_UX_LEGACY_MARKERS = {"/*report-ux-v1*/", "/*report-ux-v2*/"};
+
+    // Scenario bodies are stored gzip+base64 (or JSON text in older reports) in
+    // <script class="scenario-fold-src"> (see deferScenarioBodies) and only turned into DOM
+    // when the card is opened. Cards from older reports without that script are folded in
+    // place as before.
     private static final String REPORT_UX_SCRIPT =
             "<script>(function(){/*" + REPORT_UX_MARKER + "*/"
-                    + "document.querySelectorAll('.report-main .scenario-detail-card').forEach(function(card){"
-                    + "var inner=card.querySelector('.scenario-detail-card__inner');"
-                    + "if(!inner||inner.querySelector('.scenario-fold-body'))return;"
-                    + "var h3=inner.querySelector('h3');if(!h3)return;"
-                    + "h3.classList.add('scenario-fold-head');"
-                    + "var body=document.createElement('div');body.className='scenario-fold-body';body.hidden=true;"
-                    + "var n=h3.nextSibling;while(n){var nx=n.nextSibling;body.appendChild(n);n=nx;}"
-                    + "inner.appendChild(body);"
-                    + "h3.addEventListener('click',function(e){"
-                    + "if(e.target.closest&&e.target.closest('a,button'))return;"
-                    + "var open=body.hidden;body.hidden=!open;card.classList.toggle('is-open',open);});});"
-                    + "document.querySelectorAll('.report-main textarea').forEach(function(ta){"
+                    + "function addCopy(root){root.querySelectorAll('textarea').forEach(function(ta){"
                     + "if(ta.getAttribute('data-copy-ready'))return;ta.setAttribute('data-copy-ready','1');"
                     + "var b=document.createElement('button');b.type='button';b.className='report-copy-btn';b.textContent='Copy';"
                     + "b.addEventListener('click',function(){var v=ta.value||'';"
                     + "function ok(){b.textContent='Copied';setTimeout(function(){b.textContent='Copy';},1200);}"
                     + "if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(v).then(ok,function(){ta.select();try{document.execCommand('copy');ok();}catch(e){}});} "
                     + "else {ta.select();try{document.execCommand('copy');ok();}catch(e){}}});"
-                    + "if(ta.parentNode)ta.parentNode.insertBefore(b,ta);});})();</script>";
+                    + "if(ta.parentNode)ta.parentNode.insertBefore(b,ta);});}"
+                    + "function decode(src){if(src.type==='application/json')return Promise.resolve(JSON.parse(src.textContent));"
+                    + "var bin=atob(src.textContent.trim()),u=new Uint8Array(bin.length);"
+                    + "for(var i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);"
+                    + "return new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream('gzip'))).text();}"
+                    + "function fill(card){if(card._fill)return card._fill;"
+                    + "var body=card.querySelector('.scenario-fold-body'),src=card.querySelector('script.scenario-fold-src');"
+                    + "if(!body||!src){card._fill=Promise.resolve(body);return card._fill;}"
+                    + "body.textContent='Loading\u2026';"
+                    + "card._fill=Promise.resolve().then(function(){return decode(src);})"
+                    + ".then(function(h){body.innerHTML=h;},function(e){body.textContent='Could not load scenario details: '+e.message;})"
+                    + ".then(function(){src.parentNode.removeChild(src);addCopy(body);return body;});"
+                    + "return card._fill;}"
+                    + "window.reportOpenScenario=function(card,open){var body=card.querySelector('.scenario-fold-body');"
+                    + "if(body){body.hidden=!open;card.classList.toggle('is-open',open);}"
+                    + "return open?fill(card):Promise.resolve(body);};"
+                    + "document.querySelectorAll('.report-main .scenario-detail-card').forEach(function(card){"
+                    + "var inner=card.querySelector('.scenario-detail-card__inner');if(!inner)return;"
+                    + "var h3=inner.querySelector('h3');if(!h3)return;"
+                    + "if(!inner.querySelector('.scenario-fold-body')){"
+                    + "var body=document.createElement('div');body.className='scenario-fold-body';body.hidden=true;"
+                    + "var n=h3.nextSibling;while(n){var nx=n.nextSibling;body.appendChild(n);n=nx;}"
+                    + "inner.appendChild(body);addCopy(body);}"
+                    + "h3.classList.add('scenario-fold-head');"
+                    + "h3.addEventListener('click',function(e){"
+                    + "if(e.target.closest&&e.target.closest('a,button'))return;"
+                    + "var b=card.querySelector('.scenario-fold-body');"
+                    + "window.reportOpenScenario(card,!!(b&&b.hidden));});});})();</script>";
 
 
     // content-visibility:auto skips layout for off-screen scenario cards and substitutes
@@ -103,21 +131,27 @@ public final class ReportTreeViewEnhancer {
     // force real layout only for cards up to the target (later cards stay skipped so the
     // first paint stays cheap). Instant scroll; smooth animation starts against the
     // placeholder height and stops short.
-    private static final String REPORT_MAIN_SCROLL_MARKER = "cv-scroll-v3";
+    // Step anchors (mN-sK) live inside deferred scenario bodies, so a step link opens its
+    // scenario card (by the mN prefix) before looking the anchor up.
+    private static final String REPORT_MAIN_SCROLL_MARKER = "cv-scroll-v5";
 
     private static final String REPORT_MAIN_SCROLL_SCRIPT =
             "<script>(function(){/*" + REPORT_MAIN_SCROLL_MARKER + "*/"
                     + "function reveal(el){var cards=document.querySelectorAll('.report-main .scenario-detail-card');"
                     + "for(var i=0;i<cards.length;i++){var c=cards[i];c.style.contentVisibility='visible';"
                     + "if(c===el||c.contains(el))break;}}"
-                    + "function openFold(el){var card=el.closest&&el.closest('.scenario-detail-card');if(!card)return;"
+                    + "function cardFor(id){var m=/^(m\\d+)(-|$)/.exec(id);if(!m)return null;"
+                    + "return document.querySelector('.report-main .scenario-detail-card[data-scenario-anchor=\"'+m[1]+'\"]');}"
+                    + "function openCard(card){if(window.reportOpenScenario)return Promise.resolve(window.reportOpenScenario(card,true));"
                     + "var body=card.querySelector('.scenario-fold-body');"
-                    + "if(body){body.hidden=false;card.classList.add('is-open');}}"
+                    + "if(body){body.hidden=false;card.classList.add('is-open');}return Promise.resolve();}"
+                    + "function openFold(el){var card=el.closest&&el.closest('.scenario-detail-card');if(card)openCard(card);}"
                     + "function s(el){if(!el)return;openFold(el);reveal(el);void el.offsetHeight;"
                     + "el.scrollIntoView({behavior:'auto',block:'start'});"
                     + "requestAnimationFrame(function(){el.scrollIntoView({behavior:'auto',block:'start'})})}"
-                    + "function h(hash){if(!hash||hash.charAt(0)!=='#')return;"
-                    + "var el=document.getElementById(hash.slice(1));if(el)s(el)}"
+                    + "function h(hash){if(!hash||hash.charAt(0)!=='#')return;var id=hash.slice(1);"
+                    + "var el=document.getElementById(id);if(el){s(el);return;}"
+                    + "var c=cardFor(id);if(c)openCard(c).then(function(){s(document.getElementById(id));});}"
                     + "function navClick(e){var a=e.target.closest&&e.target.closest('a[href^=\"#\"]');"
                     + "if(!a||!a.closest('.report-sidebar'))return;"
                     + "var id=a.getAttribute('href');if(!id||id==='#')return;"
@@ -125,7 +159,8 @@ public final class ReportTreeViewEnhancer {
                     + "function mainClick(e){var a=e.target.closest&&e.target.closest('a[href^=\"#\"]');"
                     + "if(!a||!a.closest('.report-main'))return;"
                     + "var id=a.getAttribute('href');if(!id||id==='#')return;"
-                    + "var el=document.getElementById(id.slice(1));if(!el||!el.closest('.report-main'))return;"
+                    + "var el=document.getElementById(id.slice(1));"
+                    + "if(el?!el.closest('.report-main'):!cardFor(id.slice(1)))return;"
                     + "e.preventDefault();h(id)}"
                     + "function init(){document.querySelector('.report-sidebar')?.addEventListener('click',navClick);"
                     + "document.querySelector('.report-main')?.addEventListener('click',mainClick);"
@@ -228,6 +263,18 @@ public final class ReportTreeViewEnhancer {
                     Pattern.CASE_INSENSITIVE);
 
 
+    private static final String SCENARIO_SECTION_OPEN = "<section class=\"scenario-detail-card";
+
+    private static final String SCENARIO_SECTION_CLOSE = "</div></section>";
+
+    private static final String SCENARIO_FOLD_BODY_OPEN = "<div class=\"scenario-fold-body\"";
+
+    private static final String SCENARIO_FOLD_TITLE_STYLE =
+            "<style>.report-main .scenario-fold-title{font-size:var(--fs-body);font-weight:600}</style>";
+
+    private static final Pattern SCENARIO_BODY_TITLE =
+            Pattern.compile("class=['\"]box black-bg[^>]*>\\s*<b><u>([^<]{1,600})</u></b>", Pattern.CASE_INSENSITIVE);
+
     private static final Pattern SCENARIO_DETAIL_CARD_CHROME =
             Pattern.compile(
                     "<div\\s+class\\s*=\\s*['\"]scenario-detail-card__chrome['\"][^>]*>[\\s\\S]*?</div>\\s*</div>\\s*",
@@ -283,7 +330,7 @@ public final class ReportTreeViewEnhancer {
                 return true;
             }
             if (html.contains("report-shell")) {
-                String patched = applyReportPayloadLimits(patchExistingTreeViewReport(html));
+                String patched = deferScenarioBodies(applyReportPayloadLimits(patchExistingTreeViewReport(html)));
                 if (!patched.equals(html)) {
                     Path parent = target.getParent();
                     if (parent == null) {
@@ -309,7 +356,8 @@ public final class ReportTreeViewEnhancer {
                 return true;
             }
             log.info("ReportTreeViewEnhancer: enhancement starting (" + html.length() + " characters).");
-            String enhanced = enhance(html);
+            String expanded = enhanceExpanded(html);
+            String enhanced = deferScenarioBodies(expanded);
             Path parent = target.getParent();
             if (parent == null) {
                 log.error("ReportTreeViewEnhancer: cannot resolve parent directory for " + target);
@@ -330,7 +378,7 @@ public final class ReportTreeViewEnhancer {
             log.info(
                     "ReportTreeViewEnhancer: enhanced report written in place; previous plain HTML removed/replaced: "
                             + target);
-            boolean integrityOk = ReportIntegrityValidator.validate(enhanced);
+            boolean integrityOk = ReportIntegrityValidator.validate(expanded);
             if (!integrityOk) {
                 log.error("ReportTreeViewEnhancer: INTEGRITY CHECK FAILED for " + target
                         + " — sidebar/panel mismatch detected. See [REPORT-INTEGRITY] log lines above.");
@@ -497,6 +545,11 @@ public final class ReportTreeViewEnhancer {
 
 
     public static String enhance(String html) throws IOException {
+        return deferScenarioBodies(enhanceExpanded(html));
+    }
+
+    /** Tree-view HTML with scenario bodies still inline (before {@link #deferScenarioBodies}). */
+    static String enhanceExpanded(String html) throws IOException {
         if (html != null) {
             html = applyReportPayloadLimits(html);
         }
@@ -529,10 +582,10 @@ public final class ReportTreeViewEnhancer {
                                 + treeHtml
                                 + "</div><div class=\"report-main\">");
         out =
-                replaceFirstLiteral(
+                replaceLastLiteral(
                         out,
                         "</body>",
-                        "</div></div>"
+                        REPORT_SHELL_CLOSE
                                 + REPORT_THEME_SCRIPT
                                 + REPORT_TREE_ACCORDION_SCRIPT
                                 + REPORT_TREE_FILTER_SCRIPT
@@ -585,7 +638,14 @@ public final class ReportTreeViewEnhancer {
 
 
     private static String patchExistingTreeViewReport(String html) {
-        String out = ensureReportExecSummaryAnchor(html);
+        String out = relocateShellCloseAndScripts(html);
+        if (!out.contains(".scenario-fold-title")) {
+            int headClose = out.indexOf("</head>");
+            if (headClose >= 0) {
+                out = out.substring(0, headClose) + SCENARIO_FOLD_TITLE_STYLE + out.substring(headClose);
+            }
+        }
+        out = ensureReportExecSummaryAnchor(out);
         out =
                 out.replace(
                         "href=\"#summary\" role=\"treeitem\"><span class=\"tree-icon\"",
@@ -595,7 +655,7 @@ public final class ReportTreeViewEnhancer {
         if (!out.contains(REPORT_MAIN_SCROLL_MARKER)) {
             String inject = REPORT_MAIN_SCROLL_SCRIPT + "\n";
             if (out.contains("</body>")) {
-                out = replaceFirstLiteral(out, "</body>", inject + "</body>");
+                out = replaceLastLiteral(out, "</body>", inject + "</body>");
             }
         }
         // Repair scenario-detail-card wrappers that were missed in a previous enhancement
@@ -608,9 +668,39 @@ public final class ReportTreeViewEnhancer {
     }
 
 
+    /**
+     * Older enhancement runs inserted the shell close and all report scripts before the first
+     * {@code </body>}, which can be inside a payload textarea (e.g. an nginx 504 page). The
+     * scripts then render as text and never run. Move that block back before the document's
+     * last {@code </body>}.
+     */
+    private static String relocateShellCloseAndScripts(String html) {
+        int start = html.indexOf(REPORT_SHELL_CLOSE + "<script>(function(){function s(){var t=document.documentElement");
+        if (start < 0) {
+            return html;
+        }
+        int bodyClose = html.indexOf("</body>", start);
+        if (bodyClose < 0 || bodyClose == html.lastIndexOf("</body>")) {
+            return html;
+        }
+        String block = html.substring(start, bodyClose);
+        String without = html.substring(0, start) + html.substring(bodyClose);
+        return replaceLastLiteral(without, "</body>", block + "</body>");
+    }
+
     private static String upgradeReportUx(String html) {
         if (html.contains(REPORT_UX_MARKER)) {
             return html;
+        }
+        for (String legacyMarker : REPORT_UX_LEGACY_MARKERS) {
+            int legacyIdx = html.indexOf(legacyMarker);
+            if (legacyIdx >= 0) {
+                int legacyStart = html.lastIndexOf("<script>", legacyIdx);
+                int legacyEnd = html.indexOf("</script>", legacyIdx);
+                if (legacyStart >= 0 && legacyEnd >= 0) {
+                    html = html.substring(0, legacyStart) + html.substring(legacyEnd + 9);
+                }
+            }
         }
         String sig = "nav.querySelectorAll('li.tree-scenario-node')";
         int sigIdx = html.indexOf(sig);
@@ -623,7 +713,7 @@ public final class ReportTreeViewEnhancer {
             }
         }
         if (html.contains("</body>")) {
-            return replaceFirstLiteral(html, "</body>", inject + "\n</body>");
+            return replaceLastLiteral(html, "</body>", inject + "\n</body>");
         }
         return html;
     }
@@ -754,6 +844,19 @@ public final class ReportTreeViewEnhancer {
 
     private static String replaceFirstLiteral(String s, String from, String to) {
         int i = s.indexOf(from);
+        if (i < 0) {
+            return s;
+        }
+        int fromLen = from.length();
+        StringBuilder sb = new StringBuilder(s.length() - fromLen + to.length());
+        sb.append(s, 0, i);
+        sb.append(to);
+        sb.append(s, i + fromLen, s.length());
+        return sb.toString();
+    }
+
+    private static String replaceLastLiteral(String s, String from, String to) {
+        int i = s.lastIndexOf(from);
         if (i < 0) {
             return s;
         }
@@ -1462,6 +1565,66 @@ public final class ReportTreeViewEnhancer {
             cursor = segmentEnd;
         }
         return out.toString();
+    }
+
+    /**
+     * Moves each scenario card body (everything after its H3) into a gzip+base64
+     * {@code <script type="application/gzip" class="scenario-fold-src">}. The browser keeps
+     * script text as one inert string, so opening a full-run report no longer builds hundreds
+     * of thousands of elements and tens of thousands of textareas up front, and the file is a
+     * fraction of the size (endpoint scanners such as Sophos hold the first open of a large
+     * HTML file for tens of seconds). {@link #REPORT_UX_SCRIPT} unpacks a body when its card
+     * is opened. The scenario title is copied into the empty H3 so collapsed cards stay
+     * readable. Run {@link ReportIntegrityValidator} on the HTML before this pass: step ids
+     * are not visible afterwards.
+     */
+    static String deferScenarioBodies(String html) {
+        if (html == null || !html.contains(SCENARIO_SECTION_OPEN)) {
+            return html;
+        }
+        StringBuilder out = new StringBuilder(html.length() / 3);
+        int cursor = 0;
+        int sec = html.indexOf(SCENARIO_SECTION_OPEN);
+        while (sec >= 0) {
+            int next = html.indexOf(SCENARIO_SECTION_OPEN, sec + SCENARIO_SECTION_OPEN.length());
+            int limit = next >= 0 ? next : html.length();
+            int h3 = indexOfIgnoreCase(html, "<h3", sec);
+            int h3Gt = h3 < 0 ? -1 : html.indexOf('>', h3);
+            int h3Close = h3Gt < 0 ? -1 : indexOfIgnoreCase(html, "</h3>", h3Gt);
+            int close = html.lastIndexOf(SCENARIO_SECTION_CLOSE, limit - SCENARIO_SECTION_CLOSE.length());
+            boolean deferrable = h3 >= 0 && h3 < limit && h3Close >= 0 && close > h3Close
+                    && !html.startsWith(SCENARIO_FOLD_BODY_OPEN, h3Close + 5);
+            if (deferrable) {
+                String body = html.substring(h3Close + 5, close);
+                out.append(html, cursor, h3Close);
+                if (h3Close == h3Gt + 1) {
+                    Matcher tm = SCENARIO_BODY_TITLE.matcher(body);
+                    tm.region(0, Math.min(body.length(), 4000));
+                    if (tm.find()) {
+                        out.append("<span class=\"scenario-fold-title\">").append(tm.group(1).trim()).append("</span>");
+                    }
+                }
+                out.append("</h3>")
+                        .append(SCENARIO_FOLD_BODY_OPEN)
+                        .append(" hidden></div><script type=\"application/gzip\" class=\"scenario-fold-src\">")
+                        .append(gzipBase64(body))
+                        .append("</script>");
+                cursor = close;
+            }
+            sec = next;
+        }
+        out.append(html, cursor, html.length());
+        return out.toString();
+    }
+
+    private static String gzipBase64(String s) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream(Math.max(64, s.length() / 6));
+        try (GZIPOutputStream gz = new GZIPOutputStream(bytes)) {
+            gz.write(s.getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return Base64.getEncoder().encodeToString(bytes.toByteArray());
     }
 
     private static int indexOfIgnoreCase(String haystack, String needle, int from) {

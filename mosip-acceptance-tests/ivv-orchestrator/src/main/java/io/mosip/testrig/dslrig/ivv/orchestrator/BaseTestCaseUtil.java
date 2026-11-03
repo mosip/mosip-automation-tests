@@ -72,6 +72,7 @@ public class BaseTestCaseUtil extends BaseStep {
 	private static final int PACKET_CREATOR_SOCKET_MS = intProperty("packetCreatorSocketMs");
 	private static final long DEFAULT_MAX_PACKET_STATUS_WAIT_MS = longProperty("maxPacketStatusWaitTimeMs");
 	private static final int DEFAULT_PACKET_STATUS_SOCKET_MS = intProperty("packetStatusSocketTimeoutMs");
+	private static final long DEFAULT_PACKET_STATUS_MAX_POLL_INTERVAL_MS = 30_000L;
 
 	public static String baseUrl = dslConfigManager.getpacketUtilityBaseUrl();
 	private static final RestAssuredConfig PACKET_CREATOR_HTTP_CONFIG = RestAssuredConfig.config()
@@ -202,6 +203,21 @@ public class BaseTestCaseUtil extends BaseStep {
 			logger.warn("Invalid maxPacketStatusWaitTimeMs '{}', using default {}", value,
 					DEFAULT_MAX_PACKET_STATUS_WAIT_MS);
 			return DEFAULT_MAX_PACKET_STATUS_WAIT_MS;
+		}
+	}
+
+	public static long getPacketStatusMaxPollIntervalMs() {
+		String value = props.getProperty("packetStatusMaxPollIntervalMs");
+		if (value == null || value.isBlank()) {
+			return DEFAULT_PACKET_STATUS_MAX_POLL_INTERVAL_MS;
+		}
+		try {
+			long parsed = Long.parseLong(value.trim());
+			return parsed > 0 ? parsed : DEFAULT_PACKET_STATUS_MAX_POLL_INTERVAL_MS;
+		} catch (NumberFormatException e) {
+			logger.warn("Invalid packetStatusMaxPollIntervalMs '{}', using default {}", value,
+					DEFAULT_PACKET_STATUS_MAX_POLL_INTERVAL_MS);
+			return DEFAULT_PACKET_STATUS_MAX_POLL_INTERVAL_MS;
 		}
 	}
 

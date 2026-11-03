@@ -29,6 +29,7 @@ public class ScenarioExecutionState implements Delayed {
 	private boolean willRetry;
 	private boolean afterSuiteClearCacheOnly;
 	private long wakeAtMs;
+	private boolean repeatingStep;
 	private CompletableFuture<Void> completion;
 	private String lastIdentifier;
 
@@ -118,6 +119,15 @@ public class ScenarioExecutionState implements Delayed {
 
 	public void setWakeAtMs(long wakeAtMs) {
 		this.wakeAtMs = wakeAtMs;
+	}
+
+	/** True while parked by a polling step that resumes by re-running the same step. */
+	public boolean isRepeatingStep() {
+		return repeatingStep;
+	}
+
+	public void setRepeatingStep(boolean repeatingStep) {
+		this.repeatingStep = repeatingStep;
 	}
 
 	public CompletableFuture<Void> getCompletion() {

@@ -54,7 +54,7 @@ public final class AuthTokenStore {
 	}
 
 	/**
-	 * Clears tokens for every context. Test-only — unsafe during parallel DSL runs.
+	 * Clears tokens for every context. Called after the suite; unsafe while other DSL runs are active.
 	 */
 	public static void clearAll() {
 		BY_CONTEXT.clear();

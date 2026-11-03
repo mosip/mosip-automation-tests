@@ -31,24 +31,30 @@ public final class ScenarioStepExecutor {
 
 	/**
 	 * Continues from {@code state.stepIndex}. On yield, advances stepIndex past the Wait step
-	 * and sets {@code wakeAtMs}. Store / loop indexes stay on the same state object.
+	 * (or keeps it on the same step for a repeat-step yield) and sets {@code wakeAtMs}.
+	 * Store / loop indexes stay on the same state object.
 	 */
 	public static Outcome runUntilYieldOrDone(ScenarioExecutionState state, StepFactory stepFactory)
 			throws Exception {
 		Scenario scenario = state.getScenario();
 		ExtentTest extentTest = state.getExtentTest();
+		boolean quietRerun = state.isRepeatingStep();
+		state.setRepeatingStep(false);
 
 		for (int stepIndex = state.getStepIndex(); stepIndex < scenario.getSteps().size(); stepIndex++) {
 			Scenario.Step step = scenario.getSteps().get(stepIndex);
+			boolean quiet = quietRerun;
+			quietRerun = false;
 
 			String identifier = "> #[Test Step: " + step.getName() + "] [Test Parameters: " + step.getParameters()
 					+ "]  [Test outVarName: " + step.getOutVarName() + "] [module: " + step.getModule()
 					+ "] [variant: " + step.getVariant() + "]";
 			state.setLastIdentifier(identifier);
-			logger.info(identifier);
-
-			extentTest.info(identifier + " - running");
-			extentTest.info("parameters: " + step.getParameters().toString());
+			if (!quiet) {
+				logger.info(identifier);
+				extentTest.info(identifier + " - running");
+				extentTest.info("parameters: " + step.getParameters().toString());
+			}
 			StepInterface st = stepFactory.create(step);
 			st.setExtentInstance(extentTest);
 			st.setSystemProperties(state.getProperties());
@@ -76,7 +82,7 @@ public final class ScenarioStepExecutor {
 				stepParams = Orchestrator.getStepDetails("S_" + baseScenarioId + stepAction);
 			}
 
-			if (!step.getName().contains("loopWindow")) {
+			if (!step.getName().contains("loopWindow") && !quiet) {
 				StringBuilder sb = new StringBuilder();
 				sb.append(
 						"<div style='padding: 0; margin: 0;'><textarea style='border: solid 1px gray; background-color: lightgray; width: 100%; padding: 0; margin: 0;' name='headers' rows='3' readonly='true'>");
@@ -113,8 +119,15 @@ public final class ScenarioStepExecutor {
 				StepRunner.runLifecycle(st);
 			} catch (ScenarioYieldException yield) {
 				state.setStore(st.getState());
-				state.setStepIndex(stepIndex + 1);
 				state.setWakeAtMs(System.currentTimeMillis() + Math.max(0L, yield.getWaitTimeMs()));
+				if (yield.isRepeatStep()) {
+					state.setStepIndex(stepIndex);
+					state.setRepeatingStep(true);
+					logger.debug("Parked scenario " + scenario.getId() + " for " + yield.getWaitTimeMs()
+							+ " ms to repeat step " + step.getName());
+					return Outcome.YIELD;
+				}
+				state.setStepIndex(stepIndex + 1);
 				String parkMsg = "Parked scenario " + scenario.getId() + " for " + (yield.getWaitTimeMs() / 1000)
 						+ " sec after step " + step.getName();
 				logger.info(parkMsg);
