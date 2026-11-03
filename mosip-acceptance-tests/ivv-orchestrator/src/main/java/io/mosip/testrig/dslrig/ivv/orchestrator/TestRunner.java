@@ -57,6 +57,12 @@ public class TestRunner {
 		AdminTestUtil.init();
 		BaseTestCaseUtil.init();
 		BaseTestCase.currentModule = BaseTestCase.runContext + GlobalConstants.DSL;
+		PartnerRegistration.organizationName = BaseTestCase.currentModule + "_pid_" + timeStamp;
+		PartnerRegistration.partnerId = PartnerRegistration.organizationName;
+		PartnerRegistration.ekycOrganizationName = BaseTestCase.currentModule + "_ekyc_pid_" + timeStamp;
+		PartnerRegistration.ekycPartnerId = PartnerRegistration.ekycOrganizationName;
+		PartnerRegistration.deviceOrganizationName = BaseTestCase.currentModule + "_device_pid_" + timeStamp;
+		PartnerRegistration.ftmOrganizationName = BaseTestCase.currentModule + "_ftm_pid_" + timeStamp;
 		KeycloakUserManager.removeUser();
 		KeycloakUserManager.createUsers();
 		KeycloakUserManager.closeKeycloakInstance();
@@ -175,12 +181,27 @@ public class TestRunner {
 
 		System.getProperties().setProperty("emailable.report3.name", "DSL-" + BaseTestCase.environment + "-"
 				+ "EXTENT" + "-run-" + System.currentTimeMillis() + "-report.html");
-		runner.run();
+		try {
+			runner.run();
+		} finally {
+			removePartnerKeycloakUsers();
+			OTPListener mockSMTPListener = new OTPListener();
+			mockSMTPListener.bTerminate = true;
+			System.exit(0);
+		}
 
-		OTPListener mockSMTPListener = new OTPListener();
-		mockSMTPListener.bTerminate = true;
-		System.exit(0);
+	}
 
+	/** Same end-of-run cleanup as id-authentication's MosipTestRunner. */
+	private static void removePartnerKeycloakUsers() {
+		try {
+			KeycloakUserManager.removeUser();
+			KeycloakUserManager.removeKeyCloakUser(PartnerRegistration.partnerId);
+			KeycloakUserManager.removeKeyCloakUser(PartnerRegistration.ekycPartnerId);
+			KeycloakUserManager.closeKeycloakInstance();
+		} catch (RuntimeException e) {
+			LOGGER.error("Failed to remove partner Keycloak users", e);
+		}
 	}
 
 	/**
