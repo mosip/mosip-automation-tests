@@ -58,6 +58,10 @@ public class GenerateAuthCertifcates extends BaseTestCaseUtil implements StepInt
 				AdminTestUtil::createAndPublishPolicyForKyc);
 		runReportedOperation("Generate eKYC partner key",
 				() -> kycPartnerKeyUrl = PartnerRegistration.generateAndGetEkycPartnerKeyUrl());
+		// Partner upload replaces the local IDA cert used as partnerORinternalthumbprint.
+		// Reload IDA certificates so KYC encryption uses a key IDA can decrypt.
+		runReportedOperation("Reload authentication certificate thumbprints",
+				CertificateGenerationUtil::getThumbprints);
 
 		String uriPartsforkyc[] = kycPartnerKeyUrl.split("/");
 		kycPartnerId = uriPartsforkyc[uriPartsforkyc.length - 2];
