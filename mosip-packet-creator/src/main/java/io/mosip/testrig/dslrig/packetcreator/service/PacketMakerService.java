@@ -840,6 +840,15 @@ public class PacketMakerService {
 					+ centerId + "_" + machineId + "-" + getcurrentTimeStamp();
 		Path targetDirectory = Paths.get(tempDir);
 		FileSystemUtils.copyRecursively(sourceDirectory, targetDirectory);
+		// Templates are generated under REGISTRATION_CLIENT. A resident update packet
+		// keeps that layout but is stored with source RESIDENT.
+		if ("RESIDENT".equalsIgnoreCase(activeTemplateSource())) {
+			Path clientLayout = targetDirectory.resolve("REGISTRATION_CLIENT");
+			Path residentLayout = targetDirectory.resolve("RESIDENT");
+			if (Files.isDirectory(clientLayout) && !Files.exists(residentLayout)) {
+				Files.move(clientLayout, residentLayout);
+			}
+		}
 		setupTemplateName(tempDir, rid, contextKey);
 		return targetDirectory.toString();
 	}

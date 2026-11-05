@@ -1088,6 +1088,8 @@ public class RestClient {
 				JSONObject wrapper = new JSONObject();
 				wrapper.put("response", data);
 				return wrapper;
+			} else if (url != null && url.contains("packetmanager/createPacket")) {
+				throw new RuntimeException("packetmanager createPacket failed: " + response.getBody().asString());
 			} else {
 				throw new RuntimeException("Unexpected data type for key: response");
 			}

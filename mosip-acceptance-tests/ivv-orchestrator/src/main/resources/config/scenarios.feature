@@ -1898,7 +1898,7 @@ And I delete packet data
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_Update
-  Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later updates his phone number and does EKYC with OTP both using UIN and VID
+  Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later updates his phone number at the center, then a resident-portal RES_UPDATE changes the phone again, and does EKYC with OTP both using UIN and VID
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
 And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
@@ -1921,6 +1921,17 @@ And I verify notification where notification type is updated, and email is the s
 And I wait where wait seconds is UIN_WAIT_TIME
 And I generate vid where VID type is Perpetual, and UIN is the saved second UIN, and email or phone is the saved email and store result in VID
 And I verify notification where notification type is Successful Generation of VID, and email is the saved email
+And I wait where wait seconds is 90
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is phoneNumber=3938333737, and persona file is the saved persona file path
+And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved second UIN
+And I get packet template where packet type is RES_UPDATE, and persona file path is the saved persona file path and store result in res update template
+And I packetcreator where packet type is RES_UPDATE, and template path is res update template and store result in packet zip path
+And I ridsync where packet type is RES_UPDATE, and packet zip path is the saved packet zip path and store result in rid res update
+And I packetsync where packet zip path is the saved packet zip path
+And I check status where packet status is PROCESSED, and registration ID is rid res update
+And I get uin by rid where source registration ID is rid res update and store result in uin after res update
+And I check updated uin where parameter 1 is the saved second UIN, and parameter 2 is the saved uin after res update
+And I verify notification where notification type is updated, and email is the saved email
 And I wait where wait seconds is 90
 And I ekyc otp where UIN ID type is the saved UIN, and UIN is the saved second UIN, and VID ID type is the saved VID, and VID is the saved VID, and email is the saved email and store result in ekycData
 And I validate kyc data where KYC field is photo, and response variable is ekycData
@@ -1930,7 +1941,7 @@ And I delete packet data
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_Update
-  Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later updates his phone number address and performs OTP authentication both using UIN and VID. Also performs eSignet OTP authentication using right finger both using UIN and VID
+  Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later updates his phone number at the center, then a resident-portal RES_UPDATE changes the address, and performs OTP authentication both using UIN and VID. Also performs eSignet OTP authentication using right finger both using UIN and VID
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
 And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
@@ -1953,6 +1964,17 @@ And I verify notification where notification type is updated, and email is the s
 And I wait where wait seconds is UIN_WAIT_TIME
 And I generate vid where VID type is Perpetual, and UIN is the saved second UIN, and email or phone is the saved email and store result in VID
 And I verify notification where notification type is Successful Generation of VID, and email is the saved email
+And I wait where wait seconds is 90
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is address, and persona file is the saved persona file path
+And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved second UIN
+And I get packet template where packet type is RES_UPDATE, and persona file path is the saved persona file path and store result in res update template
+And I packetcreator where packet type is RES_UPDATE, and template path is res update template and store result in packet zip path
+And I ridsync where packet type is RES_UPDATE, and packet zip path is the saved packet zip path and store result in rid res update
+And I packetsync where packet zip path is the saved packet zip path
+And I check status where packet status is PROCESSED, and registration ID is rid res update
+And I get uin by rid where source registration ID is rid res update and store result in uin after res update
+And I check updated uin where parameter 1 is the saved second UIN, and parameter 2 is the saved uin after res update
+And I verify notification where notification type is updated, and email is the saved email
 And I wait where wait seconds is 90
 And I otp authentication where UIN is the saved UIN, and VID is the saved second UIN, and email is the saved VID, and parameter 4 is the saved VID, and parameter 5 is the saved email
 And I oidc client and store result in OIDC client ID
@@ -1966,7 +1988,7 @@ And I delete packet data
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_Adult_Update
-  Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later updates his email and perform OTP authentication both using UIN and VID. Also performs eSignet OTP authentication using right finger both using UIN and VID
+  Scenario: Resident walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later updates his email at the center, then a resident-portal RES_UPDATE changes the email again, and performs OTP authentication both using UIN and VID. Also performs eSignet OTP authentication using right finger both using UIN and VID
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
 And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
@@ -1991,6 +2013,18 @@ And I wait where wait seconds is UIN_WAIT_TIME
 And I generate vid where VID type is Perpetual, and UIN is the saved second UIN, and email or phone is the saved email and store result in VID
 And I verify notification where notification type is Successful Generation of VID, and email is the saved email
 And I wait where wait seconds is 90
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is email=test, and persona file is the saved persona file path
+And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved second UIN
+And I get packet template where packet type is RES_UPDATE, and persona file path is the saved persona file path and store result in res update template
+And I packetcreator where packet type is RES_UPDATE, and template path is res update template and store result in packet zip path
+And I ridsync where packet type is RES_UPDATE, and packet zip path is the saved packet zip path and store result in rid res update
+And I packetsync where packet zip path is the saved packet zip path
+And I check status where packet status is PROCESSED, and registration ID is rid res update
+And I get uin by rid where source registration ID is rid res update and store result in uin after res update
+And I check updated uin where parameter 1 is the saved second UIN, and parameter 2 is the saved uin after res update
+And I get email by uin where resident UIN is the saved uin after res update and store result in email
+And I verify notification where notification type is updated, and email is the saved email
+And I wait where wait seconds is 90
 And I otp authentication where UIN is the saved UIN, and VID is the saved second UIN, and email is the saved VID, and parameter 4 is the saved VID, and parameter 5 is the saved email
 And I oidc client and store result in OIDC client ID
 And I oauth details request where OIDC client ID is the saved OIDC client ID, and transaction ID slot is the saved transaction id1 and store result in transaction id1
@@ -2003,7 +2037,7 @@ And I delete packet data
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Minor_New
-  Scenario: Resident child walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later updates his name and perform demographic authentication both using UIN and VID
+  Scenario: Resident child walks into registration center completes the process and gets UIN card and generates Perpetual VID. Later updates his name at the center, then a resident-portal RES_UPDATE changes the name again, and performs demographic authentication both using UIN and VID
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
 And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
@@ -2038,8 +2072,20 @@ And I check credential status where credential request ID is the saved credentia
 And I verify notification where notification type is Credential Issuance Status, and email is the saved email1
 And I generate vid where VID type is Perpetual, and UIN is the saved child uin2, and email or phone is the saved email1 and store result in VID
 And I verify notification where notification type is Successful Generation of VID, and email is the saved email1
+And I clone resident data where persona file path is the saved child persona file path and store result in center update persona file path
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved child persona file path
+And I update resident with uin where persona file path is the saved child persona file path, and UIN is the saved child uin2
+And I get packet template where packet type is RES_UPDATE, and persona file path is the saved child persona file path and store result in res update template
+And I packetcreator where packet type is RES_UPDATE, and template path is res update template and store result in packet zip path
+And I ridsync where packet type is RES_UPDATE, and packet zip path is the saved packet zip path and store result in rid res update
+And I packetsync where packet zip path is the saved packet zip path
+And I check status where packet status is PROCESSED, and registration ID is rid res update
+And I get uin by rid where source registration ID is rid res update and store result in uin after res update
+And I check updated uin where parameter 1 is the saved child uin2, and parameter 2 is the saved uin after res update
+And I verify notification where notification type is updated, and email is the saved email1
 And I wait where wait seconds is 90
 And I demo authentication where demo field is name, and UIN is the saved child uin2, and persona file path is the saved child persona file path, and VID is the saved VID
+And I demo authentication where demo field is name, and UIN is the saved child uin2, and persona file path is center update persona file path, and VID is the saved VID, and age update flag is ERROR
 And I delete packet data
 
   @scenario_54
@@ -2181,7 +2227,7 @@ And I delete packet data
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_Adult_Update
-  Scenario: Resident gets UIN updates iris and face biometrics authenticates successfully with new biometrics and fails with old biometrics
+  Scenario: Resident gets UIN, updates iris and face at the registration center, then a resident-portal RES_UPDATE changes iris and face again. Bio auth succeeds with the portal biometrics and fails with the earlier biometrics
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
 And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
@@ -2211,13 +2257,29 @@ And I bio authentication where device info file is faceDevice, and UIN is the sa
 And I bio authentication where device info file is LeftIris, and UIN is the saved second UIN, and VID is the saved VID, and persona file path is the saved persona file path
 And I bio authentication where device info file is faceDevice, and UIN is the saved second UIN, and VID is the saved VID, and persona file path is old bio persona file path, and scenario flow is ERROR
 And I bio authentication where device info file is LeftIris, and UIN is the saved second UIN, and VID is the saved VID, and persona file path is old bio persona file path, and scenario flow is ERROR
+And I clone resident data where persona file path is the saved persona file path and store result in center bio persona file path
+And I update demo or bio details where bio type is iris and face, and miss fields is 0, and update attributes is 0, and persona file is the saved persona file path
+And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved second UIN
+And I get packet template where packet type is RES_UPDATE, and persona file path is the saved persona file path and store result in res update template
+And I packetcreator where packet type is RES_UPDATE, and template path is res update template and store result in packet zip path
+And I ridsync where packet type is RES_UPDATE, and packet zip path is the saved packet zip path and store result in rid res update
+And I packetsync where packet zip path is the saved packet zip path
+And I check status where packet status is PROCESSED, and registration ID is rid res update
+And I get uin by rid where source registration ID is rid res update and store result in uin after res update
+And I check updated uin where parameter 1 is the saved second UIN, and parameter 2 is the saved uin after res update
+And I verify notification where notification type is updated, and email is the saved email
+And I wait where wait seconds is 90
+And I bio authentication where device info file is faceDevice, and UIN is the saved second UIN, and VID is the saved VID, and persona file path is the saved persona file path
+And I bio authentication where device info file is LeftIris, and UIN is the saved second UIN, and VID is the saved VID, and persona file path is the saved persona file path
+And I bio authentication where device info file is faceDevice, and UIN is the saved second UIN, and VID is the saved VID, and persona file path is center bio persona file path, and scenario flow is ERROR
+And I bio authentication where device info file is LeftIris, and UIN is the saved second UIN, and VID is the saved VID, and persona file path is center bio persona file path, and scenario flow is ERROR
 And I delete packet data
 
   @scenario_59
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_Adult_Update
-  Scenario: Resident gets UIN updates demographic details authenticates successfully with new details and fails with old details
+  Scenario: Resident gets UIN, updates the name at the registration center, then a resident-portal RES_UPDATE changes the name again. Demo auth succeeds with the RES_UPDATE name and fails with the earlier names
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
 And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
@@ -2242,8 +2304,20 @@ And I verify notification where notification type is updated, and email is the s
 And I wait where wait seconds is UIN_WAIT_TIME
 And I generate vid where VID type is Perpetual, and UIN is the saved second UIN, and email or phone is the saved email and store result in VID
 And I verify notification where notification type is Successful Generation of VID, and email is the saved email
+And I clone resident data where persona file path is the saved persona file path and store result in center update persona file path
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
+And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved second UIN
+And I get packet template where packet type is RES_UPDATE, and persona file path is the saved persona file path and store result in res update template
+And I packetcreator where packet type is RES_UPDATE, and template path is res update template and store result in packet zip path
+And I ridsync where packet type is RES_UPDATE, and packet zip path is the saved packet zip path and store result in rid res update
+And I packetsync where packet zip path is the saved packet zip path
+And I check status where packet status is PROCESSED, and registration ID is rid res update
+And I get uin by rid where source registration ID is rid res update and store result in uin after res update
+And I check updated uin where parameter 1 is the saved second UIN, and parameter 2 is the saved uin after res update
+And I verify notification where notification type is updated, and email is the saved email
 And I wait where wait seconds is 90
 And I demo authentication where demo field is name, and UIN is the saved second UIN, and persona file path is the saved persona file path, and VID is the saved VID
+And I demo authentication where demo field is name, and UIN is the saved second UIN, and persona file path is center update persona file path, and VID is the saved VID, and age update flag is ERROR
 And I demo authentication where demo field is name, and UIN is the saved second UIN, and persona file path is old demo persona file path, and VID is the saved VID, and age update flag is ERROR
 And I delete packet data
 
@@ -2251,7 +2325,7 @@ And I delete packet data
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_Update
-  Scenario: Resident gets UIN then submits sequential update packets U1 U2 and U3 with different demographic changes verify latest resident data is retained and old data cannot authenticate
+  Scenario: Resident gets UIN then submits sequential update packets U1 U2 and U3, then a resident-portal RES_UPDATE changes the name. The portal name authenticates and the earlier names do not
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
 And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
@@ -2291,8 +2365,20 @@ And I get email by uin where resident UIN is the saved uin after u3 and store re
 And I verify notification where notification type is updated, and email is the saved email after u3
 And I wait where wait seconds is UIN_WAIT_TIME
 And I generate vidwithout otp where VID type is Perpetual, and UIN is the saved uin after u3 and store result in VID
+And I clone resident data where persona file path is the saved persona file path and store result in center update persona file path
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
+And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved uin after u3
+And I get packet template where packet type is RES_UPDATE, and persona file path is the saved persona file path and store result in res update template
+And I packetcreator where packet type is RES_UPDATE, and template path is res update template and store result in packet zip path
+And I ridsync where packet type is RES_UPDATE, and packet zip path is the saved packet zip path and store result in rid res update
+And I packetsync where packet zip path is the saved packet zip path
+And I check status where packet status is PROCESSED, and registration ID is rid res update
+And I get uin by rid where source registration ID is rid res update and store result in uin after res update
+And I check updated uin where parameter 1 is the saved uin after u3, and parameter 2 is the saved uin after res update
+And I verify notification where notification type is updated, and email is the saved email after u3
 And I wait where wait seconds is 90
 And I demo authentication where demo field is name, and UIN is the saved uin after u3, and persona file path is the saved persona file path, and VID is the saved VID
+And I demo authentication where demo field is name, and UIN is the saved uin after u3, and persona file path is center update persona file path, and VID is the saved VID, and age update flag is ERROR
 And I demo authentication where demo field is name, and UIN is the saved uin after u3, and persona file path is u2 demo persona file path, and VID is the saved VID, and age update flag is ERROR
 And I demo authentication where demo field is gender, and UIN is the saved uin after u3, and persona file path is pre update demo persona file path, and VID is the saved VID, and age update flag is ERROR
 And I delete packet data
@@ -2301,7 +2387,7 @@ And I delete packet data
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_Adult_Update
-  Scenario: Resident gets UIN updates last name then demo auth with updated full name succeeds and demo auth with old full name fails
+  Scenario: Resident gets UIN, a resident-portal RES_UPDATE changes the name, then a registration-center update changes the last name. Demo auth succeeds with the center name and fails with the portal name and the original name
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
 And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
@@ -2315,9 +2401,21 @@ And I get uin by rid where source registration ID is the saved registration ID a
 And I get email by uin where resident UIN is the saved UIN and store result in email
 And I verify notification where notification type is UIN Generated, and email is the saved email
 And I wait where wait seconds is UIN_WAIT_TIME
-And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is lastName, and persona file is the saved persona file path
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
 And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved UIN
-And I update resident with uin where persona file path is the saved old demo persona file path, and UIN is the saved UIN
+And I get packet template where packet type is RES_UPDATE, and persona file path is the saved persona file path and store result in res update template
+And I packetcreator where packet type is RES_UPDATE, and template path is res update template and store result in packet zip path
+And I ridsync where packet type is RES_UPDATE, and packet zip path is the saved packet zip path and store result in rid res update
+And I packetsync where packet zip path is the saved packet zip path
+And I check status where packet status is PROCESSED, and registration ID is rid res update
+And I get uin by rid where source registration ID is rid res update and store result in uin after res update
+And I check updated uin where parameter 1 is the saved UIN, and parameter 2 is the saved uin after res update
+And I verify notification where notification type is updated, and email is the saved email
+And I clone resident data where persona file path is the saved persona file path and store result in portal persona file path
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is lastName, and persona file is the saved persona file path
+And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved uin after res update
+And I update resident with uin where persona file path is the saved old demo persona file path, and UIN is the saved uin after res update
+And I update resident with uin where persona file path is portal persona file path, and UIN is the saved uin after res update
 And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update packet template path
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved update packet template path and store result in second registration ID
 And I check status where packet status is PROCESSED, and registration ID is the saved second registration ID
@@ -2328,6 +2426,7 @@ And I generate vid where VID type is Perpetual, and UIN is the saved second UIN,
 And I verify notification where notification type is Successful Generation of VID, and email is the saved email
 And I wait where wait seconds is 90
 And I demo authentication where demo field is name, and UIN is the saved second UIN, and persona file path is the saved persona file path, and VID is the saved VID
+And I demo authentication where demo field is name, and UIN is the saved second UIN, and persona file path is portal persona file path, and VID is the saved VID, and age update flag is ERROR
 And I demo authentication where demo field is name, and UIN is the saved second UIN, and persona file path is the saved old demo persona file path, and VID is the saved VID, and age update flag is ERROR
 Then I check updated uin where parameter 1 is the saved UIN, and parameter 2 is the saved second UIN
 And I delete packet data
@@ -2336,7 +2435,7 @@ And I delete packet data
   @Negative_Test
   @persona_ResidentMaleAdult
   @group_Minor_Update
-  Scenario: Minor gets a UIN then updates last name. Demo auth with the updated full name succeeds and demo auth with the old full name fails. The UIN does not change
+  Scenario: Minor gets a UIN, a resident-portal RES_UPDATE changes the name, then a registration-center update changes the last name. Demo auth succeeds with the center name and fails with the portal name and the original name. The UIN does not change
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
 And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
@@ -2357,9 +2456,21 @@ And I get uin by rid where source registration ID is the saved registration ID a
 And I get email by uin where resident UIN is the saved UIN and store result in email
 And I verify notification where notification type is UIN Generated, and email is the saved email
 And I wait where wait seconds is UIN_WAIT_TIME
-And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is lastName, and persona file is the saved child persona file path
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved child persona file path
 And I update resident with uin where persona file path is the saved child persona file path, and UIN is the saved UIN
-And I update resident with uin where persona file path is the saved old demo persona file path, and UIN is the saved UIN
+And I get packet template where packet type is RES_UPDATE, and persona file path is the saved child persona file path and store result in res update template
+And I packetcreator where packet type is RES_UPDATE, and template path is res update template and store result in packet zip path
+And I ridsync where packet type is RES_UPDATE, and packet zip path is the saved packet zip path and store result in rid res update
+And I packetsync where packet zip path is the saved packet zip path
+And I check status where packet status is PROCESSED, and registration ID is rid res update
+And I get uin by rid where source registration ID is rid res update and store result in uin after res update
+And I check updated uin where parameter 1 is the saved UIN, and parameter 2 is the saved uin after res update
+And I verify notification where notification type is updated, and email is the saved email
+And I clone resident data where persona file path is the saved child persona file path and store result in portal persona file path
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is lastName, and persona file is the saved child persona file path
+And I update resident with uin where persona file path is the saved child persona file path, and UIN is the saved uin after res update
+And I update resident with uin where persona file path is the saved old demo persona file path, and UIN is the saved uin after res update
+And I update resident with uin where persona file path is portal persona file path, and UIN is the saved uin after res update
 And I get packet template where packet type is UPDATE, and persona file path is the saved child persona file path and store result in update packet template path
 And I generate and upload packet skipping prereg where persona file path is the saved child persona file path, and packet template path is the saved update packet template path and store result in second registration ID
 And I check status where packet status is PROCESSED, and registration ID is the saved second registration ID
@@ -2370,6 +2481,7 @@ And I generate vid where VID type is Perpetual, and UIN is the saved second UIN,
 And I verify notification where notification type is Successful Generation of VID, and email is the saved email
 And I wait where wait seconds is 90
 And I demo authentication where demo field is name, and UIN is the saved second UIN, and persona file path is the saved child persona file path, and VID is the saved VID
+And I demo authentication where demo field is name, and UIN is the saved second UIN, and persona file path is portal persona file path, and VID is the saved VID, and age update flag is ERROR
 And I demo authentication where demo field is name, and UIN is the saved second UIN, and persona file path is the saved old demo persona file path, and VID is the saved VID, and age update flag is ERROR
 Then I check updated uin where parameter 1 is the saved UIN, and parameter 2 is the saved second UIN
 And I delete packet data
@@ -2536,7 +2648,7 @@ And I delete packet data
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Adult_Update
-  Scenario: Resident walks into registration center completes the process and gets UIN card. Later updates his demo details in registration center and post successful processing downloads the EUIN using resident Portal
+  Scenario: Resident walks into registration center completes the process and gets UIN card. Later updates gender at the center, then a resident-portal RES_UPDATE changes the name, and downloads the EUIN using resident Portal
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
 And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
@@ -2557,7 +2669,17 @@ And I check status where packet status is PROCESSED, and registration ID is the 
 And I get uin by rid where source registration ID is the saved second registration ID and store result in second UIN
 And I wait where wait seconds is UIN_WAIT_TIME
 And I verify notification where notification type is updated, and email is the saved email
-And I credential request where UIN is the saved second UIN, and email is the saved email and store result in credential request ID
+And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
+And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved second UIN
+And I get packet template where packet type is RES_UPDATE, and persona file path is the saved persona file path and store result in res update template
+And I packetcreator where packet type is RES_UPDATE, and template path is res update template and store result in packet zip path
+And I ridsync where packet type is RES_UPDATE, and packet zip path is the saved packet zip path and store result in rid res update
+And I packetsync where packet zip path is the saved packet zip path
+And I check status where packet status is PROCESSED, and registration ID is rid res update
+And I get uin by rid where source registration ID is rid res update and store result in uin after res update
+And I check updated uin where parameter 1 is the saved second UIN, and parameter 2 is the saved uin after res update
+And I verify notification where notification type is updated, and email is the saved email
+And I credential request where UIN is the saved uin after res update, and email is the saved email and store result in credential request ID
 And I check credential status where credential request ID is the saved credential request ID
 And I verify notification where notification type is Credential Issuance Status, and email is the saved email
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
