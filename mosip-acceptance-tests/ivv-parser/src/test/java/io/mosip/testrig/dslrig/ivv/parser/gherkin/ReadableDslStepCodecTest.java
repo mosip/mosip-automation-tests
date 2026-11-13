@@ -100,6 +100,9 @@ public class ReadableDslStepCodecTest {
 
         String statusCheck = "I check status where packet status is PROCESSED, and registration ID is rid lost";
         assertDecodeToDsl(statusCheck, "e2e_checkStatus(PROCESSED,$$ridLost)");
+
+        String regprocStatus = "I checkstatus regproc where packet status is REJECTED, and registration ID is rid lost";
+        assertDecodeToDsl(regprocStatus, "e2e_checkstatusRegproc(REJECTED,$$ridLost)");
     }
 
     @Test
