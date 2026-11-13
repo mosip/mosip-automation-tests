@@ -1652,7 +1652,7 @@ And I update resident with uin where persona file path is the saved persona file
 And I get packet template where packet type is LOST, and persona file path is the saved persona file path and store result in lost template
 And I packetcreator where packet type is LOST, and template path is the saved lost template and store result in packet zip path
 And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path and store result in modality hash value
-And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path, and modality hash map is the saved modality hash value, and delay seconds is 240, and mock ABIS status is Success
+And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is true, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path, and modality hash map is the saved modality hash value, and delay seconds is 240, and mock ABIS status is Duplicate
 And I ridsync where packet type is LOST, and packet zip path is the saved packet zip path and store result in rid lost
 And I packetsync where packet zip path is the saved packet zip path
 Then I check ridstage where registration ID is the saved rid lost, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is IN_PROGRESS
@@ -1686,7 +1686,7 @@ And I update resident with uin where persona file path is the saved persona file
 And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update packet template path
 And I packetcreator where packet type is UPDATE, and template path is the saved update packet template path and store result in packet zip path
 And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path and store result in modality hash value
-And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path, and modality hash map is the saved modality hash value, and delay seconds is 240, and mock ABIS status is Success
+And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is true, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path, and modality hash map is the saved modality hash value, and delay seconds is 240, and mock ABIS status is Duplicate
 And I ridsync where packet type is UPDATE, and packet zip path is the saved packet zip path and store result in second registration ID
 And I packetsync where packet zip path is the saved packet zip path
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is IN_PROGRESS
@@ -1745,7 +1745,7 @@ And I update demo or bio details where bio type is 0, and miss fields is 0, and 
 And I get packet template where packet type is BIOMETRIC_CORRECTION, and persona file path is the saved persona file path2 and store result in template path2
 And I packetcreator where packet type is BIOMETRIC_CORRECTION, and template path is the saved template path2, and additional info request ID is additional req id and store result in zip packet path2
 And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path2 and store result in modality hash value
-And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path2, and modality hash map is the saved modality hash value, and delay seconds is 240, and mock ABIS status is Success
+And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is true, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path2, and modality hash map is the saved modality hash value, and delay seconds is 240, and mock ABIS status is Duplicate
 And I ridsync where packet type is BIOMETRIC_CORRECTION, and packet zip path is the saved zip packet path2, and additional info request ID is additional req id and store result in second registration ID
 And I packetsync where packet zip path is the saved zip packet path2
 Then I check ridstage where registration ID is the saved second registration ID, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is IN_PROGRESS
