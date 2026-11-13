@@ -59,6 +59,7 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
+			<version>1.18.42</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -255,10 +256,10 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.0</version>
+				<version>3.14.1</version>
 				<configuration>
-					<source>21</source>
-					<target>21</target>
+					<release>25</release>
+					<proc>full</proc>
 				</configuration>
 			</plugin>
 		</plugins>
