@@ -78,10 +78,10 @@
 
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.0</version>
+				<version>3.14.1</version>
 				<configuration>
-					<source>21</source>
-					<target>21</target>
+					<release>25</release>
+					<proc>full</proc>
 					<argLine>-Dfile.encoding=UTF-8</argLine>
 				</configuration>
 			</plugin>
@@ -89,7 +89,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
-				<version>3.2.4</version>
+				<version>3.6.1</version>
 				<executions>
 					<execution>
 						<goals>
