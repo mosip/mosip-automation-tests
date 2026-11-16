@@ -8919,7 +8919,7 @@ And I delete packet data
   @Positive_Test
   @persona_ResidentMaleAdult
   @group_Infant_Update
-  Scenario: Infant gets UIN then adult UPDATE stays in ABIS while id, optional, and evidence are renamed in MinIO and packet manager caches are cleared, then the packet ends in REREGISTER
+  Scenario: Infant gets UIN then adult UPDATE stays in ABIS while id, optional, and evidence are renamed in MinIO and packet manager caches are cleared, then the packet ends in PROCESSED
 Given I get ping health where component is packetcreator
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
 And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
@@ -8954,7 +8954,7 @@ Then I check ridstage where registration ID is the saved second registration ID,
 And I wait where wait seconds is 60
 And I rename packet objects where registration ID is the saved second registration ID, and packet process is UPDATE, and object action is rename, and hold seconds is 0
 And I clear packet manager cache
-And I check status where packet status is REREGISTER, and registration ID is the saved second registration ID
+And I check status where packet status is PROCESSED, and registration ID is the saved second registration ID
 And I delete packet data
 
   @scenario_304
