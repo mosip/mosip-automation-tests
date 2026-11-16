@@ -6,6 +6,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,6 +117,38 @@ public class RegistrationSteps {
 		JSONObject response = RestClient.post(url, reqWrapper, "resident", contextKey);
 		return response.get("ridStatus").toString();
 
+	}
+
+	public String getWorkflowStatus(String rid, String contextKey) throws Exception {
+		String uri = "registrationprocessor/v1/workflowmanager/workflow/search";
+		String url = VariableManager.getVariableValue(contextKey, "urlBase").toString().trim() + uri;
+
+		JSONObject filter = new JSONObject();
+		filter.put("columnName", "regId");
+		filter.put("value", rid);
+		JSONObject sort = new JSONObject();
+		sort.put("sortField", "updateDateTime");
+		sort.put("sortType", "desc");
+		JSONObject pagination = new JSONObject();
+		pagination.put("pageStart", 0);
+		pagination.put("pageFetch", 10);
+		JSONObject request = new JSONObject();
+		request.put("filters", new JSONArray().put(filter));
+		request.put("sort", sort);
+		request.put("pagination", pagination);
+
+		JSONObject wrapper = new JSONObject();
+		wrapper.put("id", "mosip.registration.processor.workflow.search");
+		wrapper.put("version", "v1");
+		wrapper.put("requesttime", CommonUtil.getUTCDateTime(null));
+		wrapper.put("request", request);
+
+		JSONObject response = RestClient.post(url, wrapper, "regproc", contextKey);
+		if (response == null || !response.has("data") || response.isNull("data")
+				|| response.getJSONArray("data").length() == 0) {
+			return "processing";
+		}
+		return response.getJSONArray("data").getJSONObject(0).optString("statusCode", "processing");
 	}
 
 	public String getUINByRID(String rid, String contextKey) throws Exception {

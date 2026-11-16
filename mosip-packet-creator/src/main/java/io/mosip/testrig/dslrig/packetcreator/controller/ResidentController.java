@@ -56,6 +56,27 @@ public class ResidentController {
 		}
 	}
 
+	@Operation(summary = "Get the registration-processor workflow status for a RID")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Successfully retrieved the workflow status") })
+	@GetMapping(value = "/resident/workflowstatus/{rid}/{contextKey}")
+	public @ResponseBody String getWorkflowStatus(@PathVariable("rid") String rid,
+			@PathVariable("contextKey") String contextKey) {
+
+		if (personaConfigPath != null && !personaConfigPath.equals("")) {
+			DataProviderConstants.setResource(personaConfigPath);
+		}
+		try {
+			return residentService.getWorkflowStatus(rid, contextKey);
+		} catch (ServiceException se) {
+			throw se;
+		} catch (Exception e) {
+			logger.error("getWorkflowStatus", e);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "GET_WORKFLOW_STATUS_FAIL", null, e,
+					e.getMessage());
+		}
+	}
+
 	@Operation(summary = "Get the UIN with respect to RID from resident")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully retrived the UIN with respect to RID") })

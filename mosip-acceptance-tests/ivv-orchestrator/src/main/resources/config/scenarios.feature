@@ -7839,7 +7839,7 @@ And I get ping health where component is targetenv
 And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
 And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_NEW, and parameter 3 is the saved persona file path and store result in registration ID
 And I sync external packet where packet zip path is the saved registration ID
-Then I check ridstage where registration ID is the saved registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is FAILED
+Then I checkstatus regproc where packet status is FAILED, and registration ID is the saved registration ID
 And I delete packet data
 
   @scenario_261
@@ -7854,7 +7854,7 @@ And I get ping health where component is targetenv
 And I get resident data where persona type is minor, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
 And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_NEW, and parameter 3 is the saved persona file path and store result in registration ID
 And I sync external packet where packet zip path is the saved registration ID
-Then I check ridstage where registration ID is the saved registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is FAILED
+Then I checkstatus regproc where packet status is FAILED, and registration ID is the saved registration ID
 And I delete packet data
 
   @scenario_262
@@ -8899,7 +8899,7 @@ And I set context where context key is env_context, and pre-requisite details is
 And I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is name, and persona file is the saved persona file path
 And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_UPDATE, and parameter 3 is the saved persona file path, and parameter 4 is true, and parameter 5 is the saved registration ID and store result in second registration ID
 And I sync external packet where packet zip path is the saved second registration ID
-Then I check ridstage where registration ID is the saved second registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is FAILED
+Then I checkstatus regproc where packet status is REJECTED, and registration ID is the saved second registration ID
 And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
 And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
 And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in rejected packet template path
@@ -8912,7 +8912,7 @@ And I read pre req where pre-requisite data index is 4 and store result in exter
 And I set context where context key is env_context, and pre-requisite details is the saved external packet environment details, and generate private key is false, and registration status or invalidation flag is EXTERNAL
 And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_UPDATE, and parameter 3 is the saved persona file path, and parameter 4 is true, and parameter 5 is the saved rejected registration ID and store result in third registration ID
 And I sync external packet where packet zip path is the saved third registration ID
-Then I check ridstage where registration ID is the saved third registration ID, and RID stage is INTERNAL_WORKFLOW_ACTION, and stage status is FAILED
+Then I checkstatus regproc where packet status is FAILED, and registration ID is the saved third registration ID
 And I delete packet data
 
   @scenario_AFTER_SUITE

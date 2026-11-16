@@ -29,6 +29,16 @@ public class ResidentService {
 		return "{Failed}";
 	}
 
+	public String getWorkflowStatus(String rid, String context) {
+		RegistrationSteps steps = new RegistrationSteps();
+		try {
+			return steps.getWorkflowStatus(rid, context);
+		} catch (Exception e) {
+			logger.error("getWorkflowStatus", e);
+		}
+		return "{Failed}";
+	}
+
 	public String getUINByRID(String rid, String context) throws Exception {
 		RegistrationSteps steps = new RegistrationSteps();
 		return steps.getUINByRID(rid, context);

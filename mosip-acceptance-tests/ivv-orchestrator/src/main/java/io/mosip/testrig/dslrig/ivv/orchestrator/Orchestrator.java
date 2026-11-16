@@ -465,7 +465,7 @@ public class Orchestrator {
 				seconds += estimateWaitSeconds(param);
 			} else if (name.equalsIgnoreCase("WaitTillReprocessorInterval")) {
 				seconds += 900;
-			} else if (name.equalsIgnoreCase("checkStatus")) {
+			} else if (name.equalsIgnoreCase("checkStatus") || name.equalsIgnoreCase("checkstatusRegproc")) {
 				seconds += 100;
 			} else if (name.equalsIgnoreCase("CheckRIDStage")) {
 				seconds += 60;
