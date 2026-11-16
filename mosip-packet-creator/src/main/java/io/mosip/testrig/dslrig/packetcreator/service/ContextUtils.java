@@ -12,8 +12,12 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
@@ -42,7 +46,8 @@ public class ContextUtils {
 	private static final String PRIVATE_KEYS_DIR = "privatekeys";
 	private static final String DEFAULT_MDS_PROFILE = "Default";
 	private static final String GENERATED_MDS_PROFILE_PREFIX = "res";
-	private static final String[] SCRATCH_DIR_PREFIXES = { "residents_", "packets_", "preregIds_", "docs_" };
+	private static final String[] SCRATCH_DIR_PREFIXES = {
+			"residents_", "packets_", "preregIds_", "docs_", "pktcreator", "prereg" };
 	private static final String[][] SCRATCH_FILE_PATTERNS = {
 			{ "pkm", ".cm" },
 			{ "Passport_", ".pdf" },
@@ -146,41 +151,147 @@ public class ContextUtils {
 	public static PacketTempPurge.Stats purgeMountedTempDir(String mountPath, String tempPath, long minAgeMs)
 			throws IOException {
 	    PacketTempPurge.Stats stats = new PacketTempPurge.Stats();
-	    if (mountPath == null || mountPath.isBlank() || tempPath == null || tempPath.isBlank()) {
-	        return stats;
-	    }
-	    Path resolved = Paths.get(mountPath + tempPath).toAbsolutePath().normalize();
-	    if (resolved.getNameCount() < 2 || resolved.equals(resolved.getRoot())) {
-	        logger.warn("Refusing to purge suspiciously shallow mounted temp path: {}", resolved);
-	        return stats;
-	    }
-	    File[] entries = resolved.toFile().listFiles();
-	    if (entries == null) {
-	        return stats;
-	    }
-	    for (File entry : entries) {
-	        PacketTempPurge.deleteIfStale(entry, minAgeMs, stats, logger);
+	    for (Path resolved : resolveMountedTempCandidates(mountPath, tempPath)) {
+	        if (resolved.getNameCount() < 2 || resolved.equals(resolved.getRoot())) {
+	            logger.warn("Refusing to purge suspiciously shallow mounted temp path: {}", resolved);
+	            continue;
+	        }
+	        File dir = resolved.toFile();
+	        if (!dir.isDirectory()) {
+	            logger.info("Mounted temp path does not exist or is not a directory, skipping: {}", resolved);
+	            continue;
+	        }
+	        logger.info("Purging mounted packet temp directory: {}", resolved);
+	        File[] entries = dir.listFiles();
+	        if (entries == null) {
+	            continue;
+	        }
+	        for (File entry : entries) {
+	            PacketTempPurge.deleteIfStale(entry, minAgeMs, stats, logger);
+	        }
 	    }
 	    return stats;
 	}
 
+	/**
+	 * Builds candidate packet-temp roots for both legacy string-concat paths
+	 * ({@code mountPath + tempPath}) and safer {@link Path#resolve(String)} joins, so suite
+	 * cleanup still works when orchestrator and packet-creator configs disagree slightly.
+	 */
+	static LinkedHashSet<Path> resolveMountedTempCandidates(String mountPath, String tempPath) {
+		LinkedHashSet<Path> candidates = new LinkedHashSet<>();
+		String mount = blankToNull(mountPath);
+		String temp = blankToNull(tempPath);
+		if (mount == null && temp == null) {
+			return candidates;
+		}
+		if (mount != null && temp != null) {
+			addResolvedCandidate(candidates, Paths.get(mount + temp));
+			Path tempAsPath = Paths.get(temp);
+			if (tempAsPath.isAbsolute()) {
+				addResolvedCandidate(candidates, tempAsPath);
+			} else {
+				String relative = temp.replaceFirst("^[/\\\\]+", "");
+				if (!relative.isBlank()) {
+					addResolvedCandidate(candidates, Paths.get(mount).resolve(relative));
+				}
+			}
+			if (temp.contains("packets") || temp.contains("Packets")) {
+				addResolvedCandidate(candidates, Paths.get(temp));
+			}
+		} else if (temp != null) {
+			addResolvedCandidate(candidates, Paths.get(temp));
+		} else {
+			addResolvedCandidate(candidates, Paths.get(mount));
+		}
+		return candidates;
+	}
+
+	private static String blankToNull(String value) {
+		return value == null || value.isBlank() ? null : value.trim();
+	}
+
+	private static void addResolvedCandidate(LinkedHashSet<Path> candidates, Path path) {
+		if (path == null) {
+			return;
+		}
+		candidates.add(path.toAbsolutePath().normalize());
+	}
+
 	public static PacketTempPurge.Stats purgeOrphanScratchDirs(long minAgeMs) throws IOException {
+		return purgeOrphanScratchDirs(minAgeMs, null);
+	}
+
+	/**
+	 * Deletes leftover packet-creator scratch dirs/files under {@code java.io.tmpdir}.
+	 * Active process work directories listed in {@code protectAbsolutePaths} are kept (their
+	 * children are still purged) so the running packet-creator keeps a usable work root.
+	 */
+	public static PacketTempPurge.Stats purgeOrphanScratchDirs(long minAgeMs,
+			Collection<String> protectAbsolutePaths) throws IOException {
 	    PacketTempPurge.Stats stats = new PacketTempPurge.Stats();
 	    File tmpRoot = new File(System.getProperty("java.io.tmpdir"));
 	    File[] entries = tmpRoot.listFiles();
 	    if (entries == null) {
 	        return stats;
 	    }
+	    Set<String> protectedRoots = normalizeProtectPaths(protectAbsolutePaths);
 	    for (File entry : entries) {
 	        String name = entry.getName();
 	        boolean orphan = entry.isDirectory()
 	                ? startsWithAny(name, SCRATCH_DIR_PREFIXES)
 	                : isOrphanScratchFile(name);
-	        if (orphan) {
-	            PacketTempPurge.deleteIfStale(entry, minAgeMs, stats, logger);
+	        if (!orphan) {
+	            continue;
 	        }
+	        if (entry.isDirectory() && isProtectedRoot(entry, protectedRoots)) {
+	            // pktcreator active root is already cleaned by PacketMakerService.purgeWorkDirectory
+	            // (and that path preserves schema JSON files). Only sweep children for other
+	            // protected roots such as the live prereg work directory.
+	            if (name.startsWith("pktcreator")) {
+	                stats.skipOther();
+	            } else {
+	                purgeProtectedRootChildren(entry, minAgeMs, stats);
+	            }
+	            continue;
+	        }
+	        PacketTempPurge.deleteIfStale(entry, minAgeMs, stats, logger);
 	    }
 	    return stats;
+	}
+
+	private static Set<String> normalizeProtectPaths(Collection<String> protectAbsolutePaths) {
+		Set<String> protectedRoots = new HashSet<>();
+		if (protectAbsolutePaths == null) {
+			return protectedRoots;
+		}
+		for (String path : protectAbsolutePaths) {
+			if (path == null || path.isBlank()) {
+				continue;
+			}
+			protectedRoots.add(Paths.get(path).toAbsolutePath().normalize().toString());
+		}
+		return protectedRoots;
+	}
+
+	private static boolean isProtectedRoot(File entry, Set<String> protectedRoots) {
+		if (protectedRoots.isEmpty()) {
+			return false;
+		}
+		return protectedRoots.contains(entry.toPath().toAbsolutePath().normalize().toString());
+	}
+
+	private static void purgeProtectedRootChildren(File entry, long minAgeMs, PacketTempPurge.Stats stats) {
+		File[] children = entry.listFiles();
+		if (children == null) {
+			stats.skipOther();
+			return;
+		}
+		logger.info("Keeping active scratch root {}; purging {} child entries", entry.getAbsolutePath(),
+				children.length);
+		for (File child : children) {
+			PacketTempPurge.deleteIfStale(child, minAgeMs, stats, logger);
+		}
 	}
 
 	private static boolean isOrphanScratchFile(String name) {

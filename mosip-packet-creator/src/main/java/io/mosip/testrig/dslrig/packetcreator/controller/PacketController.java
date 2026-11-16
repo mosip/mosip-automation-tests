@@ -1,6 +1,7 @@
 package io.mosip.testrig.dslrig.packetcreator.controller;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -32,6 +33,7 @@ import io.mosip.testrig.dslrig.packetcreator.service.PacketCreatorActivityTracke
 import io.mosip.testrig.dslrig.packetcreator.service.PacketMakerService;
 import io.mosip.testrig.dslrig.packetcreator.service.PacketSyncService;
 import io.mosip.testrig.dslrig.packetcreator.service.PacketTempPurge;
+import io.mosip.testrig.dslrig.packetcreator.service.PreregSyncService;
 import io.mosip.testrig.dslrig.packetcreator.util.DataProviderResourceConfigurer;
 import io.mosip.testrig.dslrig.packetcreator.openapi.OpenApiDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
@@ -55,10 +57,13 @@ public class PacketController {
 
 	private PacketSyncService packetSyncService;
 	private PacketMakerService packetMakerService;
+	private PreregSyncService preregSyncService;
 
-	public PacketController(@Lazy PacketSyncService packetSyncService, @Lazy PacketMakerService packetMakerService) {
+	public PacketController(@Lazy PacketSyncService packetSyncService, @Lazy PacketMakerService packetMakerService,
+			@Lazy PreregSyncService preregSyncService) {
 		this.packetSyncService = packetSyncService;
 		this.packetMakerService = packetMakerService;
+		this.preregSyncService = preregSyncService;
 	}
 
 
@@ -389,25 +394,27 @@ public class PacketController {
 	public @ResponseBody String purgeAllPacketData(
 			@RequestParam(name = "mountPath", required = false) String mountPath,
 			@RequestParam(name = "tempPath", required = false) String tempPath,
-			@RequestParam(name = "minAgeMs", required = false) Long minAgeMs) {
+			@RequestParam(name = "minAgeMs", required = false) Long minAgeMs,
+			@RequestParam(name = "force", required = false, defaultValue = "false") boolean force) {
 		try {
 			long ageMs = minAgeMs != null ? Math.max(0L, minAgeMs) : purgeMinAgeMs;
 			int active = PacketCreatorActivityTracker.activeCount();
-			if (active > 0 && ageMs < purgeMinAgeMs) {
+			if (!force && active > 0 && ageMs < purgeMinAgeMs) {
 				ageMs = purgeMinAgeMs;
 			}
 			PacketTempPurge.Stats stats = new PacketTempPurge.Stats();
 			if (active > 0) {
 				logger.warn(
-						"Purge overlapping {} in-flight packet-creator request(s); deleting only artifacts older than {} ms",
-						active, ageMs);
+						"Purge overlapping {} in-flight packet-creator request(s); force={} minAgeMs={}",
+						active, force, ageMs);
 			}
+			List<String> protectRoots = activeWorkRoots();
 			stats.add(packetMakerService.purgeWorkDirectory(ageMs));
-			stats.add(ContextUtils.purgeOrphanScratchDirs(ageMs));
+			stats.add(ContextUtils.purgeOrphanScratchDirs(ageMs, protectRoots));
 			stats.add(ContextUtils.purgeMountedTempDir(mountPath, tempPath, ageMs));
 			stats.add(ContextUtils.purgeGeneratedResourceArtifacts(personaConfigPath, ageMs));
 			String message = "Purged stale packet data: " + stats.summary() + " overlappingRequests=" + active
-					+ " minAgeMs=" + ageMs;
+					+ " minAgeMs=" + ageMs + " force=" + force;
 			logger.info(message);
 			return message;
 		} catch (ServiceException se) {
@@ -420,6 +427,17 @@ public class PacketController {
 					e.getMessage()
 			);
 		}
+	}
+
+	private List<String> activeWorkRoots() {
+		List<String> roots = new ArrayList<>();
+		if (packetMakerService != null && packetMakerService.getWorkDirectory() != null) {
+			roots.add(packetMakerService.getWorkDirectory());
+		}
+		if (preregSyncService != null && preregSyncService.getWorkDirectory() != null) {
+			roots.add(preregSyncService.getWorkDirectory());
+		}
+		return roots;
 	}
 
 }

@@ -12,11 +12,13 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import io.mosip.testrig.dslrig.packetcreator.service.GitFolderDownloader;
 
 
 @SpringBootApplication
+@EnableScheduling
 @ComponentScan(basePackages = { "io.mosip.testrig.dslrig.packetcreator.*" })
 public class MosipPacketCreatorApplication {
 
