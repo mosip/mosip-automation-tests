@@ -8915,6 +8915,48 @@ And I sync external packet where packet zip path is the saved third registration
 Then I checkstatus regproc where packet status is FAILED, and registration ID is the saved third registration ID
 And I delete packet data
 
+  @scenario_303
+  @Positive_Test
+  @persona_ResidentMaleAdult
+  @group_Infant_Update
+  Scenario: Infant gets UIN then adult UPDATE stays in ABIS while id, optional, and evidence are renamed in MinIO and packet manager caches are cleared, then the packet ends in REREGISTER
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I get ping health where component is targetenv
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in parent persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved parent persona file path and store result in parent packet template path
+And I generate and upload packet skipping prereg where persona file path is the saved parent persona file path, and packet template path is the saved parent packet template path and store result in parent registration ID
+And I check status where packet status is PROCESSED, and registration ID is the saved parent registration ID
+And I get uin by rid where source registration ID is the saved parent registration ID and store result in parent UIN
+And I get email by uin where resident UIN is the saved parent UIN and store result in email1
+And I verify notification where notification type is UIN Generated, and email is the saved email1
+And I update resident with uin where persona file path is the saved parent persona file path, and UIN is the saved parent UIN
+And I get resident data where persona type is infant, and guardian flag is true, and gender and biometric flags is Male and false and false and true and store result in child persona file path
+And I update resident with guardian skipping pre reg where guardian persona file path is the saved parent persona file path, and child persona file path is the saved child persona file path
+And I get packet template where packet type is NEW, and persona file path is the saved child persona file path and store result in child packet template path
+And I generate and upload packet skipping prereg where persona file path is the saved child persona file path, and packet template path is the saved child packet template path and store result in child registration ID
+And I check status where packet status is PROCESSED, and registration ID is the saved child registration ID
+And I get uin by rid where source registration ID is the saved child registration ID and store result in child UIN
+And I get email by uin where resident UIN is the saved child UIN and store result in email
+And I verify notification where notification type is UIN Generated, and email is the saved email
+Then I check ridstage where registration ID is the saved child registration ID, and RID stage is INTRODUCER_VALIDATION, and stage status is SUCCESS
+Then I update demo or bio details where bio type is 0, and miss fields is 0, and update attributes is dob=adult, and persona file is the saved child persona file path
+Then I update demo or bio details where bio type is face and iris and finger, and miss fields is 0, and update attributes is 0, and persona file is the saved child persona file path
+Then I update resident with uin where persona file path is the saved child persona file path, and UIN is the saved child UIN
+Then I get packet template where packet type is UPDATE, and persona file path is the saved child persona file path and store result in update packet template path
+Then I packetcreator where packet type is UPDATE, and template path is the saved update packet template path and store result in packet zip path
+And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and persona path is the saved child persona file path and store result in modality hash value
+And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved child persona file path, and modality hash map is the saved modality hash value, and delay seconds is 180, and mock ABIS status is Success
+And I ridsync where packet type is UPDATE, and packet zip path is the saved packet zip path and store result in second registration ID
+And I packetsync where packet zip path is the saved packet zip path
+Then I check ridstage where registration ID is the saved second registration ID, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is IN_PROGRESS
+And I wait where wait seconds is 60
+And I rename packet objects where registration ID is the saved second registration ID, and packet process is UPDATE, and object action is rename, and hold seconds is 0
+And I clear packet manager cache
+And I check status where packet status is REREGISTER, and registration ID is the saved second registration ID
+And I delete packet data
+
   @scenario_AFTER_SUITE
   @Positive_Test
   @persona_ResidentMaleAdult
