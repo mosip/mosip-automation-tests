@@ -8915,6 +8915,31 @@ And I sync external packet where packet zip path is the saved third registration
 Then I checkstatus regproc where packet status is FAILED, and registration ID is the saved third registration ID
 And I delete packet data
 
+  @scenario_304
+  @Positive_Test
+  @persona_ResidentMaleAdult
+  @group_Adult_New_Exception
+  Scenario: Adult NEW packet with most biometrics as exception stays in ABIS on remaining fingers while id, optional, and evidence are renamed in MinIO and packet manager caches are cleared, then the packet is processed
+Given I get ping health where component is packetcreator
+And I read pre req where pre-requisite data index is 1 and store result in environment 1 details
+And I set context where context key is env_context, and pre-requisite details is the saved environment 1 details, and generate private key is false
+And I get ping health where component is targetenv
+And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
+And I update bio exception in persona where persona file path is the saved persona file path, and biometric exception modalities is Finger:Left Thumb and Finger:Left IndexFinger and Finger:Left MiddleFinger and Finger:Left RingFinger and Finger:Right Thumb and Finger:Right MiddleFinger and Finger:Right RingFinger and Finger:Right LittleFinger and Iris:Left and Iris:Right
+And I get packet template where packet type is NEW, and persona file path is the saved persona file path and store result in packet template path
+And I packetcreator where packet type is NEW, and template path is the saved packet template path and store result in packet zip path
+And I get bio modality hash where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path and store result in modality hash value
+And I configure mock abis where persona ID is -1, and modality subtypes is Right IndexFinger and Left LittleFinger, and duplicate match flag is false, and hash modality keys is Right IndexFinger and Left LittleFinger, and persona path is the saved persona file path, and modality hash map is the saved modality hash value, and delay seconds is 180, and mock ABIS status is Success
+And I ridsync where packet type is NEW, and packet zip path is the saved packet zip path and store result in registration ID
+And I packetsync where packet zip path is the saved packet zip path
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is BIOGRAPHIC_VERIFICATION, and stage status is IN_PROGRESS
+And I wait where wait seconds is 60
+And I rename packet objects where registration ID is the saved registration ID, and packet process is NEW, and object action is rename, and hold seconds is 0
+And I clear packet manager cache
+And I check status where packet status is PROCESSED, and registration ID is the saved registration ID
+Then I check ridstage where registration ID is the saved registration ID, and RID stage is PRINT_SERVICE, and stage status is PROCESSED
+And I delete packet data
+
   @scenario_AFTER_SUITE
   @Positive_Test
   @persona_ResidentMaleAdult
