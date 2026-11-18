@@ -59,7 +59,6 @@ import org.w3c.dom.NodeList;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
-import io.mosip.kernel.core.util.HMACUtils2;
 import io.mosip.testrig.dslrig.dataprovider.test.CreatePersona;
 import io.mosip.testrig.dslrig.dataprovider.models.MosipIDSchema;
 import io.mosip.testrig.dslrig.dataprovider.models.ResidentModel;
@@ -92,7 +91,7 @@ public class PacketMakerService {
 	private static final String MOSIPTEST_REGCLIENT_SUPERVISORID = "mosip.test.regclient.supervisorid";
 	private static final String MOSIP_TEST_REGCLIENT_USERID = "mosip.test.regclient.userid";
 	private static final String MOSIP_TEST_REGCLIENT_supervisorP = "mosip.test.regclient.supervisorpwd";
-	private static final String MOSIP_TEST_REGCLIENT_PASSWORD = "mosip.test.regclient.password";
+	private static final String MOSIP_TEST_REGCLIENT_PASSWORD_KEY = "mosip.test.regclient.password";
 	private static final String EVIDENCE = "evidence";
 	private static final String OPTIONAL = "optional";
 	private static final String IDENTITY = "identity";
@@ -627,7 +626,7 @@ public class PacketMakerService {
 			updatePacketMetaInfo(identityObj, OPERATIONSDATA, "supervisorId", supervisorId, false);
 
 
-			officerP = p.getProperty(MOSIP_TEST_REGCLIENT_PASSWORD);
+			officerP = p.getProperty(MOSIP_TEST_REGCLIENT_PASSWORD_KEY);
 			if (officerP != null && officerP.equals("invalid"))
 				officerP = FALSE; 
 			else if (officerP != null && !officerP.equals(""))
@@ -721,7 +720,7 @@ public class PacketMakerService {
     byte[] unencZipBytes = Files.readAllBytes(unencZipPath);
     String encryptedHash = ("invalidEncryptedHash".equalsIgnoreCase(encryptedHashFlag) && "id".equals(type))
             ? "INVALID_ENCRYPTED_HASH"
-            : CryptoUtil.encodeToURLSafeBase64(HMACUtils2.generateHash(zipBytes));
+            : CryptoUtil.encodeToURLSafeBase64(MessageDigest.getInstance("SHA-256").digest(zipBytes));
     String signature = "";
     if ("invalidSignature".equalsIgnoreCase(signatureValue)) {
         String newKey = contextKey.replaceAll("(?<=_S)\\d+(?=_context)", "0");
