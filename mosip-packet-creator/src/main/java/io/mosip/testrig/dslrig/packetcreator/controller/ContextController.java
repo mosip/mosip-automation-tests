@@ -286,6 +286,8 @@ public class ContextController {
 
 			+ "Optional reportHints=true embeds markers for bold labels in HTML reports. "
 
+			+ "Optional failedOnly=true returns only failed outbound calls (HTTP 4xx/5xx, transport errors, or MOSIP errors). "
+
 			+ "Does not log inbound DSL calls to Packet Creator.")
 
 	@GetMapping(value = "/context/internalApiLogs/{contextKey}", produces = MediaType.TEXT_PLAIN_VALUE)
@@ -294,13 +296,15 @@ public class ContextController {
 
 			@RequestParam(name = "clear", defaultValue = "true") boolean clear,
 
-			@RequestParam(name = "reportHints", defaultValue = "false") boolean reportHints) {
+			@RequestParam(name = "reportHints", defaultValue = "false") boolean reportHints,
+
+			@RequestParam(name = "failedOnly", defaultValue = "false") boolean failedOnly) {
 
 		List<InternalApiLogExchange> list = clear ? InternalApiLogCollector.drain(contextKey)
 
 				: InternalApiLogCollector.snapshot(contextKey);
 
-		return InternalApiLogFormatter.format(list, reportHints);
+		return InternalApiLogFormatter.format(list, reportHints, failedOnly);
 
 	}
 

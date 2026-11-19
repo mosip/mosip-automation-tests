@@ -366,18 +366,21 @@ public class BaseTestCaseUtil extends BaseStep {
 	}
 
 	public static void appendOutboundInternalApiLogsAfterPacketCreatorCall(Scenario.Step step, String resolvedUrl) {
-		if (!dslConfigManager.isInternalApiLoggingForReport() || step == null || resolvedUrl == null) {
+		if (step == null || resolvedUrl == null) {
 			return;
 		}
 		String pcBase = dslConfigManager.getpacketUtilityBaseUrl();
 		if (pcBase == null || pcBase.isEmpty() || !resolvedUrl.startsWith(pcBase)) {
 			return;
 		}
+		boolean debug = dslConfigManager.IsDebugEnabled();
 		try {
 			String contextKey = buildPacketCreatorContextKey(step.getScenario());
 			String pathKey = java.net.URLEncoder.encode(contextKey, java.nio.charset.StandardCharsets.UTF_8)
 					.replace("+", "%20");
-			String logUrl = pcBase + "/context/internalApiLogs/" + pathKey + "?clear=true&reportHints=true";
+			// Always drain so capture does not grow. Debug: all APIs; otherwise failed-only.
+			String logUrl = pcBase + "/context/internalApiLogs/" + pathKey + "?clear=true&reportHints=true"
+					+ (debug ? "" : "&failedOnly=true");
 			RestAssuredConfig timeoutConfig = RestAssuredConfig.config()
 					.httpClient(HttpClientConfig.httpClientConfig()
 							.setParam("http.connection.timeout", INTERNAL_API_LOG_FETCH_CONNECT_MS)
@@ -386,6 +389,9 @@ public class BaseTestCaseUtil extends BaseStep {
 					.relaxedHTTPSValidation().get(logUrl);
 			String body;
 			if (r.getStatusCode() != 200) {
+				if (!debug) {
+					return;
+				}
 				body = "Internal API log fetch failed: HTTP " + r.getStatusCode() + "\nURL: " + logUrl + "\nResponse: "
 						+ r.asString();
 			} else {
@@ -394,7 +400,8 @@ public class BaseTestCaseUtil extends BaseStep {
 					body = "";
 				}
 			}
-			if (r.getStatusCode() == 200 && (body.isBlank() || body.contains("no internal API calls recorded"))) {
+			if (r.getStatusCode() == 200 && (body.isBlank() || body.contains("no internal API calls recorded")
+					|| body.contains("no failed internal API calls"))) {
 				return;
 			}
 			String escaped = org.testng.internal.Utils.escapeHtml(SensitiveLogMasker.mask(body));
@@ -403,10 +410,12 @@ public class BaseTestCaseUtil extends BaseStep {
 			StringBuilder block = new StringBuilder(512 + escaped.length());
 			block.append("<div class=\"dsl-internal-api-log\">");
 			block.append("<div class=\"dsl-internal-api-log__title\">");
-			block.append("Outbound internal API traffic (Packet Creator / Data Provider) for this call");
+			block.append(debug ? "Outbound internal API traffic (Packet Creator / Data Provider) for this call"
+					: "Failed outbound internal API traffic (Packet Creator / Data Provider) for this call");
 			block.append("</div>");
 			block.append("<div class=\"dsl-internal-api-log__toolbar\">");
-			block.append("Internal outbound calls (request + response per call)");
+			block.append(debug ? "Internal outbound calls (request + response per call)"
+					: "Failed internal outbound calls only (request + response per call)");
 			block.append("</div>");
 			block.append("<div class=\"dsl-internal-api-log__body\">");
 			block.append("<pre class=\"dsl-internal-api-log__pre\">");
@@ -416,8 +425,10 @@ public class BaseTestCaseUtil extends BaseStep {
 		} catch (Exception e) {
 			logger.warn("Could not attach internal API log after packet creator call for context "
 					+ buildPacketCreatorContextKey(step.getScenario()), e);
-			Reporter.log("<pre>Internal API log error: " + org.testng.internal.Utils.escapeHtml(e.getMessage())
-					+ "</pre>", false);
+			if (debug) {
+				Reporter.log("<pre>Internal API log error: " + org.testng.internal.Utils.escapeHtml(e.getMessage())
+						+ "</pre>", false);
+			}
 		}
 	}
 

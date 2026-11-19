@@ -472,25 +472,6 @@ public class dslConfigManager extends ConfigManager {
 		return properties;
 	}
 
-
-	public static boolean isInternalApiLoggingForReport() {
-		if (Boolean.parseBoolean(System.getProperty("dslrig.internal.api.logging", "false"))) {
-			return true;
-		}
-		try {
-			String v = ConfigManager.getproperty("internalApiLogging");
-			return v != null && "yes".equalsIgnoreCase(v.trim());
-		} catch (Exception e) {
-			return false;
-		}
-	}
-
-
-	public static String getInternalApiLoggingForContextProps() {
-		return isInternalApiLoggingForReport() ? "yes" : "no";
-	}
-
-
 	/** Max chars kept in each report textarea; 0 disables truncation. */
 	public static int getReportPayloadMaxChars() {
 		String jvm = System.getProperty("dsl.report.payload.max.chars");
