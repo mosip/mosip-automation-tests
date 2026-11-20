@@ -4041,7 +4041,7 @@ And I generate and upload packet skipping prereg where persona file path is the 
 And I check status where packet status is PROCESSED, and registration ID is the saved second registration ID
 And I get uin by rid where source registration ID is the saved second registration ID and store result in second UIN
 And I verify notification where notification type is updated, and email is the saved email1
-And I ekyc bio where device info file is faceDevice, and UIN is the saved second UIN, and VID is the saved VID, and persona file path is the saved persona file path
+And I ekyc bio where device info file is faceDevice, and UIN is the saved UIN, and VID is the saved VID, and persona file path is the saved persona file path
 And I delete packet data
 
   @scenario_125
