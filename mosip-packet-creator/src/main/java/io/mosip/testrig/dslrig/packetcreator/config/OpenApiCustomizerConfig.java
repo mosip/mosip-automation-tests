@@ -31,7 +31,8 @@ public class OpenApiCustomizerConfig {
 			Map.entry("introducerInfoToken", new ParameterDoc("When true, validate introducer info token for CRVS packets.", "false")),
 			Map.entry("qualityScore", new ParameterDoc("Biometric quality score applied to generated CBEFF (string numeric).", "90")),
 			Map.entry("clear", new ParameterDoc("When true, drain and clear collected internal API logs after read.", "true")),
-			Map.entry("reportHints", new ParameterDoc("When true, embed HTML report hints in formatted log output.", "false")));
+			Map.entry("reportHints", new ParameterDoc("When true, embed HTML report hints in formatted log output.", "false")),
+			Map.entry("failedOnly", new ParameterDoc("When true, return only failed outbound internal API calls.", "false")));
 
 	@Bean
 	public OperationCustomizer packetCreatorOperationCustomizer() {

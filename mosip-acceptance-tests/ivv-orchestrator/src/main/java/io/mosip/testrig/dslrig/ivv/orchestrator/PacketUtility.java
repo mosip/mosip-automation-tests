@@ -830,7 +830,6 @@ public class PacketUtility extends BaseTestCaseUtil {
 		String url = this.baseUrl + "/servercontext/" + key;
 
 		JSONObject jsonReq = new JSONObject();
-		jsonReq.put("internalApiLogging", dslConfigManager.getInternalApiLoggingForContextProps());
 		jsonReq.put(URLBASE, baseUrl);
 		jsonReq.put(MOSIP_TEST_BASEURL, baseUrl);
 		jsonReq.put(MOSIP_TEST_REGCLIENT_MACHINEID, E2EConstants.MACHINE_ID);
@@ -868,7 +867,6 @@ public class PacketUtility extends BaseTestCaseUtil {
 		}
 		JSONObject jsonReq = new JSONObject();
 		jsonReq.put("enableDebug", dslConfigManager.getEnableDebug());
-		jsonReq.put("internalApiLogging", dslConfigManager.getInternalApiLoggingForContextProps());
 		logger.info("Running suite with enableDebug : " + dslConfigManager.getEnableDebug());
 		jsonReq.put("baselang", BaseTestCase.getLanguageList().get(0));
 
@@ -974,7 +972,6 @@ public class PacketUtility extends BaseTestCaseUtil {
 		jsonReq.put("consent", consent);
 		jsonReq.put("invalidCertFlag", invalidCertFlag);
 		jsonReq.put("enableDebug", dslConfigManager.getEnableDebug());
-		jsonReq.put("internalApiLogging", dslConfigManager.getInternalApiLoggingForContextProps());
 		jsonReq.put("eSignetbaseurl", ConfigManager.getEsignetBaseUrl());
 		logger.info("Running suite with enableDebug : " + dslConfigManager.getEnableDebug());
 		jsonReq.put(URLBASE, envbaseUrl);
