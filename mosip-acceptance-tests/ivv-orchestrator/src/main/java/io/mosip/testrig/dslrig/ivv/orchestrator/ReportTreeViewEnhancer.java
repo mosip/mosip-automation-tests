@@ -1,5 +1,6 @@
 package io.mosip.testrig.dslrig.ivv.orchestrator;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -14,12 +15,14 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.log4j.Logger;
@@ -53,34 +56,81 @@ public final class ReportTreeViewEnhancer {
                     + "if(!nav)return;var bar=nav.querySelector('.tree-filter-toolbar');"
                     + "if(!bar)return;var q=bar.querySelector('.tree-search');"
                     + "var empty=nav.querySelector('.tree-search-empty');"
+                    + "var stepWrap=bar.querySelector('.tree-fail-step-filter');"
+                    + "var stepSel=bar.querySelector('.tree-fail-step-select');"
                     + "function active(){var b=bar.querySelector('.tree-filter-chip.is-active');"
                     + "return b?(b.getAttribute('data-tree-filter')||'all'):'all';}"
-                    + "function apply(){var f=active();var needle=(q&&q.value||'').trim().toLowerCase();var shown=0;"
+                    + "function selectedStep(){return stepSel?(stepSel.value||''):'';}"
+                    + "function syncStepFilterVisibility(){"
+                    + "if(!stepWrap)return;"
+                    + "var f=active();var step=selectedStep();"
+                    + "stepWrap.hidden=!(f==='fail'||!!step);}"
+                    + "function activateFailChip(){"
+                    + "var chip=bar.querySelector('.tree-filter-chip[data-tree-filter=\"fail\"]');"
+                    + "if(!chip||chip.classList.contains('is-active'))return;"
+                    + "bar.querySelectorAll('.tree-filter-chip').forEach(function(b){"
+                    + "var on=b===chip;b.classList.toggle('is-active',on);b.setAttribute('aria-pressed',on?'true':'false');});}"
+                    + "function openMatchingScenarios(){"
+                    + "var step=selectedStep();if(!step)return;"
+                    + "var cards=[];"
+                    + "nav.querySelectorAll('li.tree-scenario-node').forEach(function(li){"
+                    + "if(li.style.display==='none')return;"
+                    + "if((li.getAttribute('data-status')||'')!=='fail')return;"
+                    + "if((li.getAttribute('data-failed-step')||'')!==step)return;"
+                    + "var det=li.querySelector('details.tree-steps-details');if(det)det.open=true;"
+                    + "var a=li.querySelector('a.tree-link--scenario[href^=\"#\"]');"
+                    + "if(!a)return;var id=(a.getAttribute('href')||'').replace(/^#/,'');"
+                    + "var card=document.querySelector('.report-main .scenario-detail-card[data-scenario-anchor=\"'+id+'\"]');"
+                    + "if(card)cards.push(card);});"
+                    + "if(!cards.length)return;"
+                    + "document.querySelectorAll('.report-main .scenario-detail-card.is-open').forEach(function(c){"
+                    + "if(cards.indexOf(c)>=0)return;"
+                    + "if(window.reportOpenScenario)window.reportOpenScenario(c,false);"
+                    + "else{var b=c.querySelector('.scenario-fold-body');if(b)b.hidden=true;c.classList.remove('is-open');}});"
+                    + "window.__reportKeepMultiOpen=true;"
+                    + "var chain=Promise.resolve();"
+                    + "cards.forEach(function(card){chain=chain.then(function(){"
+                    + "if(window.reportOpenScenario)return window.reportOpenScenario(card,true);"
+                    + "var body=card.querySelector('.scenario-fold-body');"
+                    + "if(body){body.hidden=false;card.classList.add('is-open');}});});"
+                    + "chain.then(function(){window.__reportKeepMultiOpen=false;"
+                    + "try{cards[0].scrollIntoView({behavior:'auto',block:'start'});}catch(e){}"
+                    + "var id=cards[0].getAttribute('data-scenario-anchor');"
+                    + "if(id)try{history.replaceState(null,'','#'+id);}catch(x){}});}"
+                    + "function apply(opts){opts=opts||{};"
+                    + "var f=active();var step=selectedStep();"
+                    + "if(step&&f!=='fail'){activateFailChip();f='fail';}"
+                    + "var needle=(q&&q.value||'').trim().toLowerCase();var shown=0;"
                     + "nav.querySelectorAll('li.tree-scenario-node').forEach(function(li){"
                     + "var s=li.getAttribute('data-status')||'';"
                     + "var name=(li.getAttribute('data-name')||'').toLowerCase();"
+                    + "var failedAt=li.getAttribute('data-failed-step')||'';"
                     + "var show=(f==='all'||s===f)&&(!needle||name.indexOf(needle)>=0);"
+                    + "if(show&&step){show=(s==='fail'&&failedAt===step);}"
                     + "if(!show){var det=li.querySelector('details.tree-steps-details');if(det)det.open=false;}"
                     + "li.style.display=show?'':'none';if(show)shown++;});"
-                    + "if(empty)empty.hidden=shown!==0;}"
+                    + "if(empty)empty.hidden=shown!==0;"
+                    + "syncStepFilterVisibility();"
+                    + "if(opts.openMatching)openMatchingScenarios();}"
                     + "bar.addEventListener('click',function(e){"
                     + "var t=e.target;if(!t||!t.closest)return;var btn=t.closest('.tree-filter-chip');"
                     + "if(!btn)return;"
                     + "bar.querySelectorAll('.tree-filter-chip').forEach(function(b){"
                     + "var on=b===btn;b.classList.toggle('is-active',on);b.setAttribute('aria-pressed',on?'true':'false');});"
+                    + "var key=btn.getAttribute('data-tree-filter')||'all';"
+                    + "if(key!=='fail'&&stepSel)stepSel.value='';"
                     + "apply();});"
-                    + "if(q)q.addEventListener('input',apply);"
-                    + "var next=bar.querySelector('.tree-next-fail');var failIdx=-1;"
-                    + "if(next)next.addEventListener('click',function(){"
-                    + "var nodes=[];nav.querySelectorAll('li.tree-scenario-node').forEach(function(li){"
-                    + "if(li.getAttribute('data-status')==='fail'&&li.style.display!=='none')nodes.push(li);});"
-                    + "if(!nodes.length)return;failIdx=(failIdx+1)%nodes.length;"
-                    + "var a=nodes[failIdx].querySelector('a.tree-link--scenario');if(a)a.click();});"
+                    + "if(q)q.addEventListener('input',function(){apply();});"
+                    + "if(stepSel)stepSel.addEventListener('change',function(){"
+                    + "if(selectedStep())activateFailChip();"
+                    + "apply({openMatching:!!selectedStep()});});"
                     + "apply();})();</script>";
 
-    private static final String REPORT_UX_MARKER = "report-ux-v3";
+    private static final String REPORT_UX_MARKER = "report-ux-v4";
 
-    private static final String[] REPORT_UX_LEGACY_MARKERS = {"/*report-ux-v1*/", "/*report-ux-v2*/"};
+    private static final String[] REPORT_UX_LEGACY_MARKERS = {
+        "/*report-ux-v1*/", "/*report-ux-v2*/", "/*report-ux-v3*/"
+    };
 
     // Scenario bodies are stored gzip+base64 (or JSON text in older reports) in
     // <script class="scenario-fold-src"> (see deferScenarioBodies) and only turned into DOM
@@ -96,6 +146,32 @@ public final class ReportTreeViewEnhancer {
                     + "if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(v).then(ok,function(){ta.select();try{document.execCommand('copy');ok();}catch(e){}});} "
                     + "else {ta.select();try{document.execCommand('copy');ok();}catch(e){}}});"
                     + "if(ta.parentNode)ta.parentNode.insertBefore(b,ta);});}"
+                    + "function depMap(){var map={};"
+                    + "document.querySelectorAll('.report-sidebar li.tree-scenario-node').forEach(function(li){"
+                    + "var name=li.getAttribute('data-name');if(!name)return;"
+                    + "var a=li.querySelector('a.tree-link--scenario[href^=\"#\"]');"
+                    + "map[name]={href:a?a.getAttribute('href'):null,status:li.getAttribute('data-status')||'unknown'};});"
+                    + "return map;}"
+                    + "function parseDeps(text){text=(text||'').replace(/\\u00a0/g,' ').trim();"
+                    + "if(!text||text==='[]'||/^none$/i.test(text))return [];"
+                    + "if(text.charAt(0)==='['&&text.charAt(text.length-1)===']')text=text.slice(1,-1).trim();"
+                    + "if(!text)return [];"
+                    + "return text.split(',').map(function(s){return s.trim();}).filter(Boolean);}"
+                    + "function linkifyDeps(root){if(!root||!root.querySelectorAll)return;var map=depMap();"
+                    + "root.querySelectorAll('tr.param').forEach(function(tr){"
+                    + "var th=tr.querySelector('th');if(!th||!/testcase\\s+dependency/i.test(th.textContent||''))return;"
+                    + "var row=tr.nextElementSibling;if(!row)return;var td=row.querySelector('td');"
+                    + "if(!td||td.querySelector('.tc-dep-link')||td.getAttribute('data-dep-linked'))return;"
+                    + "var deps=parseDeps(td.textContent||'');td.classList.add('tc-dep-cell');"
+                    + "td.setAttribute('data-dep-linked','1');td.innerHTML='';"
+                    + "if(!deps.length){td.innerHTML='<span class=\"tc-dep-empty\">None</span>';return;}"
+                    + "deps.forEach(function(name,i){if(i)td.appendChild(document.createTextNode(' '));"
+                    + "var info=map[name]||{};var status=info.status||'unknown';"
+                    + "var el=document.createElement(info.href?'a':'span');"
+                    + "el.className='tc-dep-link tc-dep-link--'+status;el.textContent=name;"
+                    + "el.title=name+(status&&status!=='unknown'?' — '+status:'');"
+                    + "if(info.href){el.href=info.href;}"
+                    + "td.appendChild(el);});});}"
                     + "function decode(src){if(src.type==='application/json')return Promise.resolve(JSON.parse(src.textContent));"
                     + "var bin=atob(src.textContent.trim()),u=new Uint8Array(bin.length);"
                     + "for(var i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);"
@@ -106,7 +182,7 @@ public final class ReportTreeViewEnhancer {
                     + "body.textContent='Loading\u2026';"
                     + "card._fill=Promise.resolve().then(function(){return decode(src);})"
                     + ".then(function(h){body.innerHTML=h;},function(e){body.textContent='Could not load scenario details: '+e.message;})"
-                    + ".then(function(){src.parentNode.removeChild(src);addCopy(body);return body;});"
+                    + ".then(function(){src.parentNode.removeChild(src);addCopy(body);linkifyDeps(body);return body;});"
                     + "return card._fill;}"
                     + "window.reportOpenScenario=function(card,open){var body=card.querySelector('.scenario-fold-body');"
                     + "if(body){body.hidden=!open;card.classList.toggle('is-open',open);}"
@@ -116,13 +192,28 @@ public final class ReportTreeViewEnhancer {
                     + "var h3=inner.querySelector('h3');if(!h3)return;"
                     + "if(!inner.querySelector('.scenario-fold-body')){"
                     + "var body=document.createElement('div');body.className='scenario-fold-body';body.hidden=true;"
-                    + "var n=h3.nextSibling;while(n){var nx=n.nextSibling;body.appendChild(n);n=nx;}"
-                    + "inner.appendChild(body);addCopy(body);}"
+                    + "var n=h3.nextSibling;while(n){var nx=n.nextSibling;"
+                    + "if(n.nodeType===1&&n.classList&&n.classList.contains('scenario-fail-step-jump')){n=nx;continue;}"
+                    + "body.appendChild(n);n=nx;}"
+                    + "inner.appendChild(body);addCopy(body);linkifyDeps(body);}"
                     + "h3.classList.add('scenario-fold-head');"
                     + "h3.addEventListener('click',function(e){"
                     + "if(e.target.closest&&e.target.closest('a,button'))return;"
                     + "var b=card.querySelector('.scenario-fold-body');"
-                    + "window.reportOpenScenario(card,!!(b&&b.hidden));});});})();</script>";
+                    + "window.reportOpenScenario(card,!!(b&&b.hidden));});});"
+                    + "document.addEventListener('click',function(e){"
+                    + "var btn=e.target&&e.target.closest&&e.target.closest('.scenario-fail-step-jump');"
+                    + "if(!btn)return;e.preventDefault();e.stopPropagation();"
+                    + "var id=btn.getAttribute('data-step-target');if(!id)return;"
+                    + "var card=btn.closest('.scenario-detail-card');"
+                    + "function go(){var el=document.getElementById(id);if(!el)return;"
+                    + "el.scrollIntoView({behavior:'auto',block:'start'});"
+                    + "try{history.replaceState(null,'','#'+id);}catch(x){}"
+                    + "el.classList.add('step-capture-card--flash');"
+                    + "setTimeout(function(){el.classList.remove('step-capture-card--flash');},1600);}"
+                    + "if(card&&window.reportOpenScenario){Promise.resolve(window.reportOpenScenario(card,true)).then(go);}"
+                    + "else go();});"
+                    + "linkifyDeps(document.querySelector('.report-main'));})();</script>";
 
 
     // content-visibility:auto skips layout for off-screen scenario cards and substitutes
@@ -168,6 +259,272 @@ public final class ReportTreeViewEnhancer {
                     + "if(!document.getElementById('report-exec-summary'))h('#summary')}"
                     + "if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);"
                     + "else init()})();</script>";
+
+    private static final String REPORT_NAV_UX_MARKER = "report-nav-ux-v1";
+
+    /**
+     * Wraps wide suite tables for horizontal scroll and adds a jump-to-failure control that
+     * cycles failed scenarios (also re-clicking the Failed sidebar chip while it is active).
+     */
+    private static final String REPORT_NAV_UX_SCRIPT =
+            "<script>(function(){/*" + REPORT_NAV_UX_MARKER + "*/"
+                    + "var failIdx=-1;"
+                    + "function wrapTables(){document.querySelectorAll('.report-main table').forEach(function(t){"
+                    + "if(t.closest('.report-suite-scroll'))return;"
+                    + "var suite=!!t.querySelector('td.num > a[href^=\"#t\"]');"
+                    + "var stats=t.classList.contains('report-exec-table')&&!!t.querySelector('tr.exec-stats-header-row');"
+                    + "if(!suite&&!stats)return;"
+                    + "var w=document.createElement('div');w.className='report-suite-scroll'+(stats?' report-suite-scroll--exec':'');"
+                    + "t.parentNode.insertBefore(w,t);w.appendChild(t);});}"
+                    + "function failureLinks(){return Array.prototype.slice.call("
+                    + "document.querySelectorAll('.report-sidebar li.tree-scenario-node[data-status=\"fail\"] a.tree-link--scenario[href^=\"#\"]'));}"
+                    + "function activateFailFilter(){var chip=document.querySelector('.tree-filter-chip[data-tree-filter=\"fail\"]');"
+                    + "if(chip&&!chip.classList.contains('is-active'))chip.click();}"
+                    + "function jumpFail(e){if(e){e.preventDefault();e.stopPropagation();}"
+                    + "var list=failureLinks();if(!list.length)return;"
+                    + "activateFailFilter();failIdx=(failIdx+1)%list.length;var a=list[failIdx];"
+                    + "if(a){a.click();}"
+                    + "var b=document.getElementById('report-jump-fail');"
+                    + "if(b){var n=b.querySelector('.report-jump-fail__n');"
+                    + "if(n)n.textContent=(failIdx+1)+'/'+list.length;"
+                    + "b.title='Next failure ('+(failIdx+1)+'/'+list.length+')';}}"
+                    + "function ensureJumpBtn(){var list=failureLinks();"
+                    + "var b=document.getElementById('report-jump-fail');"
+                    + "if(!list.length){if(b)b.hidden=true;return;}"
+                    + "if(!b){b=document.createElement('button');b.type='button';b.id='report-jump-fail';"
+                    + "b.className='report-jump-fail';b.setAttribute('aria-label','Jump to next failed scenario');"
+                    + "b.innerHTML='<span class=\"report-jump-fail__ico\" aria-hidden=\"true\">!</span>"
+                    + "<span class=\"report-jump-fail__n\">'+list.length+'</span>';"
+                    + "b.addEventListener('click',jumpFail);document.body.appendChild(b);}"
+                    + "b.hidden=false;var n=b.querySelector('.report-jump-fail__n');"
+                    + "if(n&&failIdx<0)n.textContent=String(list.length);"
+                    + "b.title='Jump to failures ('+list.length+')';"
+                    + "var chip=document.querySelector('.tree-filter-chip[data-tree-filter=\"fail\"]');"
+                    + "if(chip&&!chip.getAttribute('data-jump-bound')){chip.setAttribute('data-jump-bound','1');"
+                    + "chip.addEventListener('click',function(){"
+                    + "if(chip.getAttribute('data-was-active')==='1')jumpFail();"
+                    + "setTimeout(function(){chip.setAttribute('data-was-active',"
+                    + "chip.classList.contains('is-active')?'1':'0');},0);});}}"
+                    + "function init(){wrapTables();ensureJumpBtn();}"
+                    + "if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);"
+                    + "else init();})();</script>";
+
+    private static final String REPORT_SCENARIO_PAGER_MARKER = "report-scenario-pager-v5";
+
+    private static final String[] REPORT_SCENARIO_PAGER_LEGACY_MARKERS = {
+        "report-scenario-pager-v4",
+        "report-scenario-pager-v3",
+        "report-scenario-pager-v2",
+        "report-scenario-pager-v1"
+    };
+
+    /**
+     * Prev/Next sticky bar only while a scenario card is open, plus a small right-corner
+     * toggle to enable/disable the bar (persisted in localStorage).
+     */
+    private static final String REPORT_SCENARIO_PAGER_STYLE =
+            "<style>/*" + REPORT_SCENARIO_PAGER_MARKER + "*/"
+                    + ".report-scenario-pager{position:sticky;top:0;z-index:40;display:flex;align-items:center;"
+                    + "gap:.55rem .75rem;width:auto;max-width:100%;margin:0 0 .85rem;padding:.4rem .65rem;"
+                    + "border-radius:10px;border:1px solid var(--border);background:rgba(15,20,32,.92);"
+                    + "color:var(--text);box-shadow:0 6px 18px rgba(0,0,0,.22);backdrop-filter:blur(8px)}"
+                    + ".report-scenario-pager[hidden]{display:none!important}"
+                    + ".report-scenario-pager__label{display:none}"
+                    + ".report-scenario-pager__title{flex:1 1 auto;min-width:0;font-size:var(--fs-compact);"
+                    + "font-weight:700;line-height:1.3;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}"
+                    + ".report-scenario-pager__meta{flex:0 0 auto;font-size:var(--fs-caption);font-weight:700;"
+                    + "color:var(--muted);margin:0;white-space:nowrap;font-variant-numeric:tabular-nums}"
+                    + ".report-scenario-pager__btn{flex:0 0 auto;min-width:4.4rem;min-height:1.9rem;"
+                    + "padding:.25rem .55rem;border-radius:8px;border:1px solid rgba(224,177,90,.45);"
+                    + "background:rgba(224,177,90,.16);color:var(--text);font:inherit;font-size:var(--fs-caption);"
+                    + "font-weight:700;cursor:pointer}"
+                    + ".report-scenario-pager__btn:hover:not(:disabled){background:rgba(224,177,90,.28);"
+                    + "border-color:rgba(224,177,90,.7)}"
+                    + ".report-scenario-pager__btn:disabled{opacity:.4;cursor:default}"
+                    + ".report-scenario-pager-toggle{position:fixed;right:1.25rem;bottom:8.1rem;z-index:65;"
+                    + "width:42px;height:42px;padding:0;border-radius:999px;border:1px solid rgba(224,177,90,.5);"
+                    + "background:rgba(15,20,32,.94);color:var(--text);box-shadow:0 8px 24px rgba(0,0,0,.28);"
+                    + "cursor:pointer;font:inherit;font-size:.7rem;font-weight:800;letter-spacing:.04em;line-height:1}"
+                    + ".report-scenario-pager-toggle[hidden]{display:none!important}"
+                    + ".report-scenario-pager-toggle:hover{background:rgba(224,177,90,.22);border-color:rgba(224,177,90,.75)}"
+                    + ".report-scenario-pager-toggle.is-off{opacity:.72;border-style:dashed}"
+                    + "html[data-theme=\"light\"] .report-scenario-pager{background:rgba(255,255,255,.96);"
+                    + "border-color:rgba(15,23,42,.12);box-shadow:0 6px 16px rgba(15,23,42,.1);color:#0f172a}"
+                    + "html[data-theme=\"light\"] .report-scenario-pager__btn{background:rgba(176,124,46,.12);"
+                    + "border-color:rgba(176,124,46,.4);color:#0f172a}"
+                    + "html[data-theme=\"light\"] .report-scenario-pager-toggle{background:#fff;color:#0f172a;"
+                    + "border-color:rgba(176,124,46,.45);box-shadow:0 8px 24px rgba(15,23,42,.14)}</style>";
+
+    private static final String REPORT_SCENARIO_PAGER_SCRIPT =
+            "<script>(function(){/*" + REPORT_SCENARIO_PAGER_MARKER + "*/"
+                    + "var KEY='report-scenario-pager-enabled';"
+                    + "var panel,toggle,titleEl,metaEl,prevBtn,nextBtn,idx=-1,going=false;"
+                    + "function enabled(){try{var v=localStorage.getItem(KEY);return v!=='0';}catch(e){return true;}}"
+                    + "function setEnabled(on){try{localStorage.setItem(KEY,on?'1':'0');}catch(e){}}"
+                    + "function links(){return Array.prototype.slice.call("
+                    + "document.querySelectorAll('.report-sidebar li.tree-scenario-node a.tree-link--scenario[href^=\"#\"]')"
+                    + ").filter(function(a){var li=a.closest('li.tree-scenario-node');"
+                    + "return li&&li.style.display!=='none';});}"
+                    + "function closeOthers(except){"
+                    + "if(window.__reportKeepMultiOpen)return;"
+                    + "document.querySelectorAll('.report-main .scenario-detail-card.is-open').forEach(function(c){"
+                    + "if(c===except)return;var body=c.querySelector('.scenario-fold-body');"
+                    + "if(body)body.hidden=true;c.classList.remove('is-open');});}"
+                    + "function hashId(){var h=location.hash||'';"
+                    + "if(!h||h==='#'||/^#(summary|report-exec-summary|t\\d+)\\b/i.test(h))return null;"
+                    + "var m=/^#(m\\d+)(?:-|$)/.exec(h);return m?m[1]:null;}"
+                    + "function openId(){var hid=hashId();"
+                    + "if(hid){var card=document.querySelector("
+                    + "'.report-main .scenario-detail-card[data-scenario-anchor=\"'+hid+'\"]');"
+                    + "if(card&&card.classList.contains('is-open'))return hid;}"
+                    + "var open=document.querySelector('.report-main .scenario-detail-card.is-open');"
+                    + "return open?open.getAttribute('data-scenario-anchor'):null;}"
+                    + "function indexOfId(list,id){if(!id)return -1;"
+                    + "for(var i=0;i<list.length;i++){"
+                    + "if((list[i].getAttribute('href')||'')==='#'+id)return i;}return -1;}"
+                    + "function syncToggle(tcOpen){if(!toggle)return;"
+                    + "toggle.hidden=!tcOpen;"
+                    + "var on=enabled();toggle.classList.toggle('is-off',!on);"
+                    + "toggle.textContent=on?'NAV':'OFF';"
+                    + "toggle.title=on?'Hide scenario Prev/Next bar':'Show scenario Prev/Next bar';"
+                    + "toggle.setAttribute('aria-pressed',on?'true':'false');"
+                    + "toggle.setAttribute('aria-label',on?'Disable scenario navigation':'Enable scenario navigation');}"
+                    + "function sync(){if(!panel)return;var id=openId()||hashId();"
+                    + "var tcOpen=!!document.querySelector('.report-main .scenario-detail-card.is-open');"
+                    + "if(!tcOpen){syncToggle(false);panel.hidden=true;idx=-1;return;}"
+                    + "if(!id){var open=document.querySelector('.report-main .scenario-detail-card.is-open');"
+                    + "id=open?open.getAttribute('data-scenario-anchor'):null;}"
+                    + "syncToggle(!!id);"
+                    + "if(!id||!enabled()){panel.hidden=true;return;}"
+                    + "var list=links();idx=indexOfId(list,id);"
+                    + "if(idx<0){panel.hidden=true;return;}panel.hidden=false;"
+                    + "var a=list[idx];var li=a.closest('li');"
+                    + "var name=((li&&li.getAttribute('data-name'))||a.getAttribute('title')||a.textContent||id).trim();"
+                    + "titleEl.textContent=name;titleEl.title=name;"
+                    + "metaEl.textContent=(idx+1)+' / '+list.length;"
+                    + "prevBtn.disabled=idx<=0;nextBtn.disabled=idx>=list.length-1;}"
+                    + "function go(delta){if(going)return;var list=links();"
+                    + "var cur=indexOfId(list,hashId());if(cur<0)cur=idx;if(cur<0)return;"
+                    + "var n=cur+delta;if(n<0||n>=list.length)return;"
+                    + "going=true;idx=n;list[n].click();"
+                    + "setTimeout(function(){going=false;sync();},80);}"
+                    + "function ensure(){"
+                    + "panel=document.getElementById('report-scenario-pager');"
+                    + "toggle=document.getElementById('report-scenario-pager-toggle');"
+                    + "var main=document.querySelector('.report-main');"
+                    + "if(!panel){panel=document.createElement('aside');panel.id='report-scenario-pager';"
+                    + "panel.className='report-scenario-pager';panel.hidden=true;"
+                    + "panel.setAttribute('aria-label','Scenario navigation');"
+                    + "panel.innerHTML='<button type=\"button\" class=\"report-scenario-pager__btn report-scenario-pager__prev\""
+                    + " aria-label=\"Previous scenario\">&#9664; Prev</button>"
+                    + "<strong class=\"report-scenario-pager__title\"></strong>"
+                    + "<span class=\"report-scenario-pager__meta\"></span>"
+                    + "<button type=\"button\" class=\"report-scenario-pager__btn report-scenario-pager__next\""
+                    + " aria-label=\"Next scenario\">Next &#9654;</button>';}"
+                    + "if(main){if(panel.parentNode!==main)main.insertBefore(panel,main.firstChild);}"
+                    + "else if(!panel.parentNode)document.body.appendChild(panel);"
+                    + "if(!toggle){toggle=document.createElement('button');toggle.type='button';"
+                    + "toggle.id='report-scenario-pager-toggle';toggle.className='report-scenario-pager-toggle';"
+                    + "toggle.hidden=true;document.body.appendChild(toggle);}"
+                    + "titleEl=panel.querySelector('.report-scenario-pager__title');"
+                    + "metaEl=panel.querySelector('.report-scenario-pager__meta');"
+                    + "prevBtn=panel.querySelector('.report-scenario-pager__prev');"
+                    + "nextBtn=panel.querySelector('.report-scenario-pager__next');"
+                    + "if(!panel.getAttribute('data-bound')){panel.setAttribute('data-bound','1');"
+                    + "prevBtn.addEventListener('click',function(e){e.preventDefault();go(-1);});"
+                    + "nextBtn.addEventListener('click',function(e){e.preventDefault();go(1);});}"
+                    + "if(!toggle.getAttribute('data-bound')){toggle.setAttribute('data-bound','1');"
+                    + "toggle.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();"
+                    + "setEnabled(!enabled());sync();});}}"
+                    + "function hookOpen(){var orig=window.reportOpenScenario;if(!orig||orig._pagerHooked)return;"
+                    + "var wrapped=function(card,open){"
+                    + "if(open)closeOthers(card);"
+                    + "var r=orig(card,open);"
+                    + "Promise.resolve(r).then(function(){"
+                    + "if(open){var id=card&&card.getAttribute('data-scenario-anchor');"
+                    + "if(id)try{history.replaceState(null,'','#'+id);}catch(x){}}"
+                    + "sync();});return r;};"
+                    + "wrapped._pagerHooked=true;window.reportOpenScenario=wrapped;}"
+                    + "function init(){ensure();hookOpen();sync();"
+                    + "window.addEventListener('hashchange',sync);"
+                    + "var side=document.querySelector('.report-sidebar');"
+                    + "if(side)side.addEventListener('click',function(){setTimeout(sync,0);});"
+                    + "var bar=document.querySelector('.tree-filter-toolbar');"
+                    + "if(bar){bar.addEventListener('click',function(){setTimeout(sync,0);});"
+                    + "var q=bar.querySelector('.tree-search');"
+                    + "if(q)q.addEventListener('input',function(){setTimeout(sync,0);});}"
+                    + "setTimeout(hookOpen,0);setTimeout(function(){ensure();sync();},100);}"
+                    + "if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);"
+                    + "else init();})();</script>";
+
+    private static final String REPORT_SCROLL_TOP_MARKER = "report-scroll-top-v3";
+
+    private static final String[] REPORT_SCROLL_TOP_LEGACY_MARKERS = {
+        "report-scroll-top-v2", "report-scroll-top-v1"
+    };
+
+    /**
+     * Floating corner control + browser Back trap: when the user has scrolled down the
+     * report, the first Back (or the FAB click) scrolls to top and stays on the report
+     * instead of leaving the page.
+     */
+    private static final String REPORT_SCROLL_TOP_STYLE =
+            "<style>/*" + REPORT_SCROLL_TOP_MARKER + "*/"
+                    + ".report-scroll-top{position:fixed;right:1.25rem;bottom:1.25rem;z-index:60;"
+                    + "width:42px;height:42px;padding:0;border-radius:999px;border:1px solid var(--border);"
+                    + "background:var(--surface-2);color:var(--muted);box-shadow:0 8px 24px rgba(0,0,0,.28);"
+                    + "cursor:pointer;opacity:.35;pointer-events:none;transform:translateY(6px);"
+                    + "transition:opacity .2s ease,transform .2s ease,background .15s,color .15s,border-color .15s}"
+                    + ".report-scroll-top.is-visible{opacity:1;pointer-events:auto;transform:translateY(0);color:var(--text)}"
+                    + ".report-scroll-top.is-visible:hover{background:rgba(224,177,90,.22);color:var(--accent);"
+                    + "border-color:rgba(224,177,90,.55)}"
+                    + ".report-scroll-top:focus-visible{outline:2px solid var(--accent);outline-offset:2px}"
+                    + ".report-scroll-top__icon{display:inline-block;font-size:.95rem;font-weight:700;line-height:1}"
+                    + "html[data-theme=\"light\"] .report-scroll-top{background:#fff;color:#94a3b8;"
+                    + "box-shadow:0 8px 24px rgba(15,23,42,.14)}"
+                    + "html[data-theme=\"light\"] .report-scroll-top.is-visible{color:#0f172a}"
+                    + "html[data-theme=\"light\"] .report-scroll-top.is-visible:hover{background:rgba(176,124,46,.14);"
+                    + "color:#8a5a2b}</style>";
+
+    private static final String REPORT_SCROLL_TOP_SCRIPT =
+            "<script>(function(){/*" + REPORT_SCROLL_TOP_MARKER + "*/"
+                    + "var trapOn=false,goingTop=false,btn;"
+                    + "function scrollParent(){var m=document.querySelector('.report-main');"
+                    + "if(m&&m.scrollHeight>m.clientHeight+5)return m;"
+                    + "return document.scrollingElement||document.documentElement;}"
+                    + "function y(){var p=scrollParent();"
+                    + "if(p===document.scrollingElement||p===document.documentElement||p===document.body)"
+                    + "return window.scrollY||document.documentElement.scrollTop||0;"
+                    + "return p.scrollTop;}"
+                    + "function armTrap(){if(trapOn||goingTop)return;trapOn=true;"
+                    + "try{history.pushState({reportScrollTop:1},'',location.href);}catch(e){}}"
+                    + "function goTop(e){if(e){e.preventDefault();e.stopPropagation();}"
+                    + "goingTop=true;trapOn=false;"
+                    + "var p=scrollParent();"
+                    + "if(p===document.scrollingElement||p===document.documentElement||p===document.body)"
+                    + "window.scrollTo({top:0,behavior:'smooth'});"
+                    + "else if(p.scrollTo)p.scrollTo({top:0,behavior:'smooth'});else p.scrollTop=0;"
+                    + "if(btn){btn.classList.remove('is-visible');btn.disabled=true;"
+                    + "btn.setAttribute('aria-hidden','true');}"
+                    + "setTimeout(function(){goingTop=false;sync();},500);}"
+                    + "function sync(){if(!btn||goingTop)return;var on=y()>120;"
+                    + "btn.classList.toggle('is-visible',on);btn.disabled=!on;"
+                    + "btn.setAttribute('aria-hidden',on?'false':'true');if(on)armTrap();}"
+                    + "function onPop(){trapOn=false;if(y()>40)goTop();else sync();}"
+                    + "function init(){btn=document.getElementById('report-scroll-top');"
+                    + "if(!btn){btn=document.createElement('button');btn.type='button';btn.id='report-scroll-top';"
+                    + "btn.className='report-scroll-top';document.body.appendChild(btn);}"
+                    + "btn.type='button';btn.title='Scroll to top';btn.setAttribute('aria-label','Scroll to top');"
+                    + "btn.innerHTML='<span class=\"report-scroll-top__icon\" aria-hidden=\"true\">&#9650;</span>';"
+                    + "btn.addEventListener('click',goTop);"
+                    + "var main=document.querySelector('.report-main');"
+                    + "if(main)main.addEventListener('scroll',sync,{passive:true});"
+                    + "window.addEventListener('scroll',sync,{passive:true});"
+                    + "window.addEventListener('resize',sync);"
+                    + "window.addEventListener('popstate',onPop);"
+                    + "sync();}"
+                    + "if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);"
+                    + "else init();})();</script>";
 
     private static final Pattern SUMMARY_TABLE =
             Pattern.compile("<table\\b[^>]*\\bid\\s*=\\s*['\"]summary['\"][^>]*>(.*?)</table>", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
@@ -275,6 +632,17 @@ public final class ReportTreeViewEnhancer {
     private static final Pattern SCENARIO_BODY_TITLE =
             Pattern.compile("class=['\"]box black-bg[^>]*>\\s*<b><u>([^<]{1,600})</u></b>", Pattern.CASE_INSENSITIVE);
 
+    /**
+     * Full title banner logged at scenario start ({@code box black-bg} + optional trailing
+     * {@code <br/>}). Removed from the folded body after the text is copied into the H3 so the
+     * description is not shown twice when a card is opened.
+     */
+    private static final Pattern SCENARIO_BODY_TITLE_BANNER =
+            Pattern.compile(
+                    "<div\\b[^>]*\\bclass\\s*=\\s*['\"][^'\"]*\\bbox\\s+black-bg\\b[^'\"]*['\"][^>]*>\\s*"
+                            + "<b>\\s*<u>[^<]{1,600}</u>\\s*</b>\\s*</div>\\s*(?:<br\\s*/?>\\s*)?",
+                    Pattern.CASE_INSENSITIVE);
+
     private static final Pattern SCENARIO_DETAIL_CARD_CHROME =
             Pattern.compile(
                     "<div\\s+class\\s*=\\s*['\"]scenario-detail-card__chrome['\"][^>]*>[\\s\\S]*?</div>\\s*</div>\\s*",
@@ -285,8 +653,20 @@ public final class ReportTreeViewEnhancer {
     private static final String TEXTAREA_TRUNCATE_NOTE =
             "\n\n… [truncated for report load time — see test run logs for full payload]";
 
-    /** Max chars per textarea when preparing / enhancing the tree-view report. */
+    /** Fallback max chars per textarea when config is unavailable (non-debug runs). */
     private static final int REPORT_TEXTAREA_MAX_CHARS = 8192;
+
+    /**
+     * Effective textarea limit: {@code 0} when {@code enableDebug=yes} (full payload);
+     * otherwise {@link dslConfigManager#getReportPayloadMaxChars()} / 8192.
+     */
+    private static int resolveReportPayloadMaxChars() {
+        try {
+            return dslConfigManager.getReportPayloadMaxChars();
+        } catch (Exception e) {
+            return REPORT_TEXTAREA_MAX_CHARS;
+        }
+    }
 
     /** Stream-shrink pass runs when the on-disk report is at least this large. */
     private static final int REPORT_STREAM_TRUNCATE_MIN_BYTES = 8 * 1024 * 1024;
@@ -404,7 +784,13 @@ public final class ReportTreeViewEnhancer {
         if (size < REPORT_STREAM_TRUNCATE_MIN_BYTES) {
             return;
         }
-        int maxChars = REPORT_TEXTAREA_MAX_CHARS;
+        int maxChars = resolveReportPayloadMaxChars();
+        if (maxChars <= 0) {
+            log.info(
+                    "ReportTreeViewEnhancer: enableDebug=yes (or maxChars=0); skipping textarea shrink for "
+                            + target);
+            return;
+        }
         Path parent = target.getParent();
         if (parent == null) {
             log.warn("ReportTreeViewEnhancer: cannot stream-shrink report without parent directory: " + target);
@@ -591,6 +977,9 @@ public final class ReportTreeViewEnhancer {
                                 + REPORT_TREE_FILTER_SCRIPT
                                 + REPORT_UX_SCRIPT
                                 + REPORT_MAIN_SCROLL_SCRIPT
+                                + REPORT_NAV_UX_SCRIPT
+                                + REPORT_SCENARIO_PAGER_SCRIPT
+                                + REPORT_SCROLL_TOP_SCRIPT
                                 + "\n</body>");
 
         out = annotateReportBody(out);
@@ -616,11 +1005,14 @@ public final class ReportTreeViewEnhancer {
             return html;
         }
         html = html.replaceAll("<textarea[^>]*\\bstep-capture-raw\\b[^>]*>[\\s\\S]*?</textarea>\\s*", "");
-        return truncateLargeTextareaContent(html, REPORT_TEXTAREA_MAX_CHARS);
+        return truncateLargeTextareaContent(html, resolveReportPayloadMaxChars());
     }
 
 
     static String truncateLargeTextareaContent(String html, int maxChars) {
+        if (html == null || html.isEmpty() || maxChars <= 0) {
+            return html;
+        }
         Matcher m = TEXTAREA_BODY.matcher(html);
         StringBuffer sb = new StringBuffer(html.length());
         while (m.find()) {
@@ -658,6 +1050,9 @@ public final class ReportTreeViewEnhancer {
                 out = replaceLastLiteral(out, "</body>", inject + "</body>");
             }
         }
+        out = ensureScrollTopControl(out);
+        out = ensureNavUx(out);
+        out = ensureScenarioPager(out);
         // Repair scenario-detail-card wrappers that were missed in a previous enhancement
         // pass (e.g. because findClosingTableStartIndex hit a </table> inside a textarea
         // payload and wrapScenarioDetailCards silently skipped those scenarios). Since
@@ -743,6 +1138,109 @@ public final class ReportTreeViewEnhancer {
         return html.substring(0, scriptStart) + REPORT_MAIN_SCROLL_SCRIPT + html.substring(scriptEnd + 9);
     }
 
+    private static String ensureScenarioPager(String html) {
+        if (html == null || html.isEmpty()) {
+            return html;
+        }
+        if (html.contains(REPORT_SCENARIO_PAGER_MARKER)) {
+            return html;
+        }
+        for (String legacy : REPORT_SCENARIO_PAGER_LEGACY_MARKERS) {
+            while (html.contains(legacy)) {
+                int legacyIdx = html.indexOf(legacy);
+                int styleStart = html.lastIndexOf("<style>", legacyIdx);
+                int styleEnd = html.indexOf("</style>", legacyIdx);
+                int scriptStart = html.lastIndexOf("<script>", legacyIdx);
+                int scriptEnd = html.indexOf("</script>", legacyIdx);
+                if (styleStart >= 0 && styleEnd >= legacyIdx) {
+                    html = html.substring(0, styleStart) + html.substring(styleEnd + 8);
+                    continue;
+                }
+                if (scriptStart >= 0 && scriptEnd >= 0) {
+                    html = html.substring(0, scriptStart) + html.substring(scriptEnd + 9);
+                    continue;
+                }
+                break;
+            }
+        }
+        if (!html.contains("</body>")) {
+            return html;
+        }
+        return replaceLastLiteral(
+                html, "</body>", REPORT_SCENARIO_PAGER_STYLE + REPORT_SCENARIO_PAGER_SCRIPT + "\n</body>");
+    }
+
+    private static String ensureNavUx(String html) {
+        if (html == null || html.isEmpty() || html.contains(REPORT_NAV_UX_MARKER)) {
+            return html;
+        }
+        if (!html.contains("</body>")) {
+            return html;
+        }
+        String styleInject = "";
+        if (!html.contains(".report-suite-scroll") && html.contains("</head>")) {
+            styleInject =
+                    "<style>/*"
+                            + REPORT_NAV_UX_MARKER
+                            + "*/.report-suite-scroll{overflow-x:auto;max-width:100%;margin:0 0 1.25rem;"
+                            + "-webkit-overflow-scrolling:touch;border:1px solid var(--border);border-radius:12px}"
+                            + ".report-main table:has(td.num > a[href^=\"#t\"]){table-layout:auto!important;width:max-content!important;min-width:100%}"
+                            + ".report-main table:has(td.num > a[href^=\"#t\"]) th:nth-child(1),"
+                            + ".report-main table:has(td.num > a[href^=\"#t\"]) td:nth-child(1){position:sticky;left:0;z-index:3;"
+                            + "min-width:220px;white-space:nowrap!important;background:var(--surface-2,#121826)!important;"
+                            + "box-shadow:6px 0 12px rgba(0,0,0,.18)}"
+                            + ".report-main table:has(td.num > a[href^=\"#t\"]) th:nth-child(n+2),"
+                            + ".report-main table:has(td.num > a[href^=\"#t\"]) td:nth-child(n+2){white-space:nowrap!important;min-width:5.5rem}"
+                            + ".report-suite-scroll--exec>table.report-exec-table{table-layout:auto!important;"
+                            + "width:max-content!important;min-width:100%}"
+                            + ".report-main table.report-exec-table tr.exec-stats-header-row th,"
+                            + ".report-main table.report-exec-table tr.exec-stats-data-row td{white-space:nowrap!important;min-width:6.5rem}"
+                            + ".report-jump-fail{position:fixed;right:1.25rem;bottom:4.6rem;z-index:60;min-width:42px;height:42px;"
+                            + "padding:0 .7rem;border-radius:999px;border:1px solid rgba(242,85,89,.55);background:rgba(127,29,29,.92);"
+                            + "color:#fecaca;box-shadow:0 8px 24px rgba(0,0,0,.28);cursor:pointer;display:inline-flex;align-items:center;"
+                            + "gap:.4rem;font:inherit;font-size:12px;font-weight:700}"
+                            + ".report-jump-fail[hidden]{display:none!important}"
+                            + "html[data-theme=\"light\"] .report-jump-fail{background:#dc2626;border-color:#b91c1c;color:#fff}"
+                            + "html[data-theme=\"light\"] .report-main table:has(td.num > a[href^=\"#t\"]) th:nth-child(1),"
+                            + "html[data-theme=\"light\"] .report-main table:has(td.num > a[href^=\"#t\"]) td:nth-child(1)"
+                            + "{background:#fff!important}</style>";
+            html = replaceFirstLiteral(html, "</head>", styleInject + "</head>");
+        }
+        return replaceLastLiteral(html, "</body>", REPORT_NAV_UX_SCRIPT + "\n</body>");
+    }
+
+    private static String ensureScrollTopControl(String html) {
+        if (html == null || html.isEmpty()) {
+            return html;
+        }
+        if (html.contains(REPORT_SCROLL_TOP_MARKER)) {
+            return html;
+        }
+        for (String legacy : REPORT_SCROLL_TOP_LEGACY_MARKERS) {
+            while (html.contains(legacy)) {
+                int legacyIdx = html.indexOf(legacy);
+                int styleStart = html.lastIndexOf("<style>", legacyIdx);
+                int styleEnd = html.indexOf("</style>", legacyIdx);
+                int scriptStart = html.lastIndexOf("<script>", legacyIdx);
+                int scriptEnd = html.indexOf("</script>", legacyIdx);
+                if (styleStart >= 0 && styleEnd >= legacyIdx && styleEnd < legacyIdx + 120) {
+                    html = html.substring(0, styleStart) + html.substring(styleEnd + 8);
+                    continue;
+                }
+                if (scriptStart >= 0 && scriptEnd >= 0) {
+                    html = html.substring(0, scriptStart) + html.substring(scriptEnd + 9);
+                    continue;
+                }
+                break;
+            }
+        }
+        if (!html.contains("</body>")) {
+            return html;
+        }
+        return replaceLastLiteral(
+                html, "</body>", REPORT_SCROLL_TOP_STYLE + REPORT_SCROLL_TOP_SCRIPT + "\n</body>");
+    }
+
 
     private static String stripScenarioDetailCardChrome(String html) {
         if (html == null || html.isEmpty() || !html.contains("scenario-detail-card__chrome")) {
@@ -754,28 +1252,189 @@ public final class ReportTreeViewEnhancer {
 
 
     public static void main(String[] args) throws Exception {
-        if (args.length < 1) {
+        boolean rebuild = false;
+        List<String> paths = new ArrayList<>();
+        for (String a : args) {
+            if ("--rebuild".equals(a) || "-rebuild".equals(a)) {
+                rebuild = true;
+            } else {
+                paths.add(a);
+            }
+        }
+        if (paths.isEmpty()) {
             System.err.println(
-                    "Usage: java report.treeview.ReportTreeViewEnhancer <input.html> [output.html]\n"
-                            + "  Default output: <stem>-tree-view-java.html");
+                    "Usage: java ...ReportTreeViewEnhancer [--rebuild] <input.html> [output.html]\n"
+                            + "  --rebuild  Re-apply full UX on an existing tree-view report\n"
+                            + "  Default output: <stem>-enhanced-sample.html");
             System.exit(2);
         }
-        Path in = Paths.get(args[0]);
+        Path in = Paths.get(paths.get(0));
         if (!Files.isRegularFile(in)) {
             System.err.println("Not found: " + in);
             System.exit(1);
         }
         Path out;
-        if (args.length >= 2) {
-            out = Paths.get(args[1]);
+        if (paths.size() >= 2) {
+            out = Paths.get(paths.get(1));
         } else {
             String name = in.getFileName().toString();
             String stem = name.endsWith(".html") ? name.substring(0, name.length() - 5) : name;
-            out = in.resolveSibling(stem + "-tree-view-java.html");
+            out = in.resolveSibling(stem + "-enhanced-sample.html");
         }
         String html = Files.readString(in, StandardCharsets.UTF_8);
-        Files.writeString(out, enhance(html), StandardCharsets.UTF_8);
-        System.out.println("Wrote " + out);
+        String result = rebuild ? rebuild(html) : enhance(html);
+        Files.writeString(out, result, StandardCharsets.UTF_8);
+        System.out.println("Wrote " + out + " (" + result.length() + " chars)");
+    }
+
+    /**
+     * Inflates an existing tree-view report, unwraps shell/cards, and runs a full
+     * {@link #enhance(String)} so the latest UX (failed-step filter, jump button, runtime
+     * tabs, etc.) is applied end-to-end.
+     */
+    public static String rebuild(String html) throws IOException {
+        if (html == null || html.isEmpty()) {
+            return html;
+        }
+        System.out.println("Rebuild: inflating deferred scenario bodies...");
+        html = inflateDeferredScenarioBodies(html);
+        System.out.println("Rebuild: unwrapping tree-view shell to plain report...");
+        html = unwrapTreeViewToPlainReport(html);
+        System.out.println("Rebuild: running full enhance...");
+        return enhance(html);
+    }
+
+    /** Decodes {@code scenario-fold-src} gzip payloads back into inline scenario HTML. */
+    public static String inflateDeferredScenarioBodies(String html) {
+        if (html == null || !html.contains("scenario-fold-src")) {
+            return html;
+        }
+        // Require a real scenario anchor (id=mN + scenario-anchor). A bare "<h3 id=\"mN\">" also
+        // appears in a CSS comment in head-template and must not be treated as a fold target.
+        Pattern fold = Pattern.compile(
+                "(<h3\\b[^>]*\\bid\\s*=\\s*['\"]m\\d+['\"][^>]*\\bscenario-anchor\\b[^>]*>"
+                        + "|<h3\\b[^>]*\\bscenario-anchor\\b[^>]*\\bid\\s*=\\s*['\"]m\\d+['\"][^>]*>)"
+                        + "([\\s\\S]*?)(</h3>)\\s*"
+                        + "<div\\b[^>]*\\bscenario-fold-body\\b[^>]*>[\\s\\S]*?</div>\\s*"
+                        + "<script\\b[^>]*\\bscenario-fold-src\\b[^>]*>([\\s\\S]*?)</script>",
+                Pattern.CASE_INSENSITIVE);
+        Matcher m = fold.matcher(html);
+        StringBuffer sb = new StringBuffer(html.length() * 2);
+        int n = 0;
+        while (m.find()) {
+            String decoded = gunzipBase64(m.group(4).trim());
+            // Keep an empty H3 so deferScenarioBodies can re-copy/strip the title banner.
+            String repl = m.group(1) + m.group(3) + decoded;
+            m.appendReplacement(sb, Matcher.quoteReplacement(repl));
+            n++;
+        }
+        m.appendTail(sb);
+        System.out.println("Rebuild: inflated " + n + " deferred scenario bodies");
+        return sb.toString();
+    }
+
+    private static String gunzipBase64(String b64) {
+        try {
+            byte[] raw = Base64.getDecoder().decode(b64.replaceAll("\\s", ""));
+            try (GZIPInputStream in = new GZIPInputStream(new ByteArrayInputStream(raw))) {
+                return new String(in.readAllBytes(), StandardCharsets.UTF_8);
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to inflate scenario-fold-src payload", e);
+        }
+    }
+
+    /** Index of the real {@code <div class="report-main"...>} open tag (not a CSS rule). */
+    private static int indexOfReportMainOpen(String html) {
+        if (html == null || html.isEmpty()) {
+            return -1;
+        }
+        Matcher m = Pattern.compile(
+                "<div\\b[^>]*\\bclass\\s*=\\s*['\"][^'\"]*\\breport-main\\b[^'\"]*['\"][^>]*>",
+                Pattern.CASE_INSENSITIVE).matcher(html);
+        return m.find() ? m.start() : -1;
+    }
+
+    /**
+     * Converts a tree-view report back into a plain emailable-style HTML document that
+     * {@link #enhance(String)} can process from scratch.
+     */
+    static String unwrapTreeViewToPlainReport(String html) {
+        String title = resolveTitle(html);
+        int mainOpen = indexOfReportMainOpen(html);
+        if (mainOpen < 0) {
+            throw new IllegalStateException("unwrapTreeViewToPlainReport: report-main not found");
+        }
+        int mainGt = html.indexOf('>', mainOpen);
+        if (mainGt < 0) {
+            throw new IllegalStateException("unwrapTreeViewToPlainReport: malformed report-main");
+        }
+        int shellClose = html.lastIndexOf(REPORT_SHELL_CLOSE);
+        if (shellClose < mainGt) {
+            // Fallback: content until first report script / </body>
+            shellClose = html.lastIndexOf("</div></div>");
+        }
+        if (shellClose < mainGt) {
+            throw new IllegalStateException("unwrapTreeViewToPlainReport: shell close not found");
+        }
+        String mainInner = html.substring(mainGt + 1, shellClose).trim();
+        // Drop pager / injected chrome that may sit at the top of main.
+        mainInner = mainInner.replaceAll("(?is)<aside\\b[^>]*\\bid\\s*=\\s*['\"]report-scenario-pager['\"][^>]*>[\\s\\S]*?</aside>\\s*", "");
+        mainInner = unwrapScenarioDetailCardsToRaw(mainInner);
+        return "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"utf-8\">\n<title>"
+                + escapeHtml(title)
+                + "</title>\n</head>\n<body>\n"
+                + mainInner
+                + "\n</body>\n</html>\n";
+    }
+
+    /** Removes {@code scenario-detail-card} wrappers, leaving H3 + result table + totop. */
+    static String unwrapScenarioDetailCardsToRaw(String html) {
+        if (html == null || !html.contains("scenario-detail-card")) {
+            return html;
+        }
+        StringBuilder out = new StringBuilder(html.length());
+        int cursor = 0;
+        int sec = html.indexOf(SCENARIO_SECTION_OPEN);
+        while (sec >= 0) {
+            int next = html.indexOf(SCENARIO_SECTION_OPEN, sec + SCENARIO_SECTION_OPEN.length());
+            int limit = next >= 0 ? next : html.length();
+            int close = html.lastIndexOf(SCENARIO_SECTION_CLOSE, limit - SCENARIO_SECTION_CLOSE.length());
+            if (close < sec) {
+                out.append(html, cursor, sec + SCENARIO_SECTION_OPEN.length());
+                cursor = sec + SCENARIO_SECTION_OPEN.length();
+                sec = next;
+                continue;
+            }
+            out.append(html, cursor, sec);
+            String block = html.substring(sec, close + SCENARIO_SECTION_CLOSE.length());
+            int innerOpen = indexOfIgnoreCase(block, "scenario-detail-card__inner", 0);
+            int h3 = indexOfIgnoreCase(block, "<h3", 0);
+            if (innerOpen >= 0 && h3 > innerOpen) {
+                // section ... <div class="inner"> <h3>...</h3> ...content... </div></section>
+                int afterH3Close = indexOfIgnoreCase(block, "</h3>", h3);
+                if (afterH3Close >= 0) {
+                    afterH3Close += 5;
+                }
+                // Content from h3 through just before the inner close (before </div></section>)
+                int innerContentStart = h3;
+                int innerContentEnd = block.length() - SCENARIO_SECTION_CLOSE.length();
+                // Trim trailing </div> that closes __inner
+                String core = block.substring(innerContentStart, innerContentEnd);
+                if (core.endsWith("</div>")) {
+                    core = core.substring(0, core.length() - 6).trim();
+                }
+                // Ensure H3 has no fold-title span (empty body between tags)
+                core = core.replaceAll("(?is)(<h3\\b[^>]*>)\\s*<span\\b[^>]*\\bscenario-fold-title\\b[^>]*>[\\s\\S]*?</span>\\s*(</h3>)", "$1$2");
+                out.append(core);
+            } else {
+                out.append(block);
+            }
+            cursor = close + SCENARIO_SECTION_CLOSE.length();
+            sec = next;
+        }
+        out.append(html, cursor, html.length());
+        return out.toString();
     }
 
     private static String resolveTitle(String html) {
@@ -935,26 +1594,58 @@ public final class ReportTreeViewEnhancer {
             counts.merge(r.status, 1, Integer::sum);
         }
         int nAll = rows.size();
-        int nFail = counts.getOrDefault("fail", 0);
-        String defaultFilter = nFail > 0 ? "fail" : "all";
         StringBuilder sb = new StringBuilder();
         sb.append("<div class=\"tree-filter-toolbar\" role=\"toolbar\" aria-label=\"Filter scenarios by outcome\">");
         sb.append("<input class=\"tree-search\" type=\"search\" placeholder=\"Search scenarios\" aria-label=\"Search scenarios\">");
         sb.append("<div class=\"tree-filter-chips\">");
-        appendFilterChip(sb, "all", "All", nAll, "all".equals(defaultFilter));
+        appendFilterChip(sb, "all", "All", nAll, true);
 
         List<String> filterOrder = List.of("pass", "ignore", "known", "skip", "fail", "unknown");
         for (String key : filterOrder) {
             int cnt = counts.getOrDefault(key, 0);
             if (cnt == 0) continue;
-            appendFilterChip(sb, key, scenarioStatusLabel(key), cnt, key.equals(defaultFilter));
+            appendFilterChip(sb, key, scenarioStatusLabel(key), cnt, false);
         }
         sb.append("</div>");
-        if (nFail > 0) {
-            sb.append("<button type=\"button\" class=\"tree-next-fail\">Next failure</button>");
-        }
+        appendFailedStepDropdown(sb, rows);
         sb.append("</div>");
         return sb.toString();
+    }
+
+    /**
+     * Dropdown of step names where failed scenarios stopped (last logged step). Shown when
+     * the Failed filter is active; selecting a step keeps only those failures visible.
+     */
+    private static void appendFailedStepDropdown(StringBuilder sb, List<ScenarioRow> rows) {
+        Map<String, Integer> stepCounts = new LinkedHashMap<>();
+        for (ScenarioRow r : rows) {
+            if (!"fail".equals(r.status)) {
+                continue;
+            }
+            String step = r.failedStep == null ? "" : r.failedStep.trim();
+            if (step.isEmpty()) {
+                continue;
+            }
+            stepCounts.merge(step, 1, Integer::sum);
+        }
+        if (stepCounts.isEmpty()) {
+            return;
+        }
+        List<Map.Entry<String, Integer>> ordered = new ArrayList<>(stepCounts.entrySet());
+        ordered.sort(Comparator
+                .<Map.Entry<String, Integer>>comparingInt(Map.Entry::getValue).reversed()
+                .thenComparing(Map.Entry::getKey, String.CASE_INSENSITIVE_ORDER));
+        sb.append("<div class=\"tree-fail-step-filter\" hidden>");
+        sb.append("<label class=\"tree-fail-step-label\" for=\"tree-fail-step-select\">Failed at step</label>");
+        sb.append("<select id=\"tree-fail-step-select\" class=\"tree-fail-step-select\" "
+                + "aria-label=\"Filter failed scenarios by step\">");
+        sb.append("<option value=\"\">All failed steps</option>");
+        for (Map.Entry<String, Integer> e : ordered) {
+            sb.append("<option value=\"").append(escapeHtml(e.getKey())).append("\">")
+                    .append(escapeHtml(e.getKey()))
+                    .append(" (").append(e.getValue()).append(")</option>");
+        }
+        sb.append("</select></div>");
     }
 
     private static void appendFilterChip(StringBuilder sb, String key, String label, int count, boolean active) {
@@ -1034,8 +1725,11 @@ public final class ReportTreeViewEnhancer {
                     .append("\" data-status=\"")
                     .append(st)
                     .append("\" data-name=\"")
-                    .append(escapeHtml(r.name))
-                    .append("\" role=\"none\">");
+                    .append(escapeHtml(r.name));
+            if ("fail".equals(st) && r.failedStep != null && !r.failedStep.isBlank()) {
+                parts.append("\" data-failed-step=\"").append(escapeHtml(r.failedStep.trim()));
+            }
+            parts.append("\" role=\"none\">");
             parts.append("<a class=\"tree-link tree-link--scenario\" href=\"#")
                     .append(r.anchor)
                     .append("\" role=\"treeitem\" title=\"")
@@ -1120,6 +1814,8 @@ public final class ReportTreeViewEnhancer {
         if (aids.isEmpty()) {
             for (ScenarioRow r : rows) {
                 r.steps = List.of();
+                r.failedStep = null;
+                r.failedStepId = null;
             }
             return rows;
         }
@@ -1135,6 +1831,16 @@ public final class ReportTreeViewEnhancer {
             // backtracking on large scenario chunks with many HTTP payloads) with a linear
             // character-level scanner that tracks div depth. O(n), no backtracking.
             r.steps = extractStepEntriesLinear(chunk, r.anchor);
+            // Failed scenarios stop at the last logged step — use that as the failure step.
+            if ("fail".equals(r.status) && r.steps != null && !r.steps.isEmpty()) {
+                StepEntry last = r.steps.get(r.steps.size() - 1);
+                String label = last.label;
+                r.failedStep = label == null || label.isBlank() ? null : label.trim();
+                r.failedStepId = last.id == null || last.id.isBlank() ? null : last.id.trim();
+            } else {
+                r.failedStep = null;
+                r.failedStepId = null;
+            }
         }
         return rows;
     }
@@ -1582,6 +2288,7 @@ public final class ReportTreeViewEnhancer {
         if (html == null || !html.contains(SCENARIO_SECTION_OPEN)) {
             return html;
         }
+        Map<String, String> failedStepByAnchor = failedStepLabelsFromNav(html);
         StringBuilder out = new StringBuilder(html.length() / 3);
         int cursor = 0;
         int sec = html.indexOf(SCENARIO_SECTION_OPEN);
@@ -1595,6 +2302,8 @@ public final class ReportTreeViewEnhancer {
             boolean deferrable = h3 >= 0 && h3 < limit && h3Close >= 0 && close > h3Close
                     && !html.startsWith(SCENARIO_FOLD_BODY_OPEN, h3Close + 5);
             if (deferrable) {
+                String h3Tag = html.substring(h3, h3Gt + 1);
+                String anchorId = extractScenarioAnchorId(h3Tag);
                 String body = html.substring(h3Close + 5, close);
                 out.append(html, cursor, h3Close);
                 if (h3Close == h3Gt + 1) {
@@ -1602,10 +2311,23 @@ public final class ReportTreeViewEnhancer {
                     tm.region(0, Math.min(body.length(), 4000));
                     if (tm.find()) {
                         out.append("<span class=\"scenario-fold-title\">").append(tm.group(1).trim()).append("</span>");
+                        // Keep title only in the fold header; drop the in-body banner copy.
+                        body = stripLeadingScenarioTitleBanner(body);
                     }
                 }
-                out.append("</h3>")
-                        .append(SCENARIO_FOLD_BODY_OPEN)
+                out.append("</h3>");
+                if (anchorId != null && failedStepByAnchor.containsKey(anchorId)) {
+                    List<StepEntry> steps = extractStepEntriesLinear(body, anchorId);
+                    if (!steps.isEmpty()) {
+                        StepEntry last = steps.get(steps.size() - 1);
+                        String label = failedStepByAnchor.get(anchorId);
+                        if (label == null || label.isBlank()) {
+                            label = last.label;
+                        }
+                        out.append(buildFailedStepJumpButton(last.id, label));
+                    }
+                }
+                out.append(SCENARIO_FOLD_BODY_OPEN)
                         .append(" hidden></div><script type=\"application/gzip\" class=\"scenario-fold-src\">")
                         .append(gzipBase64(body))
                         .append("</script>");
@@ -1615,6 +2337,62 @@ public final class ReportTreeViewEnhancer {
         }
         out.append(html, cursor, html.length());
         return out.toString();
+    }
+
+    /** Sidebar fail nodes: anchor id → failed step label. */
+    private static Map<String, String> failedStepLabelsFromNav(String html) {
+        Map<String, String> out = new LinkedHashMap<>();
+        if (html == null || html.isEmpty()) {
+            return out;
+        }
+        Matcher li = Pattern.compile(
+                "<li\\b[^>]*\\bdata-status\\s*=\\s*['\"]fail['\"][^>]*>",
+                Pattern.CASE_INSENSITIVE).matcher(html);
+        while (li.find()) {
+            String openTag = li.group();
+            String stepLabel = extractAttrValue(openTag, "data-failed-step");
+            int from = li.end();
+            int end = Math.min(html.length(), from + 1200);
+            Matcher href = Pattern.compile(
+                    "href\\s*=\\s*['\"]#(m\\d+)['\"]",
+                    Pattern.CASE_INSENSITIVE).matcher(html);
+            href.region(from, end);
+            if (href.find()) {
+                out.put(href.group(1), stepLabel == null ? "" : stepLabel);
+            }
+        }
+        return out;
+    }
+
+    private static String buildFailedStepJumpButton(String stepId, String stepLabel) {
+        if (stepId == null || stepId.isBlank()) {
+            return "";
+        }
+        String label = stepLabel == null || stepLabel.isBlank() ? "failed step" : stepLabel.trim();
+        return "<button type=\"button\" class=\"scenario-fail-step-jump\""
+                + " data-step-target=\"" + escapeHtml(stepId.trim()) + "\""
+                + " title=\"Jump to the step where this scenario failed\">"
+                + "<span class=\"scenario-fail-step-jump__ico\" aria-hidden=\"true\">!</span>"
+                + "<span class=\"scenario-fail-step-jump__lbl\">Failed at step:</span>"
+                + "<span class=\"scenario-fail-step-jump__name\">" + escapeHtml(label) + "</span>"
+                + "<span class=\"scenario-fail-step-jump__go\" aria-hidden=\"true\">→</span>"
+                + "</button>";
+    }
+
+    /**
+     * Removes the first scenario title banner from a deferred body so it is not duplicated
+     * under the fold header when the card is opened.
+     */
+    private static String stripLeadingScenarioTitleBanner(String body) {
+        if (body == null || body.isEmpty()) {
+            return body;
+        }
+        Matcher m = SCENARIO_BODY_TITLE_BANNER.matcher(body);
+        m.region(0, Math.min(body.length(), 8000));
+        if (!m.find()) {
+            return body;
+        }
+        return body.substring(0, m.start()) + body.substring(m.end());
     }
 
     private static String gzipBase64(String s) {
@@ -1873,7 +2651,7 @@ public final class ReportTreeViewEnhancer {
         Matcher m = VALIDATION_PANEL.matcher(html);
         StringBuffer sb = new StringBuffer();
         while (m.find()) {
-            String inner = m.group(1);
+            String inner = colorizeValidationStatusCells(m.group(1));
             String repl =
                     "<div class=\"validation-panel\"><div class=\"validation-heading\">"
                             + "<span class=\"val-h-icon\" aria-hidden=\"true\">&#9889;</span>"
@@ -1890,6 +2668,28 @@ public final class ReportTreeViewEnhancer {
         }
         m.appendTail(sb);
         return sb.toString();
+    }
+
+    /**
+     * Ensure Output validation STATUS cells keep a visible pass/fail background. Legacy reports only
+     * set {@code bgcolor}, which is overridden by the base {@code td { background-color:#FFF }} rule.
+     */
+    private static String colorizeValidationStatusCells(String tableInnerHtml) {
+        if (tableInnerHtml.contains("val-status-pill") || tableInnerHtml.contains("val-status--")) {
+            return tableInnerHtml;
+        }
+        String out = tableInnerHtml;
+        out =
+                out.replaceAll(
+                        "(?i)<td\\s+bgcolor\\s*=\\s*['\"]?green['\"]?\\s*>\\s*PASS\\s*</td>",
+                        "<td class='val-status val-status--pass' bgcolor='Green'>"
+                                + "<span class='val-status-pill val-status-pill--pass'>PASS</span></td>");
+        out =
+                out.replaceAll(
+                        "(?i)<td\\s+bgcolor\\s*=\\s*['\"]?red['\"]?\\s*>\\s*FAIL\\s*</td>",
+                        "<td class='val-status val-status--fail' bgcolor='RED'>"
+                                + "<span class='val-status-pill val-status-pill--fail'>FAIL</span></td>");
+        return out;
     }
 
     private static String annotateStepCaptureCards(String html) {
@@ -2012,6 +2812,10 @@ public final class ReportTreeViewEnhancer {
         final String status;
 
         List<StepEntry> steps;
+        /** Last logged step name for failed scenarios; used by the sidebar step filter. */
+        String failedStep;
+        /** Step-capture card id (e.g. {@code m32-s10}) for jump-to-failure. */
+        String failedStepId;
 
         ScenarioRow(String clazz, String anchor, String name, String desc, String timing, String status) {
             this.clazz = clazz;
