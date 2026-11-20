@@ -653,8 +653,20 @@ public final class ReportTreeViewEnhancer {
     private static final String TEXTAREA_TRUNCATE_NOTE =
             "\n\n… [truncated for report load time — see test run logs for full payload]";
 
-    /** Max chars per textarea when preparing / enhancing the tree-view report. */
+    /** Fallback max chars per textarea when config is unavailable (non-debug runs). */
     private static final int REPORT_TEXTAREA_MAX_CHARS = 8192;
+
+    /**
+     * Effective textarea limit: {@code 0} when {@code enableDebug=yes} (full payload);
+     * otherwise {@link dslConfigManager#getReportPayloadMaxChars()} / 8192.
+     */
+    private static int resolveReportPayloadMaxChars() {
+        try {
+            return dslConfigManager.getReportPayloadMaxChars();
+        } catch (Exception e) {
+            return REPORT_TEXTAREA_MAX_CHARS;
+        }
+    }
 
     /** Stream-shrink pass runs when the on-disk report is at least this large. */
     private static final int REPORT_STREAM_TRUNCATE_MIN_BYTES = 8 * 1024 * 1024;
@@ -772,7 +784,13 @@ public final class ReportTreeViewEnhancer {
         if (size < REPORT_STREAM_TRUNCATE_MIN_BYTES) {
             return;
         }
-        int maxChars = REPORT_TEXTAREA_MAX_CHARS;
+        int maxChars = resolveReportPayloadMaxChars();
+        if (maxChars <= 0) {
+            log.info(
+                    "ReportTreeViewEnhancer: enableDebug=yes (or maxChars=0); skipping textarea shrink for "
+                            + target);
+            return;
+        }
         Path parent = target.getParent();
         if (parent == null) {
             log.warn("ReportTreeViewEnhancer: cannot stream-shrink report without parent directory: " + target);
@@ -987,11 +1005,14 @@ public final class ReportTreeViewEnhancer {
             return html;
         }
         html = html.replaceAll("<textarea[^>]*\\bstep-capture-raw\\b[^>]*>[\\s\\S]*?</textarea>\\s*", "");
-        return truncateLargeTextareaContent(html, REPORT_TEXTAREA_MAX_CHARS);
+        return truncateLargeTextareaContent(html, resolveReportPayloadMaxChars());
     }
 
 
     static String truncateLargeTextareaContent(String html, int maxChars) {
+        if (html == null || html.isEmpty() || maxChars <= 0) {
+            return html;
+        }
         Matcher m = TEXTAREA_BODY.matcher(html);
         StringBuffer sb = new StringBuffer(html.length());
         while (m.find()) {

@@ -491,8 +491,25 @@ public class dslConfigManager extends ConfigManager {
 	}
 
 
-	/** Max chars kept in each report textarea; 0 disables truncation. */
+	/** True when {@code enableDebug=yes} (full request/response bodies in the HTML report). */
+	public static boolean isEnableDebug() {
+		try {
+			String v = getEnableDebug();
+			return v != null && "yes".equalsIgnoreCase(v.trim());
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	/**
+	 * Max chars kept in each report textarea. When {@link #isEnableDebug()} is true, returns
+	 * {@code 0} (no truncation — full payload). Otherwise uses {@code reportPayloadMaxChars}
+	 * (default 8192); JVM {@code -Ddsl.report.payload.max.chars=} overrides that value.
+	 */
 	public static int getReportPayloadMaxChars() {
+		if (isEnableDebug()) {
+			return 0;
+		}
 		String jvm = System.getProperty("dsl.report.payload.max.chars");
 		if (jvm != null && !jvm.isBlank()) {
 			try {
