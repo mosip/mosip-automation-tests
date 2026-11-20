@@ -4010,6 +4010,7 @@ And I update demo or bio details where bio type is 0, and miss fields is 0, and 
 And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved VID
 And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update packet template path
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved update packet template path and store result in second registration ID
+And I post mock mv where registration ID is the saved second registration ID, and manual verification decision is REJECTED
 And I check status where packet status is PROCESSED, and registration ID is the saved second registration ID
 And I demo authentication where demo field is name, and UIN is the saved UIN, and persona file path is the saved persona file path, and VID is the saved VID
 And I delete packet data
@@ -4038,6 +4039,7 @@ And I update demo or bio details where bio type is finger and face, and miss fie
 And I update resident with uin where persona file path is the saved persona file path, and UIN is the saved VID
 And I get packet template where packet type is UPDATE, and persona file path is the saved persona file path and store result in update packet template path
 And I generate and upload packet skipping prereg where persona file path is the saved persona file path, and packet template path is the saved update packet template path and store result in second registration ID
+And I post mock mv where registration ID is the saved second registration ID, and manual verification decision is REJECTED
 And I check status where packet status is PROCESSED, and registration ID is the saved second registration ID
 And I get uin by rid where source registration ID is the saved second registration ID and store result in second UIN
 And I verify notification where notification type is updated, and email is the saved email1
