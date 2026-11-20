@@ -1,6 +1,5 @@
 package io.mosip.testrig.dslrig.packetcreator.controller;
 
-import org.jobrunr.scheduling.JobScheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,9 +39,6 @@ public class TestDataController {
 
 	@Autowired
 	CryptoUtil cryptoUtil;
-
-	@Autowired
-	private JobScheduler jobScheduler;
 
 	@Autowired
 	PacketJobService packetJobService;

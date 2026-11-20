@@ -20,7 +20,7 @@ This repo contains test framework for end2end testing of MOSIP functionality.  T
 
 For Windows/Linux
 
-* Java (21) and Maven  software should be installed on the machine from where the automation tests will be executed
+* Java (25) and Maven  software should be installed on the machine from where the automation tests will be executed
 * Git bash
    
 ## Repository details
@@ -88,7 +88,7 @@ To work with the project in an Integrated Development Environment (IDE), follow 
    - Eclipse IDE
 
 2.**Prerequisites:**
-   - Ensure **Java 21** and **Maven** are installed and configured in your system.
+   - Ensure **Java 25** and **Maven** are installed and configured in your system.
    - Git Bash (for cloning the repository and running scripts).
 
 3.**Steps to Import the Project:**

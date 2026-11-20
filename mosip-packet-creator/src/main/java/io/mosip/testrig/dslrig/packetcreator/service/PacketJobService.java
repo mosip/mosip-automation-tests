@@ -3,7 +3,6 @@ package io.mosip.testrig.dslrig.packetcreator.service;
 import java.io.File;
 import java.nio.file.Path;
 
-import org.jobrunr.jobs.annotations.Job;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -34,7 +33,6 @@ public class PacketJobService {
 		this.packetMakerService = packetMakerService;
 	}
 
-	@Job(name = "Create Packet with pre-reg sync")
 	public void execute(String contextKey) {
 		try {
 			RestClient.logInfo(contextKey, "started execute job");
