@@ -43,7 +43,7 @@ public class CommonUtil {
 	private static SecureRandom rand = new SecureRandom();
 
 	private static String cachedUtcDateformat;
-	private static final String DEFAULT_UTC_DATEFORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+	private static final String DEFAULT_UTC_DATEFORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 	private static final String MOUNT_PATH_KEY = "mountPath";
 	private static final String MOSIP_TEST_TEMP_KEY = "mosip.test.temp";
 
@@ -244,7 +244,8 @@ public class CommonUtil {
 		if (cachedUtcDateformat != null)
 			return;
 		String dateFormat = MosipMasterData.getValueFromActuators("mosip.utc-datetime-pattern", contextKey);
-		if (dateFormat == null || dateFormat.isEmpty())
+		// Masterdata rejects requesttime without millis (KER-MSD-999 Invalid Format).
+		if (dateFormat == null || dateFormat.isEmpty() || !dateFormat.contains("SSS"))
 			dateFormat = DEFAULT_UTC_DATEFORMAT;
 		cachedUtcDateformat = dateFormat;
 		logger.info("UTC Date Format initialized: {}", dateFormat);

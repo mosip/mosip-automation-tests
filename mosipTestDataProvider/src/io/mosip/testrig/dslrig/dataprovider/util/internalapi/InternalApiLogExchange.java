@@ -90,4 +90,53 @@ public final class InternalApiLogExchange {
 		Response r = response;
 		return r == null ? null : r.errorMessage();
 	}
+
+	/** True when the call errored, returned HTTP 4xx/5xx, or MOSIP {@code errors} is non-empty. */
+	public boolean isFailed() {
+		Response r = response;
+		if (r == null) {
+			return true;
+		}
+		if (r.errorMessage() != null) {
+			return true;
+		}
+		if (r.statusCode() >= 400) {
+			return true;
+		}
+		return hasMosipErrors(r.responseBody());
+	}
+
+	private static boolean hasMosipErrors(String body) {
+		if (body == null || body.isBlank()) {
+			return false;
+		}
+		String t = body.trim();
+		int idx = t.indexOf("\"errors\"");
+		if (idx < 0) {
+			return false;
+		}
+		int colon = t.indexOf(':', idx + 8);
+		if (colon < 0) {
+			return false;
+		}
+		int i = colon + 1;
+		while (i < t.length() && Character.isWhitespace(t.charAt(i))) {
+			i++;
+		}
+		if (i >= t.length()) {
+			return false;
+		}
+		char c = t.charAt(i);
+		if (c == 'n') { // null
+			return false;
+		}
+		if (c == '[') {
+			int j = i + 1;
+			while (j < t.length() && Character.isWhitespace(t.charAt(j))) {
+				j++;
+			}
+			return j < t.length() && t.charAt(j) != ']';
+		}
+		return false;
+	}
 }
