@@ -213,22 +213,68 @@ public class Orchestrator {
 
 	private void purgeAllPacketCreatorData() {
 		String url = BaseTestCaseUtil.baseUrl + BaseTestCaseUtil.props.getProperty("purgeAllPacketData");
-		try {
-			HashMap<String, String> queryParams = new HashMap<>();
-			queryParams.put("mountPath", ConfigManager.getproperty("mountPath"));
-			queryParams.put("tempPath", ConfigManager.getproperty("mosip.test.temp"));
-			// The packet creator raises this back to its safe minimum if other requests are still in flight.
-			queryParams.put("minAgeMs", "0");
-			Response response = BaseTestCaseUtil.deleteRequestWithQueryParamWithoutStep(url, queryParams,
-					"purgeAllPacketData");
-			if (response != null && response.getStatusCode() == 200) {
-				logger.info("Purged all packet-creator temp data after suite: " + response.getBody().asString());
-			} else {
-				logger.warn("Failed to purge packet-creator temp data after suite. Status: "
+		HashMap<String, String> queryParams = new HashMap<>();
+		queryParams.put("mountPath", blankToEmpty(ConfigManager.getproperty("mountPath")));
+		queryParams.put("tempPath", blankToEmpty(ConfigManager.getproperty("mosip.test.temp")));
+		// After-suite cleanup must delete leftovers even if a stale activity counter remains.
+		queryParams.put("minAgeMs", "0");
+		queryParams.put("force", "true");
+
+		final int maxAttempts = 3;
+		for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+			try {
+				Response response = BaseTestCaseUtil.deleteRequestWithQueryParamWithoutStep(url, queryParams,
+						"purgeAllPacketData");
+				if (response != null && response.getStatusCode() == 200) {
+					String body = response.getBody() != null ? response.getBody().asString() : "";
+					logger.info("Purged all packet-creator temp data after suite (attempt " + attempt + "/"
+							+ maxAttempts + "): " + body);
+					if (attempt < maxAttempts && shouldRetryPacketCreatorPurge(body)) {
+						Thread.sleep(5000L);
+						continue;
+					}
+					return;
+				}
+				logger.warn("Failed to purge packet-creator temp data after suite (attempt " + attempt + "/"
+						+ maxAttempts + "). Status: "
 						+ (response != null ? response.getStatusCode() : "no response"));
+			} catch (Exception e) {
+				logger.warn("Failed to purge packet-creator temp data after suite (attempt " + attempt + "/"
+						+ maxAttempts + "): " + e.getMessage());
 			}
-		} catch (Exception e) {
-			logger.warn("Failed to purge packet-creator temp data after suite: " + e.getMessage());
+			if (attempt < maxAttempts) {
+				try {
+					Thread.sleep(5000L);
+				} catch (InterruptedException ie) {
+					Thread.currentThread().interrupt();
+					return;
+				}
+			}
+		}
+	}
+
+	private static String blankToEmpty(String value) {
+		return value == null ? "" : value.trim();
+	}
+
+	private static boolean shouldRetryPacketCreatorPurge(String body) {
+		if (body == null || body.isBlank()) {
+			return false;
+		}
+		return purgeMetricValue(body, "overlappingRequests") > 0
+				|| purgeMetricValue(body, "skippedRecent") > 0
+				|| purgeMetricValue(body, "failed") > 0;
+	}
+
+	private static int purgeMetricValue(String body, String key) {
+		Matcher matcher = Pattern.compile(Pattern.quote(key) + "=(\\d+)").matcher(body);
+		if (!matcher.find()) {
+			return 0;
+		}
+		try {
+			return Integer.parseInt(matcher.group(1));
+		} catch (NumberFormatException e) {
+			return 0;
 		}
 	}
 

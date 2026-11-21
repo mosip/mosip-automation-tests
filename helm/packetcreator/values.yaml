@@ -135,8 +135,9 @@ resources:
 additionalResources:
   ## Specify any JAVA_OPTS string here. These typically will be specified in conjunction with above resources
   ## Example: java_opts: "-Xms500M -Xmx500M"
-  ## ExitOnOutOfMemoryError: restart pod instead of leaving a corrupted JVM that fails later scenarios
-  javaOpts: "-Xms3500M -Xmx3500M -XX:+ExitOnOutOfMemoryError"
+  ## Prefer staying up for long-lived DSL runs: do not force-exit on OOM. Periodic maintenance
+  ## clears disk/temp and idle caches; dump heap on OOM for diagnosis instead of restarting.
+  javaOpts: "-Xms3500M -Xmx3500M -XX:+UseG1GC -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/home/mosip/mountvolume/heapdumps"
 
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
 ## Clamav container already runs as 'mosip' user, so we may not need to enable this
@@ -446,6 +447,10 @@ packetcreator:
   configmaps:
     packetcreator:
       mountPath: /home/mosip/mountvolume
+      # Used by ops/scripts; Spring reads the same values from application.properties in the image.
+      mosip.test.packetcreator.maintenance.mount-path: /home/mosip/mountvolume
+      mosip.test.packetcreator.maintenance.temp-path: /packets/
+      mosip.test.packetcreator.maintenance.enabled: "true"
   secrets:
 
 ## Ingress
