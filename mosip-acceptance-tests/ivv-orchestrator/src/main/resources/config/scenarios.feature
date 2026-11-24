@@ -7577,7 +7577,7 @@ And I get ping health where component is targetenv
 And I get resident data where persona type is adult, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
 And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_NEW, and parameter 3 is the saved persona file path and store result in registration ID
 And I sync external packet where packet zip path is the saved registration ID
-Then I checkstatus regproc where packet status is FAILED, and registration ID is the saved registration ID
+Then I checkstatus regproc where packet status is REJECTED, and registration ID is the saved registration ID
 And I delete packet data
 
   @scenario_261
@@ -7592,7 +7592,7 @@ And I get ping health where component is targetenv
 And I get resident data where persona type is minor, and guardian flag is false, and gender and biometric flags is Male and store result in persona file path
 And I create and upload external packet where persona file path is CRVS1, and packet template path is CRVS_NEW, and parameter 3 is the saved persona file path and store result in registration ID
 And I sync external packet where packet zip path is the saved registration ID
-Then I checkstatus regproc where packet status is FAILED, and registration ID is the saved registration ID
+Then I checkstatus regproc where packet status is REJECTED, and registration ID is the saved registration ID
 And I delete packet data
 
   @scenario_262
