@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.codec.Base64;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -283,7 +282,7 @@ public class CommandsService {
 
 		String filePath = requestData.getProperty("filePath");
 		String base64data = requestData.getProperty("base64data");
-		byte[] data = Base64.decode(base64data.getBytes());
+		byte[] data = java.util.Base64.getDecoder().decode(base64data.replaceAll("\\s", ""));
 		File myFile = new File(filePath);
 
 

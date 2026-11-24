@@ -59,6 +59,7 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
+			<version>1.18.42</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -205,9 +206,9 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>pl.project13.maven</groupId>
-				<artifactId>git-commit-id-plugin</artifactId>
-				<version>3.0.1</version>
+				<groupId>io.github.git-commit-id</groupId>
+				<artifactId>git-commit-id-maven-plugin</artifactId>
+				<version>9.0.2</version>
 				<executions>
 					<execution>
 						<id>get-the-git-infos</id>
@@ -255,10 +256,10 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.0</version>
+				<version>3.14.1</version>
 				<configuration>
-					<source>21</source>
-					<target>21</target>
+					<release>25</release>
+					<proc>full</proc>
 				</configuration>
 			</plugin>
 		</plugins>
