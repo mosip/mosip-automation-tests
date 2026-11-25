@@ -8,7 +8,8 @@ auth_mobileid=v1/credentialrequest/actuator/health
 auth_idrepo_regproc_partner=v1/datashare/actuator/health
 auth_mobileid_esignet=idauthentication/v1/actuator/health
 idrepo_auth_mobileid_mimoto_esignet_resident_regproc=idrepository/v1/identity/actuator/health
-idrepo_regproc=v1/idgenerator/actuator/health
+# down: id-generator health is not UP
+#idrepo_regproc=v1/idgenerator/actuator/health
 idrepo_resident_regproc_masterdata=v1/keymanager/actuator/health
 auth_idrepo_masterdata_mobileid_mimoto_esignet_resident_partner_prereg_regproc=v1/masterdata/actuator/health
 regproc=v1/mockmv/actuator/health
@@ -19,19 +20,25 @@ resident_esignet=v1/esignet/actuator/health
 regproc=commons/v1/packetmanager/actuator/health
 partner_auth_esignet_idrepo_resident_regproc=v1/partnermanager/actuator/health
 partner_auth_esignet_regproc=v1/policymanager/actuator/health
-prereg=v1/pridgenerator/actuator/health
+# down: prid-generator health is not UP
+#prereg=v1/pridgenerator/actuator/health
 regproc=v1/print/actuator/health
-regproc=registrationprocessor/v1/camelbridge/actuator/health
-resident_regproc=registrationprocessor/v1/packetreceiver/actuator/health
-regproc=registrationprocessor/v1/notification/actuator/health
+# down: camel bridge health is not UP
+#regproc=registrationprocessor/v1/camelbridge/actuator/health
+# down: packet receiver health is not UP
+#resident_regproc=registrationprocessor/v1/packetreceiver/actuator/health
+# down: registration notification health is not UP
+#regproc=registrationprocessor/v1/notification/actuator/health
 regproc_masterdata=registrationprocessor/v1/registrationstatus/actuator/health
 regproc=registrationprocessor/v1/registrationtransaction/actuator/health
 regproc=registrationprocessor/v1/workflowmanager/actuator/health
 resident_auth_esignet_mobileid=resident/v1/actuator/health
-idrepo_auth_mobileid_mimoto_esignet_resident=v1/ridgenerator/actuator/health
+# down: rid-generator health is not UP
+#idrepo_auth_mobileid_mimoto_esignet_resident=v1/ridgenerator/actuator/health
 regproc_masterdata=v1/syncdata/actuator/health
 idrepo_auth_mobileid_mimoto_esignet_resident_regproc=idrepository/v1/actuator/health
-auth_idrepo_resident_regproc=hub/actuator/health
+# down: websub hub health is not UP
+#auth_idrepo_resident_regproc=hub/actuator/health
 
 kernel=v1/keymanager/actuator/health
 kernel=v1/authmanager/actuator/health
@@ -40,7 +47,8 @@ kernel=commons/v1/packetmanager/actuator/health
 master=v1/masterdata/actuator/health
 master=v1/syncdata/actuator/health
 regproc=registrationprocessor/v1/registrationstatus/actuator/health
-regproc=registrationprocessor/v1/packetreceiver/actuator/health
+# down: packet receiver health is not UP
+#regproc=registrationprocessor/v1/packetreceiver/actuator/health
 ida=idrepository/v1/identity/actuator/health
 ida=idauthentication/v1/actuator/health
 ida=v1/credentialservice/actuator/health
