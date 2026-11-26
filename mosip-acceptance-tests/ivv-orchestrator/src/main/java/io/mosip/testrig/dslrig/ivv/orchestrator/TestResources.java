@@ -43,7 +43,20 @@ public class TestResources {
 	}
 	public static void copyTestResource(String resPath) {
 		try {
-			File source = new File(TestResources.getGlobalResourcePaths().replace("MosipTestResource/MosipTemporaryTestResource", "") + resPath);
+			String relative = resPath.startsWith("/") ? resPath.substring(1) : resPath;
+			File destination = new File(TestResources.getGlobalResourcePaths());
+			// Prefer File parents over string replace so Windows backslash paths still resolve
+			// classpath root (…/target/classes) correctly for IDE runs.
+			File classpathRoot = destination.getParentFile() != null
+					? destination.getParentFile().getParentFile()
+					: null;
+			File source = classpathRoot != null ? new File(classpathRoot, relative) : null;
+			if (source == null || !source.isDirectory()) {
+				String fallbackRoot = TestResources.getGlobalResourcePaths()
+						.replace("MosipTestResource/MosipTemporaryTestResource", "")
+						.replace("MosipTestResource\\MosipTemporaryTestResource", "");
+				source = new File(fallbackRoot, relative);
+			}
 			if (!source.isDirectory()) {
 				// JAR runs already unpack into MosipTemporaryTestResource via extractResourceFromJar.
 				// Deleting destChild here would remove those files when source is only on the classpath.
@@ -51,8 +64,7 @@ public class TestResources {
 				return;
 			}
 
-			File destination = new File(TestResources.getGlobalResourcePaths());
-			File destChild = new File(destination, resPath.startsWith("/") ? resPath.substring(1) : resPath);
+			File destChild = new File(destination, relative);
 			if (destChild.exists()) {
 				FileUtils.deleteDirectory(destChild);
 			}

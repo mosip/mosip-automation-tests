@@ -38,6 +38,74 @@ public final class CrvsIdJsonBuilder {
 	private CrvsIdJsonBuilder() {
 	}
 
+	/** Schema marks a resident name with subtype {@code name}. Group says which part. */
+	private static boolean isSchemaNameField(MosipIDSchema field) {
+		return field.getSubType() != null && field.getSubType().equalsIgnoreCase("name");
+	}
+
+	/** Schema marks resident address lines with group {@code Address} and a simple type. */
+	private static boolean isSchemaAddressField(MosipIDSchema field) {
+		return field.getGroup() != null && field.getGroup().equalsIgnoreCase("Address")
+				&& field.getType() != null && field.getType().equalsIgnoreCase(SIMPLETYPE);
+	}
+
+	private static String nameForSchemaField(MosipIDSchema field, String first, String middle, String last) {
+		String group = field.getGroup() == null ? "" : field.getGroup().toLowerCase();
+		if (group.contains("first")) {
+			return first == null ? "" : first;
+		}
+		if (group.contains("last") || group.contains("sur")) {
+			return last == null ? "" : last;
+		}
+		if (group.contains("middle") || group.contains("mid")) {
+			return middle == null ? "" : middle;
+		}
+		return joinName(first, middle, last);
+	}
+
+	private static String joinName(String first, String middle, String last) {
+		StringBuilder name = new StringBuilder();
+		for (String part : new String[] { first, middle, last }) {
+			if (part == null || part.isBlank()) {
+				continue;
+			}
+			if (name.length() > 0) {
+				name.append(' ');
+			}
+			name.append(part.trim());
+		}
+		return name.toString();
+	}
+
+	private static Pair<String, String> addressForSchemaField(MosipIDSchema field, List<MosipIDSchema> schema,
+			ResidentModel resident, String contextKey) {
+		int index = 0;
+		if (schema != null) {
+			for (MosipIDSchema candidate : schema) {
+				if (candidate.getId() != null && candidate.getId().equals(field.getId())) {
+					break;
+				}
+				if (isSchemaAddressField(candidate)) {
+					index++;
+				}
+			}
+		}
+		String[] lines = resident.getAddress();
+		String primary = lines != null && index < lines.length ? lines[index] : null;
+		String secondary = "";
+		if (primary == null || primary.isBlank()) {
+			return IdJsonBuilder.processAddresslines(field, resident, new JSONObject(), contextKey);
+		}
+		if (resident.getSecondaryLanguage() != null && resident.getAddress_seclang() != null
+				&& index < resident.getAddress_seclang().length
+				&& resident.getAddress_seclang()[index] != null) {
+			secondary = resident.getAddress_seclang()[index];
+		} else if (resident.getSecondaryLanguage() != null) {
+			secondary = Translator.translate(resident.getSecondaryLanguage(), primary, contextKey);
+		}
+		return new Pair<>(primary, secondary);
+	}
+
 	public static JSONObject generateCRVSIDJson(ResidentModel resident, String contextKey, Properties prop,
 			ContextSchemaDetail contextSchemaDetail, boolean validateToken, String uin)
 			throws JSONException, Exception {
@@ -55,6 +123,10 @@ public final class CrvsIdJsonBuilder {
 		if (locations_seclang != null)
 			locationSet_sec = locations_seclang.keySet();
 
+		String process = VariableManager.getVariableValue(contextKey, "process") != null
+				? VariableManager.getVariableValue(contextKey, "process").toString()
+				: "";
+
 		List<String> lstMissedAttributesCRVS = resident.getMissAttributes();
 		if (lstMissedAttributesCRVS != null && !lstMissedAttributesCRVS.isEmpty()) {
 			lstMissedAttributesCRVS = DemographicMissFieldUtil
@@ -63,13 +135,20 @@ public final class CrvsIdJsonBuilder {
 		}
 
 		for (MosipIDSchema s : contextSchemaDetail.getSchema()) {
-			RestClient.logInfo(contextKey, s.toJSONString());
+			if (RestClient.isDebugEnabled(contextKey)) {
+				RestClient.logInfo(contextKey, s.getId());
+			}
 
 			if (!CommonUtil.isExists(contextSchemaDetail.getRequiredAttribs(), s.getId()))
 				continue;
 
 			if (lstMissedAttributesCRVS != null
 					&& lstMissedAttributesCRVS.stream().anyMatch(v -> v.equalsIgnoreCase(s.getId()))) {
+				// UPDATE treats omitted fields as "no change" and succeeds. Emit null so
+				// required demographic validation fails (e.g. scenario without necessary data).
+				if (process.contains("UPDATE")) {
+					identity.put(s.getId(), JSONObject.NULL);
+				}
 				continue;
 			}
 
@@ -102,23 +181,32 @@ public final class CrvsIdJsonBuilder {
 				continue;
 			}
 			if (IdJsonBuilder.processDynamicFields(s, identity, resident, contextKey)) {
-				if (s.getId().contains("gender")) {
-					Object rawValue = identity.get("gender");
-					if (rawValue instanceof JSONArray) {
-						identity.put("gender", rawValue.toString());
-					}
+				// packetmanager/createPacket expects Map<String,String>; stringify any simpleType arrays
+				Object rawValue = identity.opt(s.getId());
+				if (rawValue instanceof JSONArray) {
+					identity.put(s.getId(), rawValue.toString());
 				}
 				continue;
 			}
 
-			if (s.getFieldCategory().equals("evidence") && s.getId().equals("nrcId")) {
+			if (s.getId().equals("nrcId")) {
 				identity.put(s.getId(), resident.getNrcId().getNrcId());
 				continue;
 			}
-			if (s.getFieldCategory().equals("pvt") || s.getFieldCategory().equals("kyc")) {
 				String primaryValue = "";
 				String secValue = "";
-				if (VariableManager.getVariableValue(contextKey, "name") != null
+				if (isSchemaNameField(s)) {
+					primaryValue = nameForSchemaField(s, resident.getName().getFirstName(), resident.getName().getMidName(),
+							resident.getName().getSurName());
+					if (secLanguage != null && resident.getName_seclang() != null)
+						secValue = nameForSchemaField(s, resident.getName_seclang().getFirstName(),
+								resident.getName_seclang().getMidName(), resident.getName_seclang().getSurName());
+				} else if (isSchemaAddressField(s)) {
+					Pair<String, String> addrLines = addressForSchemaField(s, contextSchemaDetail.getSchema(), resident,
+							contextKey);
+					primaryValue = addrLines.getValue0();
+					secValue = addrLines.getValue1();
+				} else if (VariableManager.getVariableValue(contextKey, "name") != null
 						&& VariableManager.getVariableValue(contextKey, "name").toString().contains(s.getId())) {
 					primaryValue = resident.getName().getFirstName() + " " + resident.getName().getMidName() + " "
 							+ resident.getName().getSurName();
@@ -200,22 +288,31 @@ public final class CrvsIdJsonBuilder {
 					else
 						identity.put(s.getId(), primaryValue);
 				}
-			}
 
 		}
-		if (validateToken == true
-				&& VariableManager.getVariableValue(contextKey, "process").toString().contains("NEW")) {
-			identity.put("introducerInfoToken", RestClient.getToken("crvs", contextKey));
-		} else if (validateToken == true
-				&& VariableManager.getVariableValue(contextKey, "process").toString().contains("DEATH")) {
-			identity.put("deceasedInformer", RestClient.getToken("crvs", contextKey));
+		if (process.contains("NEW")) {
+			if (validateToken) {
+				identity.put("introducerInfoToken", RestClient.getToken("crvs", contextKey));
+			}
+		} else if (process.contains("DEATH")) {
+			if (validateToken) {
+				identity.put("deceasedInformer", RestClient.getToken("crvs", contextKey));
+			}
 			identity.put("declaredAsDeceased", "Y");
-			identity.put("UIN", uin);
+			if (uin != null && !uin.isEmpty()) {
+				identity.put("UIN", uin);
+			}
 			LocalDate today = LocalDate.now();
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 			String formattedDate = today.format(formatter);
 			identity.put("deceasedDeclarationDate", formattedDate);
-
+		} else if (process.contains("UPDATE")) {
+			if (validateToken) {
+				identity.put("introducerInfoToken", RestClient.getToken("crvs", contextKey));
+			}
+			if (uin != null && !uin.isEmpty()) {
+				identity.put("UIN", uin);
+			}
 		}
 		return identity;
 	}

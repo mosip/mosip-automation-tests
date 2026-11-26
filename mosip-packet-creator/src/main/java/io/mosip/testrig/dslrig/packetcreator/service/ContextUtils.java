@@ -15,6 +15,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.RandomStringUtils;
@@ -35,13 +36,33 @@ import io.mosip.testrig.dslrig.dataprovider.util.ServiceException;
 public class ContextUtils {
 
 	private static final Pattern CONTEXT_NAME_PATTERN = Pattern.compile("^[a-zA-Z0-9._-]+$");
+	private static final String SERVER_CONTEXT_FILE_PREFIX = "server.context.";
+	private static final String PROPERTIES_SUFFIX = ".properties";
+	private static final String MDS_PROFILE_DIR = "Profile";
+	private static final String PRIVATE_KEYS_DIR = "privatekeys";
+	private static final String DEFAULT_MDS_PROFILE = "Default";
+	private static final String GENERATED_MDS_PROFILE_PREFIX = "res";
+	private static final String[] SCRATCH_DIR_PREFIXES = { "residents_", "packets_", "preregIds_", "docs_" };
+	private static final String[][] SCRATCH_FILE_PATTERNS = {
+			{ "pkm", ".cm" },
+			{ "Passport_", ".pdf" },
+			{ "DrivingLic_", ".pdf" } };
 
 	@Value("${mosip.test.persona.configpath}")
 	private String personaConfigPath;
 
 	static Logger logger = LoggerFactory.getLogger(ContextUtils.class);
 
+	private static final ConcurrentHashMap<String, Properties> SERVER_CONTEXT_CACHE = new ConcurrentHashMap<>();
+
 	public Properties loadServerContext(String ctxName) {
+		Properties cached = SERVER_CONTEXT_CACHE.computeIfAbsent(ctxName, this::loadServerContextFromDisk);
+		Properties copy = new Properties();
+		copy.putAll(cached);
+		return copy;
+	}
+
+	private Properties loadServerContextFromDisk(String ctxName) {
 		Properties p = new Properties();
 
 		try (FileReader reader = new FileReader(resolveServerContextPath(ctxName).toFile())) {
@@ -52,6 +73,16 @@ public class ContextUtils {
 		return p;
 	}
 
+	public void invalidateServerContextCache(String ctxName) {
+		if (ctxName != null) {
+			SERVER_CONTEXT_CACHE.remove(ctxName);
+		}
+	}
+
+	public static void clearServerContextCache() {
+		SERVER_CONTEXT_CACHE.clear();
+	}
+
 	public String createUpdateServerContext(Properties props, String ctxName) throws IOException {
 	    Path filePath = resolveServerContextPath(ctxName);
 
@@ -59,10 +90,12 @@ public class ContextUtils {
 
 	        props.store(fr, "Server Context Attributes");
 
+	        invalidateServerContextCache(ctxName);
 	        Properties pp = loadServerContext(ctxName);
 	        pp.forEach((k, v) ->
 	                VariableManager.setVariableValue(ctxName, k.toString(), v.toString())
 	        );
+	        VariableManager.removeVariableValue(ctxName, "sharedCreationDate");
             CommonUtil.initializeUTCDateFormat(ctxName); 
 	        Object generatePrivateKeyObj =
 	                VariableManager.getVariableValue(ctxName, "generatePrivateKey");
@@ -90,7 +123,7 @@ public class ContextUtils {
 	    validateContextName(ctxName);
 	    Path baseDir = Paths.get(personaConfigPath).normalize();
 	    Path filePath = baseDir
-	            .resolve("server.context." + ctxName + ".properties")
+	            .resolve(SERVER_CONTEXT_FILE_PREFIX + ctxName + PROPERTIES_SUFFIX)
 	            .normalize();
 	    if (!filePath.startsWith(baseDir)) {
 	        throw new SecurityException("Path traversal attempt detected");
@@ -108,6 +141,137 @@ public class ContextUtils {
 	    deleteCommaSeparatedPaths(ctxName, "DrivingLic_");
 
 	    return "Deleted all packet data successfully";
+	}
+
+	public static PacketTempPurge.Stats purgeMountedTempDir(String mountPath, String tempPath, long minAgeMs)
+			throws IOException {
+	    PacketTempPurge.Stats stats = new PacketTempPurge.Stats();
+	    if (mountPath == null || mountPath.isBlank() || tempPath == null || tempPath.isBlank()) {
+	        return stats;
+	    }
+	    Path resolved = Paths.get(mountPath + tempPath).toAbsolutePath().normalize();
+	    if (resolved.getNameCount() < 2 || resolved.equals(resolved.getRoot())) {
+	        logger.warn("Refusing to purge suspiciously shallow mounted temp path: {}", resolved);
+	        return stats;
+	    }
+	    File[] entries = resolved.toFile().listFiles();
+	    if (entries == null) {
+	        return stats;
+	    }
+	    for (File entry : entries) {
+	        PacketTempPurge.deleteIfStale(entry, minAgeMs, stats, logger);
+	    }
+	    return stats;
+	}
+
+	public static PacketTempPurge.Stats purgeOrphanScratchDirs(long minAgeMs) throws IOException {
+	    PacketTempPurge.Stats stats = new PacketTempPurge.Stats();
+	    File tmpRoot = new File(System.getProperty("java.io.tmpdir"));
+	    File[] entries = tmpRoot.listFiles();
+	    if (entries == null) {
+	        return stats;
+	    }
+	    for (File entry : entries) {
+	        String name = entry.getName();
+	        boolean orphan = entry.isDirectory()
+	                ? startsWithAny(name, SCRATCH_DIR_PREFIXES)
+	                : isOrphanScratchFile(name);
+	        if (orphan) {
+	            PacketTempPurge.deleteIfStale(entry, minAgeMs, stats, logger);
+	        }
+	    }
+	    return stats;
+	}
+
+	private static boolean isOrphanScratchFile(String name) {
+	    for (String[] prefixAndSuffix : SCRATCH_FILE_PATTERNS) {
+	        if (name.startsWith(prefixAndSuffix[0]) && name.endsWith(prefixAndSuffix[1])) {
+	            return true;
+	        }
+	    }
+	    return false;
+	}
+
+	private static boolean startsWithAny(String name, String[] prefixes) {
+	    for (String prefix : prefixes) {
+	        if (name.startsWith(prefix)) {
+	            return true;
+	        }
+	    }
+	    return false;
+	}
+
+	public static PacketTempPurge.Stats purgeGeneratedResourceArtifacts(String personaConfigPath, long minAgeMs) {
+		PacketTempPurge.Stats stats = new PacketTempPurge.Stats();
+		if (personaConfigPath == null || personaConfigPath.isBlank()) {
+			return stats;
+		}
+		Path baseDir = Paths.get(personaConfigPath).toAbsolutePath().normalize();
+		File resourceDir = baseDir.toFile();
+		if (!resourceDir.isDirectory()) {
+			logger.warn("Skipping resource artifact purge; path is not a directory: {}", baseDir);
+			return stats;
+		}
+		purgeGeneratedServerContextFiles(resourceDir, minAgeMs, stats);
+		purgeResourceSubdir(baseDir.resolve(MDS_PROFILE_DIR), baseDir, minAgeMs, stats, true);
+		purgeResourceSubdir(baseDir.resolve(PRIVATE_KEYS_DIR), baseDir, minAgeMs, stats, false);
+		return stats;
+	}
+
+	private static void purgeGeneratedServerContextFiles(File resourceDir, long minAgeMs, PacketTempPurge.Stats stats) {
+		File[] entries = resourceDir.listFiles();
+		if (entries == null) {
+			return;
+		}
+		for (File entry : entries) {
+			if (!entry.isFile() || !isGeneratedServerContextFile(entry.getName())) {
+				continue;
+			}
+			boolean existed = entry.exists();
+			PacketTempPurge.deleteIfStale(entry, minAgeMs, stats, logger);
+			if (existed && !entry.exists()) {
+				String ctxName = contextNameFromServerContextFile(entry.getName());
+				if (ctxName != null) {
+					SERVER_CONTEXT_CACHE.remove(ctxName);
+				}
+			}
+		}
+	}
+
+	private static void purgeResourceSubdir(Path dir, Path baseDir, long minAgeMs, PacketTempPurge.Stats stats,
+			boolean generatedMdsProfilesOnly) {
+		Path normalized = dir.normalize();
+		if (!normalized.startsWith(baseDir) || !normalized.toFile().isDirectory()) {
+			return;
+		}
+		File[] children = normalized.toFile().listFiles();
+		if (children == null) {
+			return;
+		}
+		for (File child : children) {
+			if (generatedMdsProfilesOnly
+					&& (!child.isDirectory() || !isGeneratedMdsProfile(child.getName()))) {
+				stats.skipOther();
+				continue;
+			}
+			PacketTempPurge.deleteIfStale(child, minAgeMs, stats, logger);
+		}
+	}
+
+	private static boolean isGeneratedServerContextFile(String name) {
+		return name != null && name.startsWith(SERVER_CONTEXT_FILE_PREFIX) && name.endsWith(PROPERTIES_SUFFIX);
+	}
+
+	private static String contextNameFromServerContextFile(String name) {
+		if (!isGeneratedServerContextFile(name)) {
+			return null;
+		}
+		return name.substring(SERVER_CONTEXT_FILE_PREFIX.length(), name.length() - PROPERTIES_SUFFIX.length());
+	}
+
+	private static boolean isGeneratedMdsProfile(String name) {
+		return name != null && name.startsWith(GENERATED_MDS_PROFILE_PREFIX)
+				&& !DEFAULT_MDS_PROFILE.equalsIgnoreCase(name);
 	}
 
 	private static void deleteCommaSeparatedPaths(String ctxName, String key) throws IOException {

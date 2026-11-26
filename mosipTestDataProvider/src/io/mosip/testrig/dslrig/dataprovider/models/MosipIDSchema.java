@@ -47,15 +47,16 @@ public class MosipIDSchema  implements Serializable{
 	List<SchemaValidator> validators;
 	List<SchemaRule> requiredOn;
 	List<String> bioAttributes;
-	public String toJSONString() {
 
-		ObjectMapper Obj = new ObjectMapper();
-		String jsonStr ="";
+	/** Shared mapper. A new ObjectMapper per field re-sorts Jackson properties (TimSort) on every template call. */
+	private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
+
+	public String toJSONString() {
 		try {
-				jsonStr = Obj.writeValueAsString(this);
+			return JSON_MAPPER.writeValueAsString(this);
 		} catch (JsonProcessingException e) {
 			logger.error(e.getMessage());
-		}	
-		return jsonStr;
+			return "";
+		}
 	}
 }

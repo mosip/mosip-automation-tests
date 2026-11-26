@@ -3,6 +3,7 @@ package io.mosip.testrig.dslrig.packetcreator.service;
 import static io.restassured.RestAssured.given;
 
 import java.io.File;
+import java.net.SocketTimeoutException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -10,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.TimeZone;
 
 import org.json.JSONArray;
@@ -41,6 +43,8 @@ public class APIRequestUtil {
     private static final String SERVER_API_TRACE_KEY = "packetCreator.serverApiTrace";
     private static final int MAX_SERVER_API_TRACE_ENTRIES = 50;
     private static final int MAX_SERVER_API_TRACE_VALUE_LENGTH = 10000;
+    private static final Set<String> SENSITIVE_TRACE_KEYS = Set.of(
+            "password", "clientsecret", "clientid", "username", "token", "otp");
 
     Logger logger = LoggerFactory.getLogger(APIRequestUtil.class);
 	private static final String DATEFORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
@@ -76,20 +80,30 @@ public class APIRequestUtil {
     final String dataKey = "response";
     final String errorKey = "errors";
 
+    private static final ObjectMapper TRACE_OBJECT_MAPPER = new ObjectMapper()
+            .enable(SerializationFeature.INDENT_OUTPUT)
+            .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+
     @Value("${mosip.test.baseurl}")
     private String baseUrl;
 
     @Value("${mosip.test.post2slack}")
     private boolean bSlackit;
 
-    @Value("${mosip.test.packetcreator.http.connect.timeout.ms:15000}")
+    @Value("${mosip.test.packetcreator.http.connect.timeout.ms:30000}")
     private int httpConnectTimeoutMs;
 
-    @Value("${mosip.test.packetcreator.http.socket.timeout.ms:30000}")
+    @Value("${mosip.test.packetcreator.http.socket.timeout.ms:120000}")
     private int httpSocketTimeoutMs;
 
-    @Value("${mosip.test.packetcreator.http.upload.timeout.ms:120000}")
+    @Value("${mosip.test.packetcreator.http.upload.timeout.ms:300000}")
     private int httpUploadTimeoutMs;
+
+    @Value("${mosip.test.packetcreator.http.sync.timeout.ms:300000}")
+    private int httpSyncTimeoutMs;
+
+    @Value("${mosip.test.packetcreator.http.sync.retry.count:2}")
+    private int httpSyncRetryCount;
 
     @Autowired
     ContextUtils contextUtils;
@@ -104,6 +118,21 @@ public class APIRequestUtil {
         return RestAssuredConfig.config().httpClient(HttpClientConfig.httpClientConfig()
                 .setParam("http.connection.timeout", httpConnectTimeoutMs)
                 .setParam("http.socket.timeout", httpUploadTimeoutMs));
+    }
+
+    private RestAssuredConfig syncTimeoutConfig() {
+        return RestAssuredConfig.config().httpClient(HttpClientConfig.httpClientConfig()
+                .setParam("http.connection.timeout", httpConnectTimeoutMs)
+                .setParam("http.socket.timeout", httpSyncTimeoutMs));
+    }
+
+    private static boolean isReadTimeout(Throwable throwable) {
+        for (Throwable t = throwable; t != null; t = t.getCause()) {
+            if (t instanceof SocketTimeoutException) {
+                return true;
+            }
+        }
+        return false;
     }
 
 	void loadContext(String context) {
@@ -192,6 +221,60 @@ public class APIRequestUtil {
         return trimTraceString(String.valueOf(value));
     }
 
+    private Object redactSensitive(Object value) {
+        if (value == null || value == JSONObject.NULL) {
+            return value;
+        }
+        if (value instanceof JSONObject json) {
+            JSONObject redacted = new JSONObject();
+            for (String key : json.keySet()) {
+                if (key != null && SENSITIVE_TRACE_KEYS.contains(key.toLowerCase())) {
+                    redacted.put(key, "***");
+                } else {
+                    redacted.put(key, redactSensitive(json.get(key)));
+                }
+            }
+            return redacted;
+        }
+        if (value instanceof JSONArray array) {
+            JSONArray redacted = new JSONArray();
+            for (int i = 0; i < array.length(); i++) {
+                redacted.put(redactSensitive(array.get(i)));
+            }
+            return redacted;
+        }
+        if (value instanceof Map<?, ?> map) {
+            JSONObject asJson = new JSONObject();
+            for (Map.Entry<?, ?> entry : map.entrySet()) {
+                String key = String.valueOf(entry.getKey());
+                if (SENSITIVE_TRACE_KEYS.contains(key.toLowerCase())) {
+                    asJson.put(key, "***");
+                } else {
+                    asJson.put(key, redactSensitive(entry.getValue()));
+                }
+            }
+            return asJson;
+        }
+        if (value instanceof String str) {
+            String trimmed = str.trim();
+            if (trimmed.startsWith("{")) {
+                try {
+                    return redactSensitive(new JSONObject(trimmed)).toString();
+                } catch (Exception ignored) {
+                    return value;
+                }
+            }
+            if (trimmed.startsWith("[")) {
+                try {
+                    return redactSensitive(new JSONArray(trimmed)).toString();
+                } catch (Exception ignored) {
+                    return value;
+                }
+            }
+        }
+        return value;
+    }
+
     private JSONArray limitTraceEntries(JSONArray trace) {
         if (trace.length() <= MAX_SERVER_API_TRACE_ENTRIES) {
             return trace;
@@ -214,10 +297,17 @@ public class APIRequestUtil {
             JSONObject entry = new JSONObject();
             entry.put("method", method);
             entry.put("url", url);
-            entry.put("request", limitTraceValue(request));
-            entry.put("headers", headers == null ? new JSONObject() : limitTraceValue(new JSONObject(headers)));
+            entry.put("request", limitTraceValue(redactSensitive(request)));
+            entry.put("headers", headers == null ? new JSONObject()
+                    : limitTraceValue(redactSensitive(new JSONObject(headers))));
             entry.put("statusCode", response == null ? JSONObject.NULL : response.getStatusCode());
             entry.put("response", response == null ? JSONObject.NULL : trimTraceString(response.getBody().asString()));
+            if (response != null) {
+                String serverMs = response.getHeader("x-envoy-upstream-service-time");
+                if (serverMs != null && !serverMs.isBlank()) {
+                    entry.put("serverDurationMs", serverMs);
+                }
+            }
             trace.put(entry);
             VariableManager.setVariableValue(contextKey, SERVER_API_TRACE_KEY,
                     MosipDataSetup.toCacheValue(limitTraceEntries(trace)));
@@ -388,33 +478,46 @@ public class APIRequestUtil {
         }
 
     	boolean bDone = false;
-    	int nLoop  = 0;
-    	Response response =null;
+    	int authRetry = 0;
+    	int timeoutRetry = 0;
+    	Response response = null;
 
-    	while(!bDone) {
+    	String outputJson = TRACE_OBJECT_MAPPER.writeValueAsString(requestBody);
 
-    		ObjectMapper objectMapper = new ObjectMapper();
-    		objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-    		objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-    		String outputJson = objectMapper.writeValueAsString(requestBody);
+    	while (!bDone) {
+    		try {
+    			String authToken = AuthTokenStore.get(contextKey, AuthTokenStore.ROLE_SYSTEM);
+    			Cookie kukki = new Cookie.Builder("Authorization", authToken).build();
+    			response = given().config(syncTimeoutConfig()).cookie(kukki)
+                    .header("timestamp", timestamp)
+                    .header("Center-Machine-RefId", centerId + UNDERSCORE + machineId)
+                    .contentType(ContentType.JSON).body(outputJson).post(url);
 
-            String authToken = AuthTokenStore.get(contextKey, AuthTokenStore.ROLE_SYSTEM);
-    		Cookie kukki = new Cookie.Builder("Authorization", authToken).build();
-    		response = given().config(httpTimeoutConfig()).cookie(kukki)
-                .header("timestamp", timestamp)
-                .header("Center-Machine-RefId", centerId + UNDERSCORE + machineId)
-                .contentType(ContentType.JSON).body(outputJson).post(url);
-
-    		if(response.getStatusCode() == 401) {
-    			if(nLoop >= 1)
+    			if (response.getStatusCode() == 401) {
+    				if (authRetry >= 1) {
+    					bDone = true;
+    				} else {
+    					initToken(contextKey);
+    					authRetry++;
+    				}
+    			} else {
     				bDone = true;
-    			else {
-    				initToken(contextKey);
-    				nLoop++;
+    			}
+    		} catch (Exception e) {
+    			if (isReadTimeout(e) && timeoutRetry < httpSyncRetryCount) {
+    				timeoutRetry++;
+    				logger.warn("syncRid read timed out for {} (retry {}/{}): {}", url, timeoutRetry,
+    						httpSyncRetryCount, e.getMessage());
+    				try {
+    					Thread.sleep(2000L);
+    				} catch (InterruptedException ie) {
+    					Thread.currentThread().interrupt();
+    					throw e;
+    				}
+    			} else {
+    				throw e;
     			}
     		}
-    		else
-    			bDone = true;
     	}
         if (response == null) {
             throw new Exception("No response received for POST " + url);

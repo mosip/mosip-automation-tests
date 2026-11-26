@@ -94,7 +94,8 @@ public class Packetcreator extends BaseTestCaseUtil implements StepInterface {
 		JSONObject jsonReq = new JSONObject();
 		jsonReq.put("idJsonPath", idJsonPath);
 		jsonReq.put("process", process);
-		jsonReq.put("source", E2EConstants.SOURCE);
+		// Resident portal updates are stored under source RESIDENT. Other processes stay registration-client.
+		jsonReq.put("source", "RES_UPDATE".equalsIgnoreCase(process) ? "RESIDENT" : E2EConstants.SOURCE);
 		jsonReq.put("templatePath", templatePath);
 		jsonReq.put("additionalInfoReqId", additionalInfoReqId);
 

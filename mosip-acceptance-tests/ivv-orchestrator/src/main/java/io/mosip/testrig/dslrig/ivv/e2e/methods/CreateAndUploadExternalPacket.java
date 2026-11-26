@@ -69,15 +69,29 @@ public class CreateAndUploadExternalPacket extends BaseTestCaseUtil implements S
 			}
 
 			if (!step.getParameters().isEmpty() && step.getParameters().size() > 3) {
-				genrateValidateToken = Boolean.parseBoolean(step.getParameters().get(3));
+				String tokenOrUinParam = step.getParameters().get(3);
+				// Death/UPDATE without token passes UIN as parameter 4 ($$UIN)
+				if (tokenOrUinParam != null && tokenOrUinParam.startsWith("$$")) {
+					genrateValidateToken = false;
+					uin = step.getScenario().getVariables().get(tokenOrUinParam);
+				} else {
+					genrateValidateToken = Boolean.parseBoolean(tokenOrUinParam);
+				}
 			}
 
 			if (!step.getParameters().isEmpty() && step.getParameters().size() > 4) {
-				uin = step.getScenario().getVariables().get(step.getParameters().get(4));
+				String uinParam = step.getParameters().get(4);
+				if (uinParam != null && uinParam.startsWith("$$")) {
+					uin = step.getScenario().getVariables().get(uinParam);
+				} else if (uinParam != null && !uinParam.isBlank()
+						&& !uinParam.equalsIgnoreCase("true") && !uinParam.equalsIgnoreCase("false")) {
+					// Allow literal UIN (e.g. invalid value for negative tests)
+					uin = uinParam;
+				}
 			}
 
 			String rid = packetUtility.createUploadPacket(step.getScenario().getResidentTemplatePaths().keySet(),
-					source, process, genrateValidateToken, uin, step.getScenario().getCurrentStep(), step ,valid);
+					source, process, genrateValidateToken, uin, step.getScenario().getCurrentStep(), step, valid);
 
 			if (valid.equalsIgnoreCase("invalid")) {
 			    Reporter.log("<b style=\"background-color: #0A0;\">Marking test case as passed. As " + rid + "</b>");

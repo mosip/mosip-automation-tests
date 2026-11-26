@@ -149,6 +149,9 @@ public final class PersonaBiometricsAssembler {
 					&& Boolean.parseBoolean(obstructedFaceFlag.toString());
 
 			byte[][] faceData = PhotoProvider.getPhoto(contextKey, generateLargeFace, generateObstructedFace);
+			if (faceData == null || faceData[0] == null || faceData[1] == null) {
+				throw new IllegalStateException("Face biometric generation returned null data");
+			}
 			bioData.setEncodedPhoto(Base64.getEncoder().encodeToString(faceData[0]));
 			bioData.setRawFaceData(faceData[1]);
 			try {

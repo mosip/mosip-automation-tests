@@ -125,9 +125,9 @@ public final class RestClientAuth {
 			JSONObject requestBody = wrapAuthRequest(nestedRequest, requestId, new JSONObject());
 
 			if (!shouldForceAuthRefresh(contextKey)) {
-				String cached = getRunCachedAuthTokenForRequest(MosipDataSetup.AUTH_INTERNAL_USERID_PWD_PATH,
-						nestedRequest, false, contextKey);
-				if (cached != null && !cached.isEmpty()) {
+				String cached = usableCachedToken(getRunCachedAuthTokenForRequest(
+						MosipDataSetup.AUTH_INTERNAL_USERID_PWD_PATH, nestedRequest, false, contextKey), contextKey);
+				if (cached != null) {
 					AuthTokenStore.put(contextKey, role, cached);
 					return true;
 				}
@@ -156,9 +156,9 @@ public final class RestClientAuth {
 			JSONObject requestBody = wrapAuthRequest(nestedRequest, "string", new JSONObject());
 
 			if (!shouldForceAuthRefresh(contextKey)) {
-				String cached = getRunCachedAuthTokenForRequest(MosipDataSetup.AUTH_CLIENT_ID_SECRET_PATH,
-						nestedRequest, true, contextKey);
-				if (cached != null && !cached.isEmpty()) {
+				String cached = usableCachedToken(getRunCachedAuthTokenForRequest(
+						MosipDataSetup.AUTH_CLIENT_ID_SECRET_PATH, nestedRequest, true, contextKey), contextKey);
+				if (cached != null) {
 					AuthTokenStore.put(contextKey, role, cached);
 					return true;
 				}
@@ -281,10 +281,38 @@ public final class RestClientAuth {
 	}
 
 	private static void restoreAuthTokenFromRunCache(String role, String contextKey) {
-		String token = getRunCachedAuthTokenForRole(role, contextKey);
-		if (token != null && !token.isEmpty()) {
+		String token = usableCachedToken(getRunCachedAuthTokenForRole(role, contextKey), contextKey);
+		if (token != null) {
 			AuthTokenStore.put(contextKey, role, token);
 		}
+	}
+
+	/**
+	 * Drops the in-memory and run-cache token after kernel rejects it ({@code KER-ATH-401} on HTTP 400).
+	 * The next {@link #initToken(String)} then calls auth instead of restoring the same token.
+	 */
+	public static void discardCachedToken(String contextKey, String role) {
+		AuthTokenStore.remove(contextKey, role);
+		try {
+			JSONObject nestedRequest = buildNestedRequestForRole(role, contextKey);
+			if (nestedRequest == null) {
+				return;
+			}
+			boolean clientSecretAuth = isClientSecretAuthRole(role);
+			String authPath = clientSecretAuth ? MosipDataSetup.AUTH_CLIENT_ID_SECRET_PATH
+					: MosipDataSetup.AUTH_INTERNAL_USERID_PWD_PATH;
+			String cacheKey = MosipDataSetup.authCacheKey(authPath, credFingerprint(nestedRequest, clientSecretAuth));
+			MosipDataSetup.removeCache(cacheKey, MosipDataSetup.getRunContextNamespace(contextKey));
+		} catch (Exception e) {
+			logger.debug("Could not drop cached auth token for role {}: {}", role, e.getMessage());
+		}
+	}
+
+	private static String usableCachedToken(String token, String contextKey) {
+		if (token == null || token.isEmpty() || !isValidTokenOffline(token, contextKey)) {
+			return null;
+		}
+		return token;
 	}
 
 	private static String getRunCachedAuthTokenForRole(String role, String contextKey) {

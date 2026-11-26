@@ -45,7 +45,7 @@ public class RunCacheController {
 	public @ResponseBody ResponseEntity<Map<String, Object>> warmRunCache(@PathVariable("contextKey") String contextKey) {
 		try {
 			if (personaConfigPath != null && !personaConfigPath.isEmpty()) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			Map<String, Object> summary = RunCacheService.warm(contextKey);
 			return ResponseEntity.ok(summary);
@@ -58,13 +58,14 @@ public class RunCacheController {
 	}
 
 	@Operation(summary = "Clear run-scoped cache",
-			description = "Clears the {urlBase}run_context namespace and in-memory auth tokens (shared with resetContextData). "
-					+ "Does not delete the context namespace or packet temp folders. Call after the test suite completes.")
+			description = "Clears the {urlBase}run_context namespace, in-memory auth tokens, and every context "
+					+ "namespace created by set context. Does not delete packet temp folders. "
+					+ "Call after the test suite completes.")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Cache cleared") })
 	@PostMapping(value = "/runCache/clear/{contextKey}")
 	public @ResponseBody String clearRunCache(@PathVariable("contextKey") String contextKey) {
 		try {
-			contextResetService.clearRunScopedCache(contextKey);
+			contextResetService.clearAfterSuite(contextKey);
 			return "true";
 		} catch (ServiceException se) {
 			throw se;

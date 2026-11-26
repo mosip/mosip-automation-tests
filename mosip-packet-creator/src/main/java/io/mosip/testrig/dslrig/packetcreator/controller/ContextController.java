@@ -37,8 +37,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 
-import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
-
 import io.mosip.testrig.dslrig.dataprovider.util.ServiceException;
 
 import io.mosip.testrig.dslrig.dataprovider.util.internalapi.InternalApiLogCollector;
@@ -54,6 +52,8 @@ import io.mosip.testrig.dslrig.packetcreator.service.CommandsService;
 import io.mosip.testrig.dslrig.packetcreator.service.ContextResetService;
 
 import io.mosip.testrig.dslrig.packetcreator.service.ContextUtils;
+
+import io.mosip.testrig.dslrig.packetcreator.util.DataProviderResourceConfigurer;
 
 import io.mosip.testrig.dslrig.packetcreator.openapi.OpenApiDocumentation;
 
@@ -118,11 +118,7 @@ public class ContextController {
 
 	    try {
 
-	        if (personaConfigPath != null && !personaConfigPath.isEmpty()) {
-
-	            DataProviderConstants.RESOURCE = personaConfigPath;
-
-	        }
+	        DataProviderResourceConfigurer.configure(personaConfigPath);
 
 
 	        String result = contextUtils.createUpdateServerContext(contextProperties, contextKey);
@@ -157,6 +153,34 @@ public class ContextController {
 
 	}
 
+
+	@Operation(summary = "Fetch id-repository identity-service actuator info",
+			description = "Calls {targetBaseUrl}/idrepository/v1/identity/actuator/info and returns the actuator JSON "
+					+ "(including build.version) for Java 11 vs Java 21 environment detection in the DSL before-suite.")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Actuator info retrieved successfully") })
+	@GetMapping("/env/idrepoActuatorInfo/{contextKey}")
+	public @ResponseBody String getIdRepoActuatorInfo(@PathVariable("contextKey") String contextKey,
+			@RequestParam(name = "targetBaseUrl", required = false) String targetBaseUrl) {
+		try {
+			return commandsService.getIdRepoActuatorInfo(contextKey, targetBaseUrl);
+		} catch (ServiceException se) {
+			throw se;
+		}
+	}
+
+	@Operation(summary = "Clear packet manager Spring caches",
+			description = "Lists and deletes the packet, packets, and tags caches on packet manager "
+					+ "({urlBase}/commons/v1/packetmanager/actuator/caches) for the target environment of this context.")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Caches cleared") })
+	@PostMapping("/packetmanager/caches/clear/{contextKey}")
+	public @ResponseBody String clearPacketManagerCaches(@PathVariable("contextKey") String contextKey) {
+		try {
+			return commandsService.clearPacketManagerCaches(contextKey);
+		} catch (ServiceException se) {
+			throw se;
+		}
+	}
 
 	@GetMapping("/ping/{eSignetDeployed}/{contextKey}")
 
@@ -262,6 +286,8 @@ public class ContextController {
 
 			+ "Optional reportHints=true embeds markers for bold labels in HTML reports. "
 
+			+ "Optional failedOnly=true returns only failed outbound calls (HTTP 4xx/5xx, transport errors, or MOSIP errors). "
+
 			+ "Does not log inbound DSL calls to Packet Creator.")
 
 	@GetMapping(value = "/context/internalApiLogs/{contextKey}", produces = MediaType.TEXT_PLAIN_VALUE)
@@ -270,13 +296,15 @@ public class ContextController {
 
 			@RequestParam(name = "clear", defaultValue = "true") boolean clear,
 
-			@RequestParam(name = "reportHints", defaultValue = "false") boolean reportHints) {
+			@RequestParam(name = "reportHints", defaultValue = "false") boolean reportHints,
+
+			@RequestParam(name = "failedOnly", defaultValue = "false") boolean failedOnly) {
 
 		List<InternalApiLogExchange> list = clear ? InternalApiLogCollector.drain(contextKey)
 
 				: InternalApiLogCollector.snapshot(contextKey);
 
-		return InternalApiLogFormatter.format(list, reportHints);
+		return InternalApiLogFormatter.format(list, reportHints, failedOnly);
 
 	}
 

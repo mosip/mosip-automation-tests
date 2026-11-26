@@ -18,7 +18,19 @@ public class DataProviderConstants {
 	public static int mobNumber_maxlen = 10;
 
 	public static int MAX_PHOTOS = 10;
-	public static String RESOURCE="src/main/resource/";
+	private static final ThreadLocal<String> RESOURCE_TL = ThreadLocal.withInitial(() -> "src/main/resource/");
+
+	/** Thread-scoped resource root so parallel packet-creator requests do not clobber each other. */
+	public static String getResource() {
+		return RESOURCE_TL.get();
+	}
+
+	public static void setResource(String path) {
+		RESOURCE_TL.set(path == null || path.isBlank() ? "src/main/resource/" : path);
+	}
+
+	/** @deprecated use {@link #getResource()} / {@link #setResource(String)} */
+	public static String RESOURCE = "src/main/resource/";
 	public static String COUNTRY_CODE ="IN";
 	public static String DOC_TEMPLATE_PATH=  "documents/templates/";
 	public static String LANG_CODE_ENGLISH = "eng";

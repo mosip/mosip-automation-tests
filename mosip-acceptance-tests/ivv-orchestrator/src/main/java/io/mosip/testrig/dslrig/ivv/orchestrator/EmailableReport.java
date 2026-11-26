@@ -8,11 +8,15 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -28,6 +32,8 @@ import org.testng.collections.Lists;
 import org.testng.internal.Utils;
 import org.testng.xml.XmlSuite;
 
+import io.mosip.testrig.apirig.utils.AdminTestUtil;
+import io.mosip.testrig.apirig.utils.GlobalMethods;
 import io.mosip.testrig.apirig.utils.S3Adapter;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.dslrig.ivv.core.dtos.Scenario;
@@ -136,41 +142,27 @@ public class EmailableReport implements IReporter {
 				}
 				if (dslConfigManager.getPushReportsToS3().equalsIgnoreCase("yes")) {
 					S3Adapter s3Adapter = new S3Adapter();
-					boolean isStoreSuccess = false;
-					boolean isStoreSuccess2 = false;
-					boolean isStoreSuccess3 = false;
-					boolean isStoreSuccess4 = false;
+					// Upload each artifact independently so one failure (e.g. missing Excel
+					// baseline in Docker) does not skip the error report.
+					uploadReportToS3(s3Adapter, "Main report", newString, newReportFile);
 
-					try {
-
-						isStoreSuccess = s3Adapter.putObject(dslConfigManager.getS3Account(), BaseTestCase.testLevel,
-								null, null, newString, newReportFile);
-
-						logger.info("Main report uploaded: " + isStoreSuccess);
-
-						File extentReport = new File(BaseTestCaseUtil.getExtentReportName());
-
-						isStoreSuccess2 = s3Adapter.putObject(dslConfigManager.getS3Account(), BaseTestCase.testLevel,
-								null, null, "ExtentReport-" + newString, extentReport);
-
-						logger.info("Extent report uploaded: " + isStoreSuccess2);
-
-						isStoreSuccess3 = s3Adapter.putObject(dslConfigManager.getS3Account(), BaseTestCase.testLevel,
-								null, null, "comparison_vs_BASE_LINE.xlsx", new File(excelFilePath));
-
-						logger.info("Excel report uploaded: " + isStoreSuccess3);
-
-						File failedReportFile = new File(System.getProperty("user.dir") + "/"
-								+ System.getProperty("testng.outpur.dir") + "/" + failedReportName);
-
-						isStoreSuccess4 = s3Adapter.putObject(dslConfigManager.getS3Account(), BaseTestCase.testLevel,
-								null, null, failedReportName, failedReportFile);
-
-						logger.info("Failed report uploaded: " + isStoreSuccess4);
-
-					} catch (Exception e) {
-						logger.error("Error occurred while pushing report to S3: " + e.getMessage());
+					String extentReportName = BaseTestCaseUtil.getExtentReportName();
+					if (extentReportName != null) {
+						uploadReportToS3(s3Adapter, "Extent report", "ExtentReport-" + newString,
+								new File(extentReportName));
+					} else {
+						logger.warn("Extent report name is null; skipping S3 upload for extent report");
 					}
+
+					if (excelFilePath != null) {
+						uploadReportToS3(s3Adapter, "Excel report", "comparison_vs_BASE_LINE.xlsx",
+								new File(excelFilePath));
+					} else {
+						logger.warn("Excel report path is null; skipping S3 upload for comparison_vs_BASE_LINE.xlsx");
+					}
+
+					// Prefer the file already written under TestNG outputDirectory
+					uploadReportToS3(s3Adapter, "Failed/error report", failedReportName, failedDigestReportFile);
 				}
 
 			} else {
@@ -178,6 +170,21 @@ public class EmailableReport implements IReporter {
 			}
 		} else {
 			logger.error("Original report File does not exist!");
+		}
+	}
+
+	private void uploadReportToS3(S3Adapter s3Adapter, String reportLabel, String objectName, File reportFile) {
+		if (reportFile == null || !reportFile.isFile()) {
+			logger.warn(reportLabel + " not found for S3 upload"
+					+ (reportFile == null ? "" : " at " + reportFile.getAbsolutePath()) + "; skip.");
+			return;
+		}
+		try {
+			boolean uploaded = s3Adapter.putObject(dslConfigManager.getS3Account(), BaseTestCase.testLevel, null, null,
+					objectName, reportFile);
+			logger.info(reportLabel + " uploaded to S3 (" + objectName + "): " + uploaded);
+		} catch (Exception e) {
+			logger.error("Error uploading " + reportLabel + " to S3 (" + objectName + "): " + e.getMessage(), e);
 		}
 	}
 
@@ -229,7 +236,10 @@ public class EmailableReport implements IReporter {
 		int totalTests = totalPassedTests + totalSkippedTests + totalIgnoredTests + totalKnownIssuesTests
 				+ totalFailedTests;
 
-		String env = System.getProperty("env.user").replaceAll("https?://", "").replaceAll("[^a-zA-Z0-9.-]", "");
+		String envProperty = System.getProperty("env.user");
+		String env = (envProperty == null || envProperty.isBlank())
+				? "unknown"
+				: envProperty.replaceAll("https?://", "").replaceAll("[^a-zA-Z0-9.-]", "");
 
 		return "DSL-" + env + "-" + BaseTestCase.testLevel + "-error-" + timestamp + "-report_T-" + totalTests + "_P-"
 				+ totalPassedTests + "_S-" + totalSkippedTests + "_F-" + totalFailedTests + ".html";
@@ -275,6 +285,10 @@ public class EmailableReport implements IReporter {
 		writer.print(
 				".knownissueodd td, .knownissueeven td {background-color: #fff9db; color: #333; text-align:center;}");
 		writer.print(".stacktrace {white-space:pre;font-family:monospace}");
+		writer.print(
+				"pre {max-width:100%; max-height:28rem; overflow:auto; white-space:pre-wrap; word-break:break-word; box-sizing:border-box;}");
+		writer.print(
+				"textarea[name='message'], textarea[name='headers'] {max-width:100%; max-height:28rem; overflow:auto; box-sizing:border-box;}");
 		writer.print(".totop {font-size:85%;text-align:center;border-bottom:2px solid #000}");
 		writer.print(".box {padding: 10px; border-radius: 5px; color: #FFF; word-wrap: break-word; max-width: 100%;}");
 		writer.print(".orange-bg {background-color: #FFA500;}");
@@ -291,20 +305,22 @@ public class EmailableReport implements IReporter {
 		writer.print(".left-aligned {text-align:left;}");
 		writer.print(".attn { background-color: #eb5050 !important; }");
 		writer.print(".red-text { color: #000 !important; font-weight: normal; }");
-		writer.print(".bug-column { width:150px; min-width:150px; white-space:nowrap; text-align:center; overflow:visible; }");
+		writer.print(".bug-column { width:220px; min-width:220px; white-space:nowrap; text-align:center; overflow:visible; }");
 		writer.print(
 				".dsl-scenario-summary-wrap { border:1px solid #d1d1d1; border-radius:8px; overflow:hidden; margin:12px 0 18px; background:#fff; }");
 		writer.print(".dsl-scenario-summary-wrap #summary.scenario-table { table-layout:fixed; width:100%; margin-bottom:0; }");
+		// DSL scenario ids are short (Scenario_32); keep col 1 narrow — API-style 28%/220px
+		// was ported for long TC_* names and wasted space here.
 		writer.print(
 				".dsl-scenario-summary-wrap #summary.scenario-table th:nth-child(1), .dsl-scenario-summary-wrap #summary.scenario-table td:nth-child(1) { width:12%; min-width:120px; text-align:center; }");
 		writer.print(
-				".dsl-scenario-summary-wrap #summary.scenario-table th:nth-child(2) { width:74%; vertical-align:top; text-align:center; }");
+				".dsl-scenario-summary-wrap #summary.scenario-table th:nth-child(2) { width:70%; vertical-align:top; text-align:center; }");
 		writer.print(
-				".dsl-scenario-summary-wrap #summary.scenario-table td:nth-child(2) { width:74%; vertical-align:top; text-align:left; }");
+				".dsl-scenario-summary-wrap #summary.scenario-table td:nth-child(2) { width:70%; vertical-align:top; text-align:left; }");
 		writer.print(
 				".dsl-scenario-summary-wrap #summary.scenario-table td:nth-child(2), .dsl-scenario-summary-wrap #summary.scenario-table td.scenario-desc-col, .dsl-scenario-summary-wrap #summary.scenario-table td:nth-child(2) * { white-space:normal !important; overflow:visible !important; text-overflow:clip !important; word-break:break-word !important; overflow-wrap:anywhere !important; }");
 		writer.print(
-				".dsl-scenario-summary-wrap #summary.scenario-table th:nth-child(3), .dsl-scenario-summary-wrap #summary.scenario-table td:nth-child(3) { width:14%; min-width:150px; text-align:center; vertical-align:top; overflow:visible; white-space:nowrap; }");
+				".dsl-scenario-summary-wrap #summary.scenario-table th:nth-child(3), .dsl-scenario-summary-wrap #summary.scenario-table td:nth-child(3) { width:18%; min-width:220px; text-align:center; vertical-align:top; overflow:visible; white-space:nowrap; }");
 		writer.print(
 				".dsl-scenario-summary-wrap #summary thead th { background:#d6dfe8 !important; color:#1a1a1a !important; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; text-align:center !important; border-color:#d1d1d1 !important; }");
 		writer.print(
@@ -322,6 +338,31 @@ public class EmailableReport implements IReporter {
 				".dsl-scenario-summary-wrap #summary tbody td:nth-child(1) a { color:#1565c0 !important; text-decoration:underline !important; font-weight:600; }");
 		writer.print(
 				".dsl-scenario-summary-wrap #summary .bug-column a { text-decoration:underline !important; }");
+		writer.print(".exec-flag-alert {display:inline-block;padding:2px 8px;border-radius:4px;background:#dc2626;color:#fff;font-weight:700;}");
+		writer.print(".runtime-panel{margin:0 0 14px;border:1px solid #AED6F1;border-radius:12px;background:#fff;overflow:hidden;}");
+		writer.print(".runtime-panel__head{padding:10px 14px 0;}");
+		writer.print(".runtime-panel__title{margin:0;font-size:13px;font-weight:700;color:#0f172a;letter-spacing:.04em;text-transform:uppercase;}");
+		writer.print(".runtime-panel__tabs{display:flex;flex-wrap:wrap;gap:8px;padding:10px 14px;}");
+		writer.print(".runtime-panel__tab{appearance:none;border:1px solid #cbd5e1;background:#f8fafc;color:#334155;border-radius:999px;");
+		writer.print("padding:6px 12px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px;}");
+		writer.print(".runtime-panel__tab.is-active{background:#dbeafe;border-color:#93c5fd;color:#0f172a;}");
+		writer.print(".runtime-panel__tab--alert{border-color:#fca5a5;color:#991b1b;}");
+		writer.print(".runtime-panel__tab--alert.is-active{background:#fee2e2;border-color:#f87171;}");
+		writer.print(".runtime-panel__tab-count{display:inline-flex;min-width:1.4rem;justify-content:center;padding:1px 6px;border-radius:999px;");
+		writer.print("background:rgba(15,23,42,.08);font-size:11px;}");
+		writer.print(".runtime-panel__pane{padding:0 14px 14px;max-height:18rem;overflow:auto;}");
+		writer.print(".runtime-panel__empty{margin:0;padding:12px 14px;border-radius:10px;background:#f8fafc;color:#64748b;font-size:13px;}");
+		writer.print(".runtime-panel__empty--ok{background:#ecfdf5;color:#065f46;}");
+		writer.print(".runtime-component-list,.runtime-endpoint-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;}");
+		writer.print(".runtime-component-card,.runtime-endpoint-item{border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px;background:#f8fafc;}");
+		writer.print(".runtime-component-card__title{font-weight:700;color:#0f172a;margin:0 0 4px;}");
+		writer.print(".runtime-component-card__meta,.runtime-endpoint-item__meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;color:#64748b;font-size:12px;}");
+		writer.print(".runtime-dot{opacity:.7;}");
+		writer.print(".runtime-endpoint-item__path{display:block;font-family:Consolas,monospace;font-size:12px;color:#0f172a;word-break:break-word;}");
+		writer.print(".runtime-chip{display:inline-block;padding:2px 8px;border-radius:999px;background:#e2e8f0;color:#334155;font-size:11px;font-weight:700;}");
+		writer.print(".runtime-endpoint-item__domain{color:#64748b;font-size:12px;}");
+		writer.print(".runtime-errors{margin:0;padding:12px 14px;border-radius:10px;background:#fee2e2;color:#7f1d1d;white-space:pre-wrap;");
+		writer.print("word-break:break-word;font-family:Consolas,monospace;font-size:12px;}");
 		writer.print("</style>");
 
 	}
@@ -330,6 +371,7 @@ public class EmailableReport implements IReporter {
 		writer.print("<body>");
 		calculateExecutionStats();
 		writeSuiteSummary();
+		writeRuntimeDetails();
 		writeScenarioSummary();
 		writeScenarioDetails();
 		writer.print("</body>");
@@ -340,7 +382,18 @@ public class EmailableReport implements IReporter {
 	}
 
 	public static String getExecutionTime() {
-		long duration = BaseTestCaseUtil.exectionEndTime - BaseTestCaseUtil.exectionStartTime;
+		long startTime = BaseTestCaseUtil.exectionStartTime;
+		long endTime = BaseTestCaseUtil.exectionEndTime;
+		// Fallback when @AfterSuite has not set end time yet (e.g. report runs first,
+		// or suite exited early). Always prefer a positive wall-clock duration.
+		if (endTime <= 0L) {
+			endTime = System.currentTimeMillis();
+			BaseTestCaseUtil.exectionEndTime = endTime;
+		}
+		if (startTime <= 0L) {
+			return "00:00:00";
+		}
+		long duration = Math.max(0L, endTime - startTime);
 		long totalSeconds = duration / 1000;
 		long seconds = totalSeconds % 60;
 		long totalMinutes = totalSeconds / 60;
@@ -370,9 +423,10 @@ public class EmailableReport implements IReporter {
 		}
 		String commitId = getGitProperty("git.commit.id.abbrev");
 		String branch = getGitProperty("git.branch");
-
-		String commitUrl = "https://github.com/mosip/mosip-automation-tests/commit/" + commitId;
-		String branchUrl = "https://github.com/mosip/mosip-automation-tests/tree/" + branch;
+		String repoWebUrl = gitHubWebUrl(getGitProperty("git.remote.origin.url"));
+		if (repoWebUrl == null || repoWebUrl.isEmpty()) {
+			repoWebUrl = "https://github.com/mosip/mosip-automation-tests";
+		}
 
 		totalPassedTests = 0;
 		totalIgnoredTests = 0;
@@ -385,11 +439,11 @@ public class EmailableReport implements IReporter {
 		double ignoredPercent = 0;
 		double skippedPercent = 0;
 
-		writer.print("<table style='width:100%; table-layout:fixed;'>");
+		writer.print("<table class='report-exec-table' style='width:100%; table-layout:fixed;'>");
 		int testIndex = 0;
 
 		for (SuiteResult suiteResult : suiteResults) {
-			writer.print("<tr><th colspan='7'>");
+			writer.print("<tr class='exec-title-row'><th colspan='7'>");
 			writer.print("<div class=\"report-hero\">");
 			writer.print("<h2 class=\"report-hero__title main-title\">DSL Scenarios Test Report</h2>");
 			writer.print("<p class=\"report-hero__meta\">");
@@ -450,25 +504,25 @@ public class EmailableReport implements IReporter {
 			writer.print("<td colspan='4'>" + formattedDate + "</td>");
 			writer.print("</tr>");
 
+			String[] runStarted = runStartedParts();
+			writer.print(rowOpen);
+			writer.print("<td colspan='3'><b>&#9200; Run Time</b></td>");
+			writer.print("<td colspan='4'>" + runStarted[1] + "</td>");
+			writer.print("</tr>");
+
 			writer.print(rowOpen);
 			writer.print("<td colspan='3'><b>🌐 Environment</b></td>");
-			writer.print("<td colspan='4'><a href='" + finalUrl + "' target='_blank' "
-			        + "style='color:#2E86C1;text-decoration:none;font-weight:bold;'>"
-			        + finalUrl + "</a></td>");
+			writer.print("<td colspan='4'>" + execLink(finalUrl, finalUrl) + "</td>");
 			writer.print("</tr>");
 
 			writer.print(rowOpen);
 			writer.print("<td colspan='3'><b>🔖 Commit Id</b></td>");
-			writer.print("<td colspan='4'><a href='" + commitUrl + "' target='_blank' "
-			        + "style='color:#2E86C1;text-decoration:none;font-weight:bold;'>"
-			        + commitId + "</a></td>");
+			writer.print("<td colspan='4'>" + gitLink(repoWebUrl, "/commit/", commitId) + "</td>");
 			writer.print("</tr>");
 
 			writer.print(rowOpen);
 			writer.print("<td colspan='3'><b>🌿 Branch</b></td>");
-			writer.print("<td colspan='4'><a href='" + branchUrl + "' target='_blank' "
-			        + "style='color:#2E86C1;text-decoration:none;font-weight:bold;'>"
-			        + branch + "</a></td>");
+			writer.print("<td colspan='4'>" + gitLink(repoWebUrl, "/tree/", branch) + "</td>");
 			writer.print("</tr>");
 
 			writer.print(rowOpen);
@@ -506,9 +560,23 @@ public class EmailableReport implements IReporter {
 			writer.print("<td colspan='4'>" + host + "</td>");
 			writer.print("</tr>");
 
-			writer.print("<tr class=\"exec-kv-row exec-kv-row--footer\">");
+			writer.print(rowOpen);
 			writer.print("<td colspan='3'><b>🐳 Docker Image</b></td>");
-			writer.print("<td colspan='4'>" + dockerImage + "</td>");
+			writer.print("<td colspan='4'>" + Utils.escapeHtml(dockerImage) + "</td>");
+			writer.print("</tr>");
+
+			boolean captchaEnabled = false;
+			try {
+				captchaEnabled = GlobalMethods.getCaptchaStatus();
+			} catch (Exception e) {
+				logger.info("Unable to read captcha status: " + e.getMessage());
+			}
+			String captchaValue = captchaEnabled
+					? "<span class=\"exec-flag-alert\">true</span>"
+					: "false";
+			writer.print("<tr class=\"exec-kv-row exec-kv-row--footer\">");
+			writer.print("<td colspan='3'><b>&#128274; Captcha Enabled</b></td>");
+			writer.print("<td colspan='4'>" + captchaValue + "</td>");
 			writer.print("</tr>");
 
 			writer.print("<tr><td colspan='7' class=\"exec-separator\" style='background:#AED6F1; height:2px; padding:0;'></td></tr>");
@@ -521,22 +589,24 @@ public class EmailableReport implements IReporter {
 			writer.print("</tr>");
 			writer.print("<tr>");
 			writer.print("<td colspan='7' class=\"exec-legend\" style='background:#FFFFFF; padding:10px 12px; font-size:12px; text-align:left; border:1px solid #AED6F1;'>");
-			writer.print("<b>Result Legend:</b><br/>");
-			writer.print("&#9989; <b>Passed</b> – Scenario executed successfully.<br/>");
-			writer.print("&#10060; <b>Failed</b> – Scenario executed but failed due to validation or exception.<br/>");
-			writer.print("&#9888; <b> Known Issue</b> – Scenario failed but mapped to an existing bug ID.<br/>");
-			writer.print("&#9193; <b>Skipped</b> – Scenario skipped due to runtime issues (e.g., before suite failure, execution timeout > 2 hours).<br/>");
-			writer.print("&#128683; <b>Ignored</b> – Scenario intentionally excluded from execution via configuration.");
-			writer.print("</td>");
+			writer.print("<div class=\"exec-legend-inner\">");
+			writer.print("<p class=\"exec-legend-title\"><b>Result Legend:</b></p><ul class=\"exec-legend-list\">");
+			writeLegendItem("&#9989;", "Passed", "Scenario executed successfully.");
+			writeLegendItem("&#10060;", "Failed", "Scenario executed but failed due to validation or exception.");
+			writeLegendItem("&#9888;", "Known Issue", "Scenario failed but mapped to an existing bug ID.");
+			writeLegendItem("&#9193;", "Skipped",
+					"Scenario skipped due to runtime issues (e.g., before suite failure, execution timeout > 2 hours).");
+			writeLegendItem("&#128683;", "Ignored", "Scenario intentionally excluded from execution via configuration.");
+			writer.print("</ul></div></td>");
 			writer.print("</tr>");
 			writer.print("<tr class=\"exec-stats-header-row\">");
-			writer.print("<th style='text-align:center;'>📊  Total</th>");
-			writer.print("<th style='text-align:center;'>✅  Passed</th>");
-			writer.print("<th style='text-align:center;'>🚫  Ignored</th>");
-			writer.print("<th style='text-align:center;'>⚠️  Known Issues</th>");
-			writer.print("<th style='text-align:center;'>⏭️  Skipped</th>");
-			writer.print("<th style='text-align:center;'>❌  Failed</th>");
-			writer.print("<th style='text-align:center;'>⏱️ Time (HH:MM:SS)</th>");
+			writer.print("<th>📊  Total</th>");
+			writer.print("<th>✅  Passed</th>");
+			writer.print("<th>🚫  Ignored</th>");
+			writer.print("<th>⚠️  Known Issues</th>");
+			writer.print("<th>⏭️  Skipped</th>");
+			writer.print("<th>❌  Failed</th>");
+			writer.print("<th>⏱️ Time</th>");
 			writer.print("</tr>");
 			for (TestResult testResult : suiteResult.getTestResults()) {
 				int passedTests = testResult.getPassedTestCount();
@@ -595,6 +665,301 @@ public class EmailableReport implements IReporter {
 		}
 
 		writer.print("</table>");
+	}
+
+	private void writeLegendItem(String icon, String label, String description) {
+		writer.print("<li class=\"exec-legend-item\"><span class=\"exec-legend-ico\">");
+		writer.print(icon);
+		writer.print("</span><span class=\"exec-legend-txt\"><b>");
+		writer.print(label);
+		writer.print("</b> – ");
+		writer.print(description);
+		writer.print("</span></li>");
+	}
+
+	private String[] runStartedParts() {
+		long startMs = BaseTestCaseUtil.exectionStartTime;
+		if (startMs <= 0L) {
+			return new String[] { "NA", "NA" };
+		}
+		var started = new Date(startMs).toInstant().atZone(ZoneId.systemDefault());
+		return new String[] {
+				Utils.escapeHtml(DateTimeFormatter.ofPattern("yyyy-MM-dd").format(started)),
+				Utils.escapeHtml(DateTimeFormatter.ofPattern("HH:mm:ss").format(started)) };
+	}
+
+	private void writeRuntimeDetails() {
+		String componentsRaw;
+		String endpointsRaw;
+		String serverErrors;
+		try {
+			componentsRaw = AdminTestUtil.getServerComponentsDetails();
+			endpointsRaw = GlobalMethods.getComponentDetails();
+			serverErrors = GlobalMethods.getServerErrors();
+		} catch (Exception e) {
+			logger.info("Unable to collect runtime details: " + e.getMessage());
+			componentsRaw = "";
+			endpointsRaw = "";
+			serverErrors = "No server errors";
+		}
+		boolean hasServerErrors = serverErrors != null && !serverErrors.isBlank()
+				&& !"No server errors".equals(serverErrors.trim());
+
+		List<String> componentLines = runtimeNonEmptyLines(componentsRaw);
+		List<String> endpointLines = runtimeNonEmptyLines(endpointsRaw);
+		int componentCount = componentLines.size();
+		int endpointCount = endpointLines.size();
+		int errorCount = hasServerErrors ? Math.max(1, runtimeNonEmptyLines(serverErrors).size()) : 0;
+		String defaultTab = hasServerErrors ? "errors" : "components";
+
+		writer.print("<section class=\"runtime-panel\" id=\"report-runtime-panel\" data-runtime-panel=\"1\">");
+		writer.print("<header class=\"runtime-panel__head\"><h3 class=\"runtime-panel__title\">Runtime details</h3></header>");
+		writer.print("<div class=\"runtime-panel__tabs\" role=\"tablist\" aria-label=\"Runtime details\">");
+		writeRuntimeTab("components", "Components", componentCount, false, "components".equals(defaultTab));
+		writeRuntimeTab("endpoints", "Endpoints", endpointCount, false, "endpoints".equals(defaultTab));
+		writeRuntimeTab("errors", "Errors", errorCount, hasServerErrors, "errors".equals(defaultTab));
+		writer.print("</div>");
+
+		writer.print("<div class=\"runtime-panel__panels\">");
+		writer.print("<div class=\"runtime-panel__pane");
+		if ("components".equals(defaultTab)) {
+			writer.print(" is-active");
+		}
+		writer.print("\" role=\"tabpanel\" data-runtime-pane=\"components\"");
+		if (!"components".equals(defaultTab)) {
+			writer.print(" hidden");
+		}
+		writer.print(">");
+		writeComponentCards(componentLines);
+		writer.print("</div>");
+
+		writer.print("<div class=\"runtime-panel__pane");
+		if ("endpoints".equals(defaultTab)) {
+			writer.print(" is-active");
+		}
+		writer.print("\" role=\"tabpanel\" data-runtime-pane=\"endpoints\"");
+		if (!"endpoints".equals(defaultTab)) {
+			writer.print(" hidden");
+		}
+		writer.print(">");
+		writeEndpointList(endpointLines);
+		writer.print("</div>");
+
+		writer.print("<div class=\"runtime-panel__pane");
+		if ("errors".equals(defaultTab)) {
+			writer.print(" is-active");
+		}
+		writer.print("\" role=\"tabpanel\" data-runtime-pane=\"errors\"");
+		if (!"errors".equals(defaultTab)) {
+			writer.print(" hidden");
+		}
+		writer.print(">");
+		writeErrorPane(serverErrors, hasServerErrors);
+		writer.print("</div>");
+		writer.print("</div></section>");
+		writer.print("<script>(function(){var root=document.getElementById('report-runtime-panel');");
+		writer.print("if(!root||root.getAttribute('data-tabs-ready'))return;root.setAttribute('data-tabs-ready','1');");
+		writer.print("var tabs=root.querySelectorAll('[data-runtime-tab]');");
+		writer.print("var panes=root.querySelectorAll('[data-runtime-pane]');");
+		writer.print("function show(id){tabs.forEach(function(t){var on=t.getAttribute('data-runtime-tab')===id;");
+		writer.print("t.classList.toggle('is-active',on);t.setAttribute('aria-selected',on?'true':'false');});");
+		writer.print("panes.forEach(function(p){var on=p.getAttribute('data-runtime-pane')===id;");
+		writer.print("p.classList.toggle('is-active',on);p.hidden=!on;});}");
+		writer.print("root.addEventListener('click',function(e){var t=e.target.closest&&e.target.closest('[data-runtime-tab]');");
+		writer.print("if(!t||!root.contains(t))return;e.preventDefault();show(t.getAttribute('data-runtime-tab'));});");
+		writer.print("})();</script>");
+	}
+
+	private void writeRuntimeTab(String id, String label, int count, boolean alert, boolean active) {
+		writer.print("<button type=\"button\" class=\"runtime-panel__tab");
+		if (active) {
+			writer.print(" is-active");
+		}
+		if (alert) {
+			writer.print(" runtime-panel__tab--alert");
+		}
+		writer.print("\" role=\"tab\" data-runtime-tab=\"");
+		writer.print(id);
+		writer.print("\" aria-selected=\"");
+		writer.print(active ? "true" : "false");
+		writer.print("\"><span class=\"runtime-panel__tab-label\">");
+		writer.print(Utils.escapeHtml(label));
+		writer.print("</span><span class=\"runtime-panel__tab-count\">");
+		writer.print(count);
+		writer.print("</span></button>");
+	}
+
+	private void writeComponentCards(List<String> lines) {
+		if (lines.isEmpty()) {
+			writer.print("<p class=\"runtime-panel__empty\">No server component details</p>");
+			return;
+		}
+		writer.print("<ul class=\"runtime-component-list\">");
+		for (String line : lines) {
+			Map<String, String> fields = parseRuntimeFields(line);
+			String artifact = firstNonBlank(fields.get("Artifact"), fields.get("artifact"), "Component");
+			String group = firstNonBlank(fields.get("Group"), fields.get("group"), "");
+			String version = firstNonBlank(fields.get("version"), fields.get("Version"), "");
+			String commit = firstNonBlank(fields.get("Commit ID"), fields.get("Commit"), fields.get("commit"), "");
+			writer.print("<li class=\"runtime-component-card\">");
+			writer.print("<div class=\"runtime-component-card__title\">");
+			writer.print(Utils.escapeHtml(artifact));
+			writer.print("</div><div class=\"runtime-component-card__meta\">");
+			boolean first = true;
+			if (!group.isEmpty()) {
+				writer.print("<span>");
+				writer.print(Utils.escapeHtml(group));
+				writer.print("</span>");
+				first = false;
+			}
+			if (!version.isEmpty()) {
+				if (!first) {
+					writer.print("<span class=\"runtime-dot\" aria-hidden=\"true\">·</span>");
+				}
+				writer.print("<span>v");
+				writer.print(Utils.escapeHtml(version));
+				writer.print("</span>");
+				first = false;
+			}
+			if (!commit.isEmpty()) {
+				if (!first) {
+					writer.print("<span class=\"runtime-dot\" aria-hidden=\"true\">·</span>");
+				}
+				writer.print("<code>");
+				writer.print(Utils.escapeHtml(commit));
+				writer.print("</code>");
+			}
+			writer.print("</div></li>");
+		}
+		writer.print("</ul>");
+	}
+
+	private void writeEndpointList(List<String> lines) {
+		if (lines.isEmpty()) {
+			writer.print("<p class=\"runtime-panel__empty\">No endpoints recorded</p>");
+			return;
+		}
+		writer.print("<ul class=\"runtime-endpoint-list\">");
+		for (String line : lines) {
+			Map<String, String> fields = parseRuntimeFields(line);
+			String domain = firstNonBlank(fields.get("Domain"), fields.get("domain"), "");
+			String module = firstNonBlank(fields.get("Module"), fields.get("module"), "");
+			String endpoint = firstNonBlank(fields.get("End Point"), fields.get("Endpoint"), fields.get("endpoint"),
+					line);
+			writer.print("<li class=\"runtime-endpoint-item\">");
+			writer.print("<code class=\"runtime-endpoint-item__path\">");
+			writer.print(Utils.escapeHtml(endpoint));
+			writer.print("</code>");
+			if (!domain.isEmpty() || !module.isEmpty()) {
+				writer.print("<div class=\"runtime-endpoint-item__meta\">");
+				if (!module.isEmpty()) {
+					writer.print("<span class=\"runtime-chip\">");
+					writer.print(Utils.escapeHtml(module));
+					writer.print("</span>");
+				}
+				if (!domain.isEmpty()) {
+					writer.print("<span class=\"runtime-endpoint-item__domain\">");
+					writer.print(Utils.escapeHtml(domain));
+					writer.print("</span>");
+				}
+				writer.print("</div>");
+			}
+			writer.print("</li>");
+		}
+		writer.print("</ul>");
+	}
+
+	private void writeErrorPane(String serverErrors, boolean hasServerErrors) {
+		if (!hasServerErrors) {
+			writer.print("<p class=\"runtime-panel__empty runtime-panel__empty--ok\">No server errors</p>");
+			return;
+		}
+		writer.print("<pre class=\"runtime-errors\">");
+		writer.print(Utils.escapeHtml(serverErrors == null ? "" : serverErrors.trim()));
+		writer.print("</pre>");
+	}
+
+	private static List<String> runtimeNonEmptyLines(String raw) {
+		List<String> out = Lists.newArrayList();
+		if (raw == null || raw.isBlank()) {
+			return out;
+		}
+		for (String line : raw.split("\\R")) {
+			String trimmed = line.trim();
+			if (!trimmed.isEmpty()) {
+				out.add(trimmed);
+			}
+		}
+		return out;
+	}
+
+	private static Map<String, String> parseRuntimeFields(String line) {
+		Map<String, String> map = new LinkedHashMap<>();
+		if (line == null || line.isBlank()) {
+			return map;
+		}
+		String[] parts = line.split("\\s*----\\s*");
+		for (String part : parts) {
+			int colon = part.indexOf(':');
+			if (colon <= 0) {
+				continue;
+			}
+			String key = part.substring(0, colon).trim();
+			String value = part.substring(colon + 1).trim();
+			if (!key.isEmpty()) {
+				map.put(key, value);
+			}
+		}
+		return map;
+	}
+
+	private static String firstNonBlank(String... values) {
+		if (values == null) {
+			return "";
+		}
+		for (String value : values) {
+			if (value != null && !value.isBlank()) {
+				return value.trim();
+			}
+		}
+		return "";
+	}
+
+	private String gitLink(String repoWebUrl, String path, String value) {
+		if (value == null || value.isEmpty()) {
+			return "NA";
+		}
+		if (repoWebUrl == null || repoWebUrl.isEmpty()) {
+			return Utils.escapeHtml(value);
+		}
+		return execLink(repoWebUrl + path + value, value);
+	}
+
+	private String execLink(String href, String text) {
+		return "<a href=\"" + Utils.escapeHtml(href) + "\" target=\"_blank\" "
+				+ "style=\"color:#2E86C1;text-decoration:none;font-weight:bold;\">" + Utils.escapeHtml(text) + "</a>";
+	}
+
+	private String gitHubWebUrl(String remote) {
+		if (remote == null) {
+			return "";
+		}
+		String url = remote.trim();
+		if (url.isEmpty()) {
+			return "";
+		}
+		if (url.startsWith("git@github.com:")) {
+			url = "https://github.com/" + url.substring("git@github.com:".length());
+		} else if (url.startsWith("ssh://git@github.com/")) {
+			url = "https://github.com/" + url.substring("ssh://git@github.com/".length());
+		}
+		if (url.endsWith(".git")) {
+			url = url.substring(0, url.length() - 4);
+		}
+		if (!url.startsWith("https://github.com/") && !url.startsWith("http://github.com/")) {
+			return "";
+		}
+		return url;
 	}
 
 
@@ -771,8 +1136,11 @@ public class EmailableReport implements IReporter {
 							String bugId = dslConfigManager.getBugId("S-" + scenarioDetails[0]);
 
 							if (bugId != null && !bugId.isEmpty()) {
-								displayValue = "<a href='https://mosip.atlassian.net/browse/" + bugId
-										+ "' target='_blank' style='text-decoration:none;'>" + "🔗 " + bugId + "</a>";
+								String href = dslConfigManager.knownIssueHref(bugId);
+								String label = dslConfigManager.knownIssueLabel(bugId);
+								displayValue = "<a href='" + Utils.escapeHtml(href)
+										+ "' target='_blank' style='text-decoration:none;'>" + "🔗 "
+										+ Utils.escapeHtml(label) + "</a>";
 
 							} else {
 								displayValue = "NA";

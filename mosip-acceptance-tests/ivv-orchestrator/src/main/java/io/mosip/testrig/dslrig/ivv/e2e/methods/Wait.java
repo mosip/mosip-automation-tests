@@ -7,6 +7,8 @@ import org.testng.Reporter;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
+import io.mosip.testrig.dslrig.ivv.orchestrator.ScenarioParkScheduler;
+import io.mosip.testrig.dslrig.ivv.orchestrator.ScenarioYieldException;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 
 public class Wait extends BaseTestCaseUtil implements StepInterface {
@@ -37,13 +39,23 @@ public class Wait extends BaseTestCaseUtil implements StepInterface {
 				waitTime = TIME_IN_MILLISEC * 30;
 
 			} else if ("PACKET_UPLOAD_WAIT_TIME".equalsIgnoreCase(param)) {
-
-				if (nextPacketUploadWaitTime == null || nextPacketUploadWaitTime.isBlank()) {
-					logger.info("Next Packet Upload Wait Time missing : Taking default Time as 15 Min");
-					waitTime = TIME_IN_MILLISEC * 60 * 15;
+				long packetUploadSeconds;
+				if (nextPacketUploadWaitTime != null && !nextPacketUploadWaitTime.isBlank()) {
+					packetUploadSeconds = Long.parseLong(nextPacketUploadWaitTime.trim());
+					logger.info("PACKET_UPLOAD_WAIT_TIME from nextPacketUploadWaitTime: " + packetUploadSeconds
+							+ " seconds");
 				} else {
-					waitTime = TIME_IN_MILLISEC * Integer.parseInt(nextPacketUploadWaitTime);
+					String bufferSeconds = getRegprocPropertyFromActuator(
+							"registration.processor.bio.dedupe.reprocess.buffer.time");
+					if (bufferSeconds == null || bufferSeconds.isBlank()) {
+						throw new RigInternalError(
+								"registration.processor.bio.dedupe.reprocess.buffer.time was not found in regproc actuator env");
+					}
+					packetUploadSeconds = Long.parseLong(bufferSeconds.trim());
+					logger.info("PACKET_UPLOAD_WAIT_TIME from registration.processor.bio.dedupe.reprocess.buffer.time: "
+							+ packetUploadSeconds + " seconds");
 				}
+				waitTime = TIME_IN_MILLISEC * packetUploadSeconds;
 
 			} else if ("UIN_WAIT_TIME".equalsIgnoreCase(param)) {
 
@@ -63,6 +75,10 @@ public class Wait extends BaseTestCaseUtil implements StepInterface {
 			String finalMsg = " Wait Time  " + (waitTime / 1000) + " seconds";
 			logger.info(finalMsg);
 			Reporter.log(finalMsg, true);
+
+			if (dslConfigManager.isParkResumeEnabled() && ScenarioParkScheduler.isRunningOnWorker()) {
+				throw new ScenarioYieldException(waitTime);
+			}
 			sleepWithCountdown(waitTime, "Wait");
 
 		} catch (NumberFormatException e) {

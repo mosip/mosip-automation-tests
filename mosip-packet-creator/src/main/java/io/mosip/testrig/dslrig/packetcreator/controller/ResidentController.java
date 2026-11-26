@@ -44,7 +44,7 @@ public class ResidentController {
 			@PathVariable("contextKey") String contextKey) {
 
 		if (personaConfigPath != null && !personaConfigPath.equals("")) {
-			DataProviderConstants.RESOURCE = personaConfigPath;
+			DataProviderConstants.setResource(personaConfigPath);
 		}
 		try {
 			return residentService.getRIDStatus(rid, contextKey);
@@ -53,6 +53,27 @@ public class ResidentController {
 		} catch (Exception e) {
 			logger.error("getRIDStatus", e);
 			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "GET_RID_STATUS_FAIL", null, e, e.getMessage());
+		}
+	}
+
+	@Operation(summary = "Get the registration-processor workflow status for a RID")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Successfully retrieved the workflow status") })
+	@GetMapping(value = "/resident/workflowstatus/{rid}/{contextKey}")
+	public @ResponseBody String getWorkflowStatus(@PathVariable("rid") String rid,
+			@PathVariable("contextKey") String contextKey) {
+
+		if (personaConfigPath != null && !personaConfigPath.equals("")) {
+			DataProviderConstants.setResource(personaConfigPath);
+		}
+		try {
+			return residentService.getWorkflowStatus(rid, contextKey);
+		} catch (ServiceException se) {
+			throw se;
+		} catch (Exception e) {
+			logger.error("getWorkflowStatus", e);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "GET_WORKFLOW_STATUS_FAIL", null, e,
+					e.getMessage());
 		}
 	}
 
@@ -65,7 +86,7 @@ public class ResidentController {
 		String err = "{\"Status\": \"Failed\",\"Error\":\"%s\"}";
 
 		if (personaConfigPath != null && !personaConfigPath.equals("")) {
-			DataProviderConstants.RESOURCE = personaConfigPath;
+			DataProviderConstants.setResource(personaConfigPath);
 		}
 
 		try {
@@ -91,7 +112,7 @@ public class ResidentController {
 		String err = "{\"Status\": \"Failed\",\"Error\":\"%s\"}";
 
 		if (personaConfigPath != null && !personaConfigPath.equals("")) {
-			DataProviderConstants.RESOURCE = personaConfigPath;
+			DataProviderConstants.setResource(personaConfigPath);
 		}
 
 		try {
@@ -113,7 +134,7 @@ public class ResidentController {
 	public @ResponseBody String getAdditionalInfoReqId(@PathVariable("contextKey") String contextKey) {
 
 		if (personaConfigPath != null && !personaConfigPath.equals("")) {
-			DataProviderConstants.RESOURCE = personaConfigPath;
+			DataProviderConstants.setResource(personaConfigPath);
 		}
 		try {
 			List<String> getadditionalInfoReqIds = ReadEmail.getadditionalInfoReqIds();
@@ -137,7 +158,7 @@ public class ResidentController {
 			@PathVariable("contextKey") String contextKey) {
 		String r = null;
 		if (personaConfigPath != null && !personaConfigPath.equals("")) {
-			DataProviderConstants.RESOURCE = personaConfigPath;
+			DataProviderConstants.setResource(personaConfigPath);
 		}
 
 		try {

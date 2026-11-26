@@ -60,7 +60,7 @@ public class PersonaController {
 			@PathVariable("id") String id, @PathVariable("contextKey") String contextKey) {
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 
 
@@ -83,7 +83,7 @@ public class PersonaController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 
 
@@ -106,7 +106,7 @@ public class PersonaController {
 			@PathVariable("contextKey") String contextKey) {
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			return packetSyncService.updatePersonaBioExceptions(personaBERequestDto, contextKey);
 
@@ -126,7 +126,7 @@ public class PersonaController {
 			@PathVariable("contextKey") String contextKey) {
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			String personaFilePath = cloneRequest.getPersonaFilePath();
 			String body = packetSyncService.cloneResidentData(personaFilePath, contextKey);
@@ -148,7 +148,7 @@ public class PersonaController {
 		try {
 			RestClient.logInfo(contextKey, "Persona Config Path=" + personaConfigPath);
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 
 			RestClient.logInfo(contextKey, "Resource Path=" + DataProviderConstants.RESOURCE);
@@ -170,7 +170,7 @@ public class PersonaController {
 			@PathVariable("contextKey") String contextKey) {
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			return packetSyncService.getPersonaData(personaRequestDto, contextKey);
 
@@ -191,7 +191,7 @@ public class PersonaController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			return packetSyncService.setPersonaMockABISExpectation(expectations, contextKey);
 
@@ -207,18 +207,14 @@ public class PersonaController {
 	@DeleteMapping(value = "persona/mock-abis-service/config/expectation/{contextKey}")
 	public @ResponseBody String deleteAllExpectations(
 	@PathVariable("contextKey") String contextKey) {
-
 		try {
 			return packetSyncService.deleteMockAbisExpectations(contextKey , null);
-
 		} catch (ServiceException se) {
 			throw se;
-
 		} catch (Exception ex) {
 			logger.error("Error while deleting Mock ABIS expectations for contextKey={}", contextKey, ex);
-
 			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "DELETE_MOCKABIS_EXPECTATION_FAIL", null, ex,
-										ex.getMessage());
+					ex.getMessage());
 		}
 	}
 

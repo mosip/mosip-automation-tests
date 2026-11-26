@@ -94,6 +94,45 @@ public class PersonaPathValidator {
 	}
 
 	/**
+	 * Cache identity for a persona file. The timestamp is read only from a path
+	 * rebuilt under an allowed root.
+	 */
+	public String cacheToken(String personaFilePath, String contextKey) throws IOException {
+		if (personaFilePath == null || personaFilePath.isBlank() || personaFilePath.contains("..")) {
+			throw new IOException("Invalid persona file path");
+		}
+		Path resolved = Paths.get(personaFilePath).toAbsolutePath().normalize();
+		if (resolved.toString().contains("..")) {
+			throw new IOException("Invalid persona file path");
+		}
+		String fileName = resolved.getFileName().toString();
+		if (!SAFE_FILE_NAME.matcher(fileName).matches()) {
+			throw new IOException("Invalid persona file name");
+		}
+		Path matchedRoot = findMatchingAllowedRoot(resolved, contextKey);
+		if (matchedRoot == null) {
+			throw new IOException("Persona file path is outside allowed directories");
+		}
+		Path normalizedRoot = matchedRoot.toAbsolutePath().normalize();
+		if (!resolved.startsWith(normalizedRoot)) {
+			throw new IOException("Path traversal attempt detected");
+		}
+		Path relative = normalizedRoot.relativize(resolved);
+		if (relative.isAbsolute() || containsUnsafePathComponent(relative)) {
+			throw new IOException("Invalid persona file path");
+		}
+		Path safePath = normalizedRoot;
+		for (int i = 0; i < relative.getNameCount(); i++) {
+			safePath = safePath.resolve(relative.getName(i));
+		}
+		safePath = safePath.toAbsolutePath().normalize();
+		if (!safePath.startsWith(normalizedRoot) || safePath.toString().contains("..")) {
+			throw new IOException("Path traversal attempt detected");
+		}
+		return safePath.toString() + "@" + Files.getLastModifiedTime(safePath).toMillis();
+	}
+
+	/**
 	 * Builds the clone target path from an already validated source file (same
 	 * parent directory).
 	 */

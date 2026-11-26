@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.mosip.testrig.apirig.utils.ErrorCodes;
-import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 import io.mosip.testrig.dslrig.dataprovider.util.RestClient;
 import io.mosip.testrig.dslrig.dataprovider.util.ServiceException;
 import io.mosip.testrig.dslrig.packetcreator.dto.ExternalPacketRequestDTO;
@@ -28,8 +28,11 @@ import io.mosip.testrig.dslrig.packetcreator.dto.RidSyncReqRequestDto;
 import io.mosip.testrig.dslrig.packetcreator.dto.RidSyncReqResponseDTO;
 import io.mosip.testrig.dslrig.packetcreator.dto.SyncRidDto;
 import io.mosip.testrig.dslrig.packetcreator.service.ContextUtils;
+import io.mosip.testrig.dslrig.packetcreator.service.PacketCreatorActivityTracker;
 import io.mosip.testrig.dslrig.packetcreator.service.PacketMakerService;
 import io.mosip.testrig.dslrig.packetcreator.service.PacketSyncService;
+import io.mosip.testrig.dslrig.packetcreator.service.PacketTempPurge;
+import io.mosip.testrig.dslrig.packetcreator.util.DataProviderResourceConfigurer;
 import io.mosip.testrig.dslrig.packetcreator.openapi.OpenApiDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -46,6 +49,9 @@ public class PacketController {
     private static final Logger logger = LoggerFactory.getLogger(PacketController.class);
 	@Value("${mosip.test.persona.configpath}")
 	private String personaConfigPath;
+
+	@Value("${mosip.test.packetcreator.purge.min-age-ms:" + PacketTempPurge.DEFAULT_MIN_AGE_MS + "}")
+	private long purgeMinAgeMs;
 
 	private PacketSyncService packetSyncService;
 	private PacketMakerService packetMakerService;
@@ -67,9 +73,7 @@ public class PacketController {
 			@PathVariable("contextKey") String contextKey) {
 
 		try {
-			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
-			}
+			DataProviderResourceConfigurer.configure(personaConfigPath);
 
 			return packetMakerService.createPacketFromTemplate(requestDto.getPersonaFilePath().get(0),
 					requestDto.getPersonaFilePath().get(1), contextKey, requestDto.getAdditionalInfoReqId());
@@ -97,9 +101,7 @@ public class PacketController {
 			@PathVariable("contextKey") String contextKey) {
 
 		try {
-			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
-			}
+			DataProviderResourceConfigurer.configure(personaConfigPath);
 
 			return packetSyncService.createPacketTemplates(requestDto.getPersonaFilePath(), process, null, null,
 					contextKey, "Registration", qualityScore, genarateValidCbeff);
@@ -111,7 +113,7 @@ public class PacketController {
             throw new ServiceException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
                     "CREATE_TEMPLATE_FAIL",
-                    ex.getMessage()
+                    "Failed to create packet template"
             );
         }
 	}
@@ -123,9 +125,7 @@ public class PacketController {
 			@PathVariable("contextKey") String contextKey) {
 
 		try {
-			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
-			}
+			DataProviderResourceConfigurer.configure(personaConfigPath);
 
 			return packetSyncService.bulkuploadPackets(packetPaths, contextKey);
 
@@ -151,9 +151,7 @@ public class PacketController {
 			@PathVariable("contextKey") String contextKey) {
 
 		try {
-			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
-			}
+			DataProviderResourceConfigurer.configure(personaConfigPath);
 
 			return packetSyncService.makePacketAndSync(preregId, null, null, contextKey, null, getRidFromSync, true)
 					.toString();
@@ -266,9 +264,7 @@ public class PacketController {
 			@PathVariable("contextKey") String contextKey) {
 
 		try {
-			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
-			}
+			DataProviderResourceConfigurer.configure(personaConfigPath);
 			if (preRegisterRequestDto.getPersonaFilePath().size() == 0) {
 				return "{\"Missing Template\"}";
 			}
@@ -303,7 +299,8 @@ public class PacketController {
 	public @ResponseBody String packetReprocess(@RequestBody PacketReprocessDto requestDto,
 			@PathVariable("contextKey") String contextKey) throws Exception {
 		try {
-			return packetSyncService.reprocessPacket(requestDto.getRID() ,requestDto.getWorkflowInstanceId(), contextKey);
+			return packetSyncService.reprocessPacket(requestDto.getRID(), requestDto.getWorkflowInstanceId(),
+					requestDto.getRegType(), contextKey);
 
 		} catch (ServiceException se) {
             throw se;
@@ -327,9 +324,7 @@ public class PacketController {
 			@PathVariable("contextKey") String contextKey) {
 
 		try {
-			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
-			}
+			DataProviderResourceConfigurer.configure(personaConfigPath);
 
 			return packetSyncService.createPacketUpload(requestDto.getPersonaFilePath(),requestDto.getSource(), process, requestDto.getUin(), rid,
 					validateToken,contextKey);
@@ -353,9 +348,7 @@ public class PacketController {
 			@PathVariable("contextKey") String contextKey) {
 
 		try {
-			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
-			}
+			DataProviderResourceConfigurer.configure(personaConfigPath);
 
 			return packetSyncService.syncAndUpload(rid, contextKey);
 
@@ -389,5 +382,44 @@ public class PacketController {
         }
 
     }
+
+	@Operation(summary = "Purge leftover packet-creator scratch/temp and generated resource data")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Purged stale packet-creator temp data") })
+	@DeleteMapping(value = "/workDir/purgeAll")
+	public @ResponseBody String purgeAllPacketData(
+			@RequestParam(name = "mountPath", required = false) String mountPath,
+			@RequestParam(name = "tempPath", required = false) String tempPath,
+			@RequestParam(name = "minAgeMs", required = false) Long minAgeMs) {
+		try {
+			long ageMs = minAgeMs != null ? Math.max(0L, minAgeMs) : purgeMinAgeMs;
+			int active = PacketCreatorActivityTracker.activeCount();
+			if (active > 0 && ageMs < purgeMinAgeMs) {
+				ageMs = purgeMinAgeMs;
+			}
+			PacketTempPurge.Stats stats = new PacketTempPurge.Stats();
+			if (active > 0) {
+				logger.warn(
+						"Purge overlapping {} in-flight packet-creator request(s); deleting only artifacts older than {} ms",
+						active, ageMs);
+			}
+			stats.add(packetMakerService.purgeWorkDirectory(ageMs));
+			stats.add(ContextUtils.purgeOrphanScratchDirs(ageMs));
+			stats.add(ContextUtils.purgeMountedTempDir(mountPath, tempPath, ageMs));
+			stats.add(ContextUtils.purgeGeneratedResourceArtifacts(personaConfigPath, ageMs));
+			String message = "Purged stale packet data: " + stats.summary() + " overlappingRequests=" + active
+					+ " minAgeMs=" + ageMs;
+			logger.info(message);
+			return message;
+		} catch (ServiceException se) {
+			throw se;
+		} catch (Exception e) {
+			logger.error("purgeAllPacketData", e);
+			throw new ServiceException(
+					HttpStatus.INTERNAL_SERVER_ERROR,
+					"PURGE_ALL_PACKET_DATA_FAIL",
+					e.getMessage()
+			);
+		}
+	}
 
 }

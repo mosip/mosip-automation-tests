@@ -2,6 +2,7 @@ package io.mosip.testrig.dslrig.dataprovider.util.internalapi;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -22,19 +23,33 @@ public final class InternalApiLogFormatter {
 	}
 
 	public static String format(List<InternalApiLogExchange> exchanges) {
-		return format(exchanges, false);
+		return format(exchanges, false, false);
 	}
 
-
 	public static String format(List<InternalApiLogExchange> exchanges, boolean reportHints) {
+		return format(exchanges, reportHints, false);
+	}
+
+	public static String format(List<InternalApiLogExchange> exchanges, boolean reportHints, boolean failedOnly) {
 		if (exchanges == null || exchanges.isEmpty()) {
-			return "OUTBOUND INTERNAL API CALLS\n(no internal API calls recorded for this context)\n";
+			return failedOnly
+					? "OUTBOUND INTERNAL API CALLS\n(no failed internal API calls for this context)\n"
+					: "OUTBOUND INTERNAL API CALLS\n(no internal API calls recorded for this context)\n";
+		}
+		List<InternalApiLogExchange> list = exchanges;
+		if (failedOnly) {
+			list = exchanges.stream().filter(InternalApiLogExchange::isFailed).collect(Collectors.toList());
+			if (list.isEmpty()) {
+				return "OUTBOUND INTERNAL API CALLS\n(no failed internal API calls for this context)\n";
+			}
 		}
 		StringBuilder out = new StringBuilder();
-		out.append("OUTBOUND INTERNAL API CALLS (execution order: request + response per call)\n");
+		out.append(failedOnly
+				? "FAILED OUTBOUND INTERNAL API CALLS (execution order: request + response per call)\n"
+				: "OUTBOUND INTERNAL API CALLS (execution order: request + response per call)\n");
 
 		int n = 1;
-		for (InternalApiLogExchange ex : exchanges) {
+		for (InternalApiLogExchange ex : list) {
 			out.append(ENTRY_SEP);
 			if (reportHints) {
 				out.append(REPORT_HINT_BOLD_START).append("Call #").append(n).append(" | sequence=")

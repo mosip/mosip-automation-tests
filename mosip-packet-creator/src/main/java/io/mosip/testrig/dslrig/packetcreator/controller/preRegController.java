@@ -55,7 +55,7 @@ public class preRegController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			return packetSyncService.requestOtp(preRegisterRequestDto.getPersonaFilePath(), to, contextKey);
 
@@ -75,7 +75,7 @@ public class preRegController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			return packetSyncService.verifyOtp(preRegisterRequestDto.getPersonaFilePath().get(0), to, otp, contextKey);
 
@@ -93,7 +93,7 @@ public class preRegController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			return packetSyncService.preRegisterResident(preRegisterRequestDto.getPersonaFilePath(), contextKey);
 
@@ -111,7 +111,7 @@ public class preRegController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			return packetSyncService.updateResidentApplication(preRegisterRequestDto.getPersonaFilePath().get(0),
 					preregId, contextKey);
@@ -133,7 +133,7 @@ public class preRegController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			return packetSyncService.preRegisterGetApplications(null, preregId, contextKey);
 
@@ -153,7 +153,7 @@ public class preRegController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			return packetSyncService.preRegisterGetApplications("Booked", preregId, contextKey);
 
@@ -172,7 +172,7 @@ public class preRegController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			return packetSyncService.verifyOtp(preRegisterRequestDto.getPersonaFilePath().get(0), to, null, contextKey);
 
@@ -191,7 +191,7 @@ public class preRegController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			return packetSyncService.bookAppointment(preregId, nthSlot, contextKey);
 
@@ -211,7 +211,7 @@ public class preRegController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			return packetSyncService.bookAppointment(preregId, nthSlot, contextKey);
 
@@ -229,7 +229,7 @@ public class preRegController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			return packetSyncService.bookSpecificAppointment(preregId, appointmentDto, contextKey);
 
@@ -247,7 +247,7 @@ public class preRegController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			return packetSyncService.getAvailableAppointments(contextKey);
 
@@ -268,7 +268,7 @@ public class preRegController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			return packetSyncService.bookAppointmentSlot(preregId, nthSlot, bookOnHolidays, contextKey);
 
@@ -287,7 +287,7 @@ public class preRegController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			return packetSyncService.cancelAppointment(preregId, appointmentDto, contextKey);
 
@@ -316,7 +316,7 @@ public class preRegController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			return packetSyncService.updatePreRegistrationStatus(preregId, statusCode, contextKey);
 
@@ -334,7 +334,7 @@ public class preRegController {
 
 		try {
 			if (personaConfigPath != null && !personaConfigPath.equals("")) {
-				DataProviderConstants.RESOURCE = personaConfigPath;
+				DataProviderConstants.setResource(personaConfigPath);
 			}
 			return packetSyncService.uploadDocuments(preRegisterRequestDto.getPersonaFilePath().get(0), preregId,
 					contextKey);

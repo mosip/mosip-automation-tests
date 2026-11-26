@@ -27,8 +27,14 @@ ENV work_dir=/home/${container_user}/
 ARG KUBECTL_VERSION=1.22.9
 
 # install packages and create user
-RUN apt-get -y update \
-    && apt-get install -y unzip jq curl \
+RUN set -e; \
+    n=0; \
+    until [ "$n" -ge 3 ]; do \
+      rm -rf /var/lib/apt/lists/* && apt-get -y update && break; \
+      n=$((n+1)); \
+      sleep 15; \
+    done; \
+    apt-get install -y unzip jq curl \
     && groupadd -g ${container_user_gid} ${container_user_group} \
     && useradd -u ${container_user_uid} -g ${container_user_group} -s /bin/bash -m ${container_user} -d ${work_dir} \
     && curl -LO "https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl" \
