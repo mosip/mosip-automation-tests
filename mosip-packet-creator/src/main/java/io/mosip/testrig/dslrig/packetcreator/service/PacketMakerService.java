@@ -156,16 +156,21 @@ public class PacketMakerService {
 	}
 
 	private static void deleteIfUnderAllowedTemp(Path candidate, String contextKey) throws IOException {
-		Path normalized = normalizeAbsolute(candidate);
+		if (candidate == null) {
+			return;
+		}
+		Path normalized = candidate.toAbsolutePath().normalize();
+		if (normalized.toString().contains("..")) {
+			logger.warn("Refusing to delete path outside allowed temp roots: {}", normalized);
+			return;
+		}
 		Path osTempRoot = getOsTempRoot();
-		if (osTempRoot != null && normalized.startsWith(osTempRoot)) {
-			// codeql[java/path-injection]
+		if (osTempRoot != null && normalized.startsWith(osTempRoot.toAbsolutePath().normalize())) {
 			Files.delete(normalized);
 			return;
 		}
 		Path ctxTempRoot = getContextTempRoot(contextKey);
-		if (ctxTempRoot != null && normalized.startsWith(ctxTempRoot)) {
-			// codeql[java/path-injection]
+		if (ctxTempRoot != null && normalized.startsWith(ctxTempRoot.toAbsolutePath().normalize())) {
 			Files.delete(normalized);
 			return;
 		}
@@ -173,16 +178,21 @@ public class PacketMakerService {
 	}
 
 	private static void deleteRecursivelyIfUnderAllowedTemp(Path candidate, String contextKey) throws IOException {
-		Path normalized = normalizeAbsolute(candidate);
+		if (candidate == null) {
+			return;
+		}
+		Path normalized = candidate.toAbsolutePath().normalize();
+		if (normalized.toString().contains("..")) {
+			logger.warn("Refusing to delete path outside allowed temp roots: {}", normalized);
+			return;
+		}
 		Path osTempRoot = getOsTempRoot();
-		if (osTempRoot != null && normalized.startsWith(osTempRoot)) {
-			// codeql[java/path-injection]
+		if (osTempRoot != null && normalized.startsWith(osTempRoot.toAbsolutePath().normalize())) {
 			FileSystemUtils.deleteRecursively(normalized);
 			return;
 		}
 		Path ctxTempRoot = getContextTempRoot(contextKey);
-		if (ctxTempRoot != null && normalized.startsWith(ctxTempRoot)) {
-			// codeql[java/path-injection]
+		if (ctxTempRoot != null && normalized.startsWith(ctxTempRoot.toAbsolutePath().normalize())) {
 			FileSystemUtils.deleteRecursively(normalized);
 			return;
 		}
