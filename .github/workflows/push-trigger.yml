@@ -20,6 +20,7 @@ on:
       - develop*
       - 1.*
       - MOSIP*
+      - micro-service-merge-dsl
       
 jobs:
   build-maven-automationtest:
