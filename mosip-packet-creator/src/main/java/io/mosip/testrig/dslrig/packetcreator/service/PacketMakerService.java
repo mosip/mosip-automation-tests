@@ -170,7 +170,7 @@ public class PacketMakerService {
 		logger.warn("Refusing to delete path outside allowed temp roots: {}", normalized);
 	}
 
-	private static void deleteRecursivelyIfUnderAllowedTemp(Path candidate, String contextKey) {
+	private static void deleteRecursivelyIfUnderAllowedTemp(Path candidate, String contextKey) throws IOException {
 		Path normalized = normalizeAbsolute(candidate);
 		Path osTempRoot = getOsTempRoot();
 		if (osTempRoot != null && normalized.startsWith(osTempRoot)) {
