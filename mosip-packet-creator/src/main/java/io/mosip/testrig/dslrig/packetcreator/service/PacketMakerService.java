@@ -159,12 +159,14 @@ public class PacketMakerService {
 		Path normalized = normalizeAbsolute(candidate);
 		Path osTempRoot = getOsTempRoot();
 		if (osTempRoot != null && normalized.startsWith(osTempRoot)) {
-			Files.delete(normalized); // codeql[java/path-injection]
+			// codeql[java/path-injection]
+			Files.delete(normalized);
 			return;
 		}
 		Path ctxTempRoot = getContextTempRoot(contextKey);
 		if (ctxTempRoot != null && normalized.startsWith(ctxTempRoot)) {
-			Files.delete(normalized); // codeql[java/path-injection]
+			// codeql[java/path-injection]
+			Files.delete(normalized);
 			return;
 		}
 		logger.warn("Refusing to delete path outside allowed temp roots: {}", normalized);
@@ -174,12 +176,14 @@ public class PacketMakerService {
 		Path normalized = normalizeAbsolute(candidate);
 		Path osTempRoot = getOsTempRoot();
 		if (osTempRoot != null && normalized.startsWith(osTempRoot)) {
-			FileSystemUtils.deleteRecursively(normalized); // codeql[java/path-injection]
+			// codeql[java/path-injection]
+			FileSystemUtils.deleteRecursively(normalized);
 			return;
 		}
 		Path ctxTempRoot = getContextTempRoot(contextKey);
 		if (ctxTempRoot != null && normalized.startsWith(ctxTempRoot)) {
-			FileSystemUtils.deleteRecursively(normalized); // codeql[java/path-injection]
+			// codeql[java/path-injection]
+			FileSystemUtils.deleteRecursively(normalized);
 			return;
 		}
 		logger.warn("Refusing to delete path outside allowed temp roots: {}", normalized);
