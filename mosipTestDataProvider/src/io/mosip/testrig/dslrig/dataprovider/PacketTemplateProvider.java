@@ -128,12 +128,7 @@ public class PacketTemplateProvider {
 
 		} catch (Throwable e) {
 			logger.error("generate", e);
-			String message = e.getMessage();
-			String where = e.getStackTrace().length > 0 ? e.getStackTrace()[0].toString() : e.getClass().getName();
-			if (message == null || message.isBlank()) {
-				message = e.getClass().getName();
-			}
-			return message + " at " + where;
+			return "template generation failed";
 		}
 		JSONObject processMVEL = processMVEL(resident, idJson, process, contextSchemaDetail, contextKey);
 		idJson = processMVEL.toString();
