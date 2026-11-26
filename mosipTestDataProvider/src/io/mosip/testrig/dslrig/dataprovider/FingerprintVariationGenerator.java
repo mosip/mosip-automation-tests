@@ -13,7 +13,6 @@ import java.nio.file.*;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.List;
-import java.util.UUID;
 
 public final class FingerprintVariationGenerator {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(FingerprintVariationGenerator.class);
@@ -34,7 +33,19 @@ public final class FingerprintVariationGenerator {
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.fingerprintdatapath") + "/output/"
 				+ currentScenarioNumber;
 
-		Files.createDirectories(Paths.get(outputDir));
+		Path fpOutDir = Paths.get(outputDir, "fp");
+		if (Files.isDirectory(fpOutDir)) {
+			try (var stream = Files.list(fpOutDir)) {
+				stream.forEach(p -> {
+					try {
+						Files.deleteIfExists(p);
+					} catch (Exception e) {
+						logger.warn("Unable to clear stale fingerprint file {}: {}", p, e.getMessage());
+					}
+				});
+			}
+		}
+		Files.createDirectories(fpOutDir);
 
 		List<Path> inputs = Files.list(Paths.get(inputDir)).filter(Files::isRegularFile).toList();
 
@@ -68,12 +79,13 @@ public final class FingerprintVariationGenerator {
 
 		localInvert(img, r);
 
-		String uniqueName = "NONMATCH_" + System.currentTimeMillis() + "_" + UUID.randomUUID() + "_" + originalName;
+		String uniqueToken = BiometricUniquenessStamp.uniqueToken();
+		BiometricUniquenessStamp.apply(img, uniqueToken);
 
 		Path outDir = Paths.get(outputDir, fpPath);
 		Files.createDirectories(outDir);
 
-		Path out = outDir.resolve(uniqueName);
+		Path out = outDir.resolve("NONMATCH_" + uniqueToken + "_" + originalName);
 		ImageIO.write(img, "png", out.toFile());
 
 		logger.info("[FP-NONMATCH] " + sha256(Files.readAllBytes(out)));

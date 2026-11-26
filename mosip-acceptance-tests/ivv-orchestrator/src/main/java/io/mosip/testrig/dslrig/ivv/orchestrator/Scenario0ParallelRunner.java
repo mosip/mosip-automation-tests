@@ -54,59 +54,61 @@ public final class Scenario0ParallelRunner {
 
 	/** User/center/machine track 1 through WritePreReq(1). */
 
-	private static final int TRACK1_FROM = 2;
+	private static final int TRACK1_FROM = 4;
 
-	private static final int TRACK1_TO = 12;
+	private static final int TRACK1_TO = 14;
 
-	/** User2 + center2 only (ReadPreReq/setContext run later after track1 WritePreReq). */
+	/** User2 only in parallel with track1; center2 runs sequentially after track1 (avoids masterdata API races). */
 
-	private static final int TRACK2A_FROM = 13;
+	private static final int TRACK2A_FROM = 15;
 
-	private static final int TRACK2A_TO = 14;
+	private static final int TRACK2A_TO = 15;
+
+	private static final int STEP_CENTER_CREATE_2 = 16;
 
 	/** Machine + zone setup for track 2 (needs $$center2 from track2a). */
 
-	private static final int TRACK2B_FROM = 17;
+	private static final int TRACK2B_FROM = 19;
 
-	private static final int TRACK2B_TO = 25;
+	private static final int TRACK2B_TO = 27;
 
 	/** User3 + center3 (independent of track2; original order runs after step 29). */
 
-	private static final int TRACK3A_FROM = 27;
+	private static final int TRACK3A_FROM = 29;
 
-	private static final int TRACK3A_TO = 28;
+	private static final int TRACK3A_TO = 30;
 
 	/** Machine + zone setup for track 3 (needs $$center3 from track3a). */
 
-	private static final int TRACK3B_FROM = 29;
+	private static final int TRACK3B_FROM = 31;
 
-	private static final int TRACK3B_TO = 37;
+	private static final int TRACK3B_TO = 39;
 
 
 
-	private static final int PHASE2_FROM = 15;
+	private static final int PHASE2_FROM = 17;
 
-	private static final int PHASE2_TO = 16;
+	private static final int PHASE2_TO = 18;
 
 	/** setContext($$details2) — must run immediately after track2 WritePreReq, before track3 overwrites shared keys. */
-	private static final int SET_CONTEXT_DETAILS2 = 26;
+	private static final int SET_CONTEXT_DETAILS2 = 28;
 
 	/** setContext($$details3) — must run immediately after track3 WritePreReq. */
-	private static final int SET_CONTEXT_DETAILS3 = 38;
+	private static final int SET_CONTEXT_DETAILS3 = 40;
 
 	/** External-packet user and WritePreReq(4). */
 
-	private static final int PHASE_FINAL_SETUP_FROM = 39;
+	private static final int PHASE_FINAL_SETUP_FROM = 41;
 
-	private static final int PHASE_FINAL_SETUP_TO = 40;
+	private static final int PHASE_FINAL_SETUP_TO = 42;
 
-	private static final int STEP_CLEAR_DEVICE_CERT_CACHE = 41;
+	private static final int STEP_CLEAR_DEVICE_CERT_CACHE = 43;
 
-	private static final int STEP_GENERATE_AUTH_CERTS = 42;
+	private static final int STEP_GENERATE_AUTH_CERTS = 44;
 
-	private static final int STEP_UPLOAD_DEVICE_CERT = 43;
+	private static final int STEP_UPLOAD_DEVICE_CERT = 45;
 
-	private static final int STEP_WARM_RUN_CACHE = 44;
+	private static final int STEP_WARM_RUN_CACHE = 46;
 
 
 
@@ -154,13 +156,14 @@ public final class Scenario0ParallelRunner {
 
 		try {
 
-			logger.info("Scenario 0 parallel setup: running steps 0-1 sequentially");
+			logger.info("Scenario 0 parallel setup: running steps 0-3 sequentially (clear run cache, then prefix)");
 
-			store = stepRangeExecutor.execute(masterScenario, store, 0, 1, willRetry);
+			store = stepRangeExecutor.execute(masterScenario, store, 0, 3, willRetry);
 
 
 
-			logger.info("Scenario 0 parallel setup: phase 1 - tracks 1 and 2a in parallel");
+			logger.info(
+					"Scenario 0 parallel setup: phase 1 - track1 and track2a (user2 only) in parallel");
 
 			List<CompletableFuture<Map<String, String>>> phase1Futures = new ArrayList<>();
 
@@ -182,7 +185,18 @@ public final class Scenario0ParallelRunner {
 
 			logger.info(
 
-					"Scenario 0 parallel setup: phase 1b - track 3a sequential (user3 + center3; avoids masterdata API races)");
+					"Scenario 0 parallel setup: phase 1b - center CREATE 2 sequential (step " + STEP_CENTER_CREATE_2
+
+							+ "; avoids masterdata API races with track1 center CREATE)");
+
+			store = stepRangeExecutor.execute(masterScenario, store, STEP_CENTER_CREATE_2, STEP_CENTER_CREATE_2,
+					willRetry);
+
+
+
+			logger.info(
+
+					"Scenario 0 parallel setup: phase 1c - track 3a sequential (user3 + center3; avoids masterdata API races)");
 
 			store = stepRangeExecutor.execute(masterScenario, store, TRACK3A_FROM, TRACK3A_TO, willRetry);
 
@@ -244,22 +258,22 @@ public final class Scenario0ParallelRunner {
 			logger.info(
 					"Scenario 0 parallel setup: phase 5b - GenerateAuthCertifcates and WarmRunCache in parallel (upload after auth)");
 
-			final Store storeForAuthAndWarm = store;
-			CompletableFuture<Void> authCertsFuture = CompletableFuture.runAsync(() -> {
-				try {
-					Scenario authScenario = scenarioCopier.copyForTrack(masterScenario);
-					Store authStore = cloneStore(storeForAuthAndWarm);
-					stepRangeExecutor.execute(authScenario, authStore, STEP_GENERATE_AUTH_CERTS, STEP_GENERATE_AUTH_CERTS,
-							willRetry);
-					logger.info("Scenario 0 parallel setup: GenerateAuthCertifcates completed (step "
-							+ STEP_GENERATE_AUTH_CERTS + ")");
-				} catch (Exception e) {
-					throw new RuntimeException("GenerateAuthCertifcates failed (step " + STEP_GENERATE_AUTH_CERTS + "): "
-							+ rootCauseMessage(e), e);
-				}
-			}, executor);
-
-			joinAsyncStep(authCertsFuture, "GenerateAuthCertifcates");
+			/*
+			 * Keep this step on the TestNG test thread. Reporter.log() stores output
+			 * against the current test result, so API details emitted on an executor
+			 * thread are visible in the console but are missing from the HTML report.
+			 * WarmRunCache remains asynchronous, therefore these two operations still
+			 * execute in parallel.
+			 */
+			try {
+				store = stepRangeExecutor.execute(masterScenario, store, STEP_GENERATE_AUTH_CERTS,
+						STEP_GENERATE_AUTH_CERTS, willRetry);
+				logger.info("Scenario 0 parallel setup: GenerateAuthCertifcates completed (step "
+						+ STEP_GENERATE_AUTH_CERTS + ")");
+			} catch (Exception e) {
+				throw new RuntimeException("GenerateAuthCertifcates failed (step " + STEP_GENERATE_AUTH_CERTS + "): "
+						+ rootCauseMessage(e), e);
+			}
 
 			store = stepRangeExecutor.execute(masterScenario, store, STEP_UPLOAD_DEVICE_CERT, STEP_UPLOAD_DEVICE_CERT,
 					willRetry);

@@ -24,6 +24,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Semaphore;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
@@ -40,7 +41,9 @@ import org.springframework.stereotype.Service;
 
 import io.mosip.testrig.dslrig.dataprovider.NameProvider;
 import io.mosip.testrig.dslrig.dataprovider.PacketTemplateProvider;
+import io.mosip.testrig.dslrig.dataprovider.BiometricDataProvider;
 import io.mosip.testrig.dslrig.dataprovider.ResidentDataProvider;
+import io.mosip.testrig.dslrig.packetcreator.cache.PacketTemplateCache;
 import io.mosip.testrig.dslrig.dataprovider.persona.PersonaBiometricsAssembler;
 import io.mosip.testrig.dslrig.dataprovider.models.AppointmentModel;
 import io.mosip.testrig.dslrig.dataprovider.models.AppointmentTimeSlotModel;
@@ -55,6 +58,7 @@ import io.mosip.testrig.dslrig.dataprovider.models.MosipIndividualTypeModel;
 import io.mosip.testrig.dslrig.dataprovider.models.Name;
 import io.mosip.testrig.dslrig.dataprovider.models.ResidentModel;
 import io.mosip.testrig.dslrig.dataprovider.models.mds.MDSDeviceCaptureModel;
+import io.mosip.testrig.dslrig.dataprovider.models.mds.MDSRCaptureModel;
 import io.mosip.testrig.dslrig.dataprovider.models.setup.MosipMachineModel;
 import io.mosip.testrig.dslrig.dataprovider.preparation.MosipDataSetup;
 import io.mosip.testrig.dslrig.dataprovider.preparation.MosipMasterData;
@@ -82,6 +86,14 @@ public class PacketSyncService {
 
 	private static final String UNDERSCORE = "_";
 	private static final Logger logger = LoggerFactory.getLogger(PacketSyncService.class);
+
+	// MDS (Mock Device Service) allocates ports in the range 4501–4506, giving a
+	// hard limit of 6 concurrent biometric-generation sessions. A fair semaphore
+	// here prevents port exhaustion when more than 6 template requests arrive
+	// simultaneously: requests queue up and each waits for a slot rather than
+	// failing with "Socket Not available / Failed to generate biometric via mds".
+	private static final int MDS_MAX_CONCURRENT = Integer.getInteger("mds.max.concurrent", 6);
+	private static final Semaphore MDS_SEMAPHORE = new Semaphore(MDS_MAX_CONCURRENT, true);
 	private static final Queue<SlotEntry> slotQueue = new ConcurrentLinkedQueue<>();
 	private static final long SLOT_EXPIRATION_TIME_MS = 24 * 60 * 60 * 1000;
 
@@ -346,6 +358,10 @@ public class PacketSyncService {
 					process,
 					preregId, contextKey, true, additionalInfoReqId, targetDirectory);
 
+			if (personaPath != null && shouldPadPacketForLargeFace(personaPath)) {
+				padPacketToDefaultMinSizeIfAvailable(packetPath);
+			}
+
 			try {
 				byte[] packetBytes = CommonUtil.read(packetPath);
 				VariableManager.setVariableValue(contextKey, "cachedPacketHash", cryptoUtil.getHexEncodedHash(packetBytes));
@@ -453,6 +469,31 @@ public class PacketSyncService {
 		}
 		return ex.getMessage().contains("RPR-PKR-001")
 				|| ex.getMessage().contains("Packet Not Found in Sync Table");
+	}
+
+	private boolean shouldPadPacketForLargeFace(String personaPath) {
+		try {
+			Class<?> utilClass = Class.forName("io.mosip.testrig.dslrig.dataprovider.util.PacketSizeUtil");
+			Object result = utilClass.getMethod("isLargeFaceRequested", String.class).invoke(null, personaPath);
+			return result instanceof Boolean && (Boolean) result;
+		} catch (ClassNotFoundException e) {
+			logger.debug("PacketSizeUtil not available on classpath; skipping packet-size checks");
+		} catch (Exception e) {
+			logger.warn("Failed to evaluate large-face packet-size rule", e);
+		}
+		return false;
+	}
+
+	private void padPacketToDefaultMinSizeIfAvailable(String packetPath) {
+		try {
+			Class<?> utilClass = Class.forName("io.mosip.testrig.dslrig.dataprovider.util.PacketSizeUtil");
+			int defaultMinBytes = utilClass.getField("DEFAULT_MIN_PACKET_BYTES").getInt(null);
+			utilClass.getMethod("padFileToMinSize", String.class, int.class).invoke(null, packetPath, defaultMinBytes);
+		} catch (ClassNotFoundException e) {
+			logger.debug("PacketSizeUtil not available on classpath; skipping packet padding");
+		} catch (Exception e) {
+			logger.warn("Failed to pad packet to minimum size", e);
+		}
 	}
 
 	public Path createIDJsonFromPersona(String personaFile, String contextKey) throws IOException {
@@ -778,6 +819,10 @@ public class PacketSyncService {
 		slotQueue.removeIf(SlotEntry::isExpired);
 	}
 
+	public static void clearSlotQueue() {
+		slotQueue.clear();
+	}
+
 	public String bookAppointmentSlot(String preRegID, int nthSlot, boolean bHoliday, String contextKey) {
 		cleanExpiredSlots();
 		if (slotQueue.isEmpty()) {
@@ -891,6 +936,22 @@ public class PacketSyncService {
 	public String createPacketTemplates(List<String> personaFilePaths, String process, String outDir, String preregId,
 			String contextKey, String purpose, String qualityScore, boolean genarateValidCbeff) throws IOException {
 		logger.info("Template generation started at time: " + System.currentTimeMillis());
+		if (process != null) {
+			VariableManager.setVariableValue(contextKey, "process", process);
+		}
+		if (PacketTemplateCache.isEnabled(contextKey)) {
+			try {
+				String cacheKey = PacketTemplateCache.buildKey(contextKey, process, qualityScore, genarateValidCbeff,
+						personaFilePaths, personaPathValidator);
+				String cached = PacketTemplateCache.get(cacheKey);
+				if (cached != null) {
+					logger.info("Template cache hit for context {}", contextKey);
+					return cached;
+				}
+			} catch (IOException e) {
+				logger.warn("Template cache lookup skipped: {}", e.getMessage());
+			}
+		}
 		String centerId = VariableManager.getVariableValue(contextKey, "mosip.test.regclient.centerid").toString();
 		String machineId = VariableManager.getVariableValue(contextKey, "machineid").toString();
 		boolean packetDirCreated = false;
@@ -898,9 +959,6 @@ public class PacketSyncService {
 		JSONArray packetPaths = new JSONArray();
 
 		RestClient.logInfo(contextKey, "createPacketTemplates->outDir:" + outDir);
-		if (process != null) {
-			VariableManager.setVariableValue(contextKey, "process", process);
-		}
 		if (outDir == null || outDir.trim().equals("")) {
 			packetDir = Files.createTempDirectory("packets_");
 			String newPacketPath = packetDir.toFile().getAbsolutePath();
@@ -945,12 +1003,18 @@ public class PacketSyncService {
 						PersonaBiometricsAssembler.hintsFromResident(resident), contextKey);
 				String packetPath = packetDir.toString() + File.separator + resident.getId();
 				RestClient.logInfo(contextKey, "packetPath=" + packetPath);
-				String returnMsg = packetTemplateProvider.generate("registration_client", process, resident, packetPath,
-						preregId,
-						machineId, centerId, contextKey, props, preregResponse, purpose, qualityScore,
-						genarateValidCbeff);
-				if (!returnMsg.equalsIgnoreCase("Success"))
-					return "{\"" + returnMsg + "\"}";
+				String returnMsg;
+				MDS_SEMAPHORE.acquire();
+				try {
+					returnMsg = packetTemplateProvider.generate("registration_client", process, resident, packetPath,
+							preregId,
+							machineId, centerId, contextKey, props, preregResponse, purpose, qualityScore,
+							genarateValidCbeff);
+				} finally {
+					MDS_SEMAPHORE.release();
+				}
+				if (returnMsg == null || !returnMsg.equalsIgnoreCase("Success"))
+					return "{\"" + (returnMsg == null ? "template generation returned null" : returnMsg) + "\"}";
 
 				JSONObject obj = new JSONObject();
 				obj.put("id", resident.getId());
@@ -962,13 +1026,23 @@ public class PacketSyncService {
 			}
 		} catch (Exception e) {
 			logger.error("createPacketTemplates", e);
-			return "{\"" + e.getMessage() + "\"}";
+			return "{\"template generation failed\"}";
 		}
 
 		JSONObject response = new JSONObject();
 		response.put("packets", packetPaths);
 		logger.info("Template generated at time: " + System.currentTimeMillis());
-		return response.toString();
+		String responseJson = response.toString();
+		if (PacketTemplateCache.isEnabled(contextKey)) {
+			try {
+				String cacheKey = PacketTemplateCache.buildKey(contextKey, process, qualityScore, genarateValidCbeff,
+						personaFilePaths, personaPathValidator);
+				PacketTemplateCache.put(cacheKey, responseJson);
+			} catch (IOException e) {
+				logger.warn("Template cache store skipped: {}", e.getMessage());
+			}
+		}
+		return responseJson;
 
 	}
 
@@ -992,6 +1066,9 @@ public class PacketSyncService {
 			machineId = VariableManager.getVariableValue(contextKey, MOSIP_TEST_REGCLIENT_MACHINEID).toString();
 
 			centerId = VariableManager.getVariableValue(contextKey, MOSIP_TEST_REGCLIENT_CENTERID).toString();
+			VariableManager.setVariableValue(contextKey, "machineid", machineId);
+			regId = packetMakerService.generateRegId(contextKey);
+			logger.info("Generated CRVS RID (same as local packet): {}", regId);
 
 			JSONObject returnMsg = packetTemplateProvider.generateCRVSField(source, resident, process, machineId,
 					centerId, contextKey, props, regId, validateToken, uin);
@@ -1087,13 +1164,30 @@ public class PacketSyncService {
 						newValues.put("email", value);
 						break;
 
+					case "phone":
+					case "phonenumber":
+					case "mobilenumber":
+						String oldPhone = persona.getContact() == null ? "" : persona.getContact().getMobileNumber();
+						oldValues.put("phone", oldPhone == null ? "" : oldPhone);
+						if (persona.getContact() != null) {
+							persona.getContact().setMobileNumber(value == null ? "" : value);
+						}
+						newValues.put("phone", value == null ? "" : value);
+						break;
+
 					case "dob":
 					case "dateofbirth":
 						oldValues.put("dob", persona.getDob());
 						if (value == null || value.trim().isEmpty()) {
 							break;
 						}
-						if ("minor".equalsIgnoreCase(value)) {
+						if ("infant".equalsIgnoreCase(value)) {
+							persona.setInfant(true);
+							persona.setMinor(false);
+							int randomAgeMonths = 1 + (int) (Math.random() * 48);
+							value = LocalDate.now().minusMonths(randomAgeMonths)
+									.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+						} else if ("minor".equalsIgnoreCase(value)) {
 							persona.setInfant(false);
 							persona.setMinor(true);
 							int randomAge = 5 + (int) (Math.random() * (18 - 5 + 1));
@@ -1176,6 +1270,11 @@ public class PacketSyncService {
 						}
 						break;
 
+					case "lastname":
+					case "surname":
+						updateLastNameAttribute(persona, value, contextKey, oldValues, newValues);
+						break;
+
 					case "residencestatus":
 					case "rs":
 						if (value != null && !value.equals("")) {
@@ -1210,6 +1309,61 @@ public class PacketSyncService {
 		responseJson.put("oldValues", oldValues);
 		responseJson.put("newValues", newValues);
 		return responseJson;
+	}
+
+	private void updateLastNameAttribute(ResidentModel persona, String value, String contextKey,
+			JSONObject oldValues, JSONObject newValues) {
+		if (persona.getName() == null) {
+			persona.setName(new Name());
+		}
+		Name primaryName = persona.getName();
+		String oldLastName = primaryName.getSurName();
+		oldValues.put("lastName", oldLastName);
+
+		String newLastName;
+		if (value == null || value.trim().isEmpty()) {
+			String lang = persona.getPrimaryLanguage() != null ? persona.getPrimaryLanguage()
+					: DataProviderConstants.LANG_CODE_ENGLISH;
+			newLastName = generateDistinctSurName(persona.getGender(), lang, oldLastName, contextKey);
+		} else {
+			newLastName = value.trim();
+		}
+		primaryName.setSurName(newLastName);
+		newValues.put("lastName", newLastName);
+
+		if (persona.getName_seclang() != null) {
+			String oldSecLastName = persona.getName_seclang().getSurName();
+			oldValues.put("lastName_seclang", oldSecLastName);
+			String newSecLastName;
+			if (value == null || value.trim().isEmpty()) {
+				String secLang = persona.getSecondaryLanguage() != null ? persona.getSecondaryLanguage()
+						: DataProviderConstants.LANG_CODE_ENGLISH;
+				newSecLastName = generateDistinctSurName(persona.getGender(), secLang, oldSecLastName, contextKey);
+			} else {
+				newSecLastName = newLastName;
+			}
+			persona.getName_seclang().setSurName(newSecLastName);
+			newValues.put("lastName_seclang", newSecLastName);
+		}
+	}
+
+	private String generateDistinctSurName(Gender gender, String lang, String oldSurName, String contextKey) {
+		Gender nameGender = gender != null ? gender : Gender.Male;
+		String language = lang != null ? lang : DataProviderConstants.LANG_CODE_ENGLISH;
+		for (int attempt = 0; attempt < 5; attempt++) {
+			try {
+				List<Name> generatedNames = NameProvider.generateNames(nameGender, language, 1, null, contextKey);
+				if (generatedNames != null && !generatedNames.isEmpty()) {
+					String generated = generatedNames.get(0).getSurName();
+					if (generated != null && !generated.isBlank() && !generated.equals(oldSurName)) {
+						return generated;
+					}
+				}
+			} catch (Exception e) {
+				logger.warn("Unable to generate a distinct last name on attempt {}: {}", attempt + 1, e.getMessage());
+			}
+		}
+		return "Ln" + System.currentTimeMillis();
 	}
 
 	public String getPersonaData(List<UpdatePersonaDto> getPersonaRequest, String contextKey) throws Exception {
@@ -1385,8 +1539,8 @@ public class PacketSyncService {
 			try {
 				ResidentModel persona = ResidentModel.readPersona(req.getPersonaFilePath());
 				List<String> regenAttrs = req.getRegenAttributeList();
-				if (regenAttrs != null)
-					VariableManager.setVariableValue(contextKey, "regenAttribute", String.join(",", regenAttrs));
+				VariableManager.setVariableValue(contextKey, "regenAttribute",
+						regenAttrs == null ? "" : String.join(",", regenAttrs));
 				if (regenAttrs != null) {
 					for (String attr : regenAttrs) {
 						if (req.getTestPersonaPath() != null) {
@@ -1394,6 +1548,18 @@ public class PacketSyncService {
 							ResidentDataProvider.updateBiometricWithTestPersona(persona, testPersona, attr, contextKey);
 						} else {
 							ResidentDataProvider.updateBiometric(persona, attr, contextKey);
+						}
+					}
+					// updateBiometric clears capture; rebuild so mock-ABIS hash and packets use new bios
+					if (persona.getBiometric() != null && !regenAttrs.isEmpty()) {
+						try {
+							MDSRCaptureModel capture = BiometricDataProvider.regenBiometricViaMDS(persona, contextKey,
+									"Registration", "60", "UPDATE");
+							if (capture != null && capture.getLstBiometrics() != null) {
+								persona.getBiometric().setCapture(capture.getLstBiometrics());
+							}
+						} catch (Exception e) {
+							logger.error("Failed to refresh MDS capture after biometric regen: {}", e.getMessage(), e);
 						}
 					}
 				}
@@ -1660,7 +1826,8 @@ public class PacketSyncService {
 			for (String b : subTypeBdbStr) {
 				String responseStr = MosipDataSetup.configureMockABISBiometric(b, expct.isDuplicate(), duplicateBdbs,
 						(expct.getDelaySec() <= 0 ? DataProviderConstants.DEFAULT_ABIS_DELAY : expct.getDelaySec()),
-						expct.getOperation(), contextKey, expct.getStatusCode(), expct.getFailureReason());
+						expct.getOperation(), contextKey, expct.getStatusCode(), expct.getFailureReason(),
+						expct.isDeleteAfterUse());
 				reponse.add(responseStr);
 			}
 			RestClient.logInfo(contextKey, String.join(", ", reponse));
@@ -1689,10 +1856,15 @@ public class PacketSyncService {
 
 	}
 
-	public String reprocessPacket(String rid, String workflowInstanceId, String contextKey) throws Exception {
+	public String reprocessPacket(String rid, String workflowInstanceId, String regType, String contextKey)
+			throws Exception {
 		String url = baseUrl + "registrationprocessor/v1/securezone/notification";
+		if (regType == null || regType.isBlank()) {
+			throw new IllegalArgumentException("reg_type is required for securezone reprocess of rid=" + rid);
+		}
+		String resolvedRegType = regType.trim().toUpperCase();
 		JSONObject requestBody = new JSONObject();
-		requestBody.put("reg_type", "NEW");
+		requestBody.put("reg_type", resolvedRegType);
 		requestBody.put("rid", rid);
 		requestBody.put("isValid", true);
 		requestBody.put("internalError", false);
@@ -1703,6 +1875,9 @@ public class PacketSyncService {
 		requestBody.put("source", JSONObject.NULL);
 		requestBody.put("iteration", 1);
 		requestBody.put("workflowInstanceId", workflowInstanceId);
+
+		logger.info("Reprocess securezone notification for rid={}, reg_type={}, workflowInstanceId={}", rid,
+				resolvedRegType, workflowInstanceId);
 
 		JSONObject response = RestClient.post(url, requestBody, "regproc", contextKey);
 

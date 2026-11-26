@@ -100,6 +100,9 @@ public class ReadableDslStepCodecTest {
 
         String statusCheck = "I check status where packet status is PROCESSED, and registration ID is rid lost";
         assertDecodeToDsl(statusCheck, "e2e_checkStatus(PROCESSED,$$ridLost)");
+
+        String regprocStatus = "I checkstatus regproc where packet status is FAILED, and registration ID is rid lost";
+        assertDecodeToDsl(regprocStatus, "e2e_checkstatusRegproc(FAILED,$$ridLost)");
     }
 
     @Test
@@ -172,6 +175,94 @@ public class ReadableDslStepCodecTest {
     @Test
     public void roundTripGetBioModalityHashWithAnnotatedPersonaId() {
         assertRoundTrip("e2e_getBioModalityHash(-1,Right IndexFinger@@Left LittleFinger,$$personaFilePath)");
+    }
+
+    @Test
+    public void decodeOldBioPersonaCloneAndAuth() {
+        assertDecodeToDsl(
+                "I clone resident data where persona file path is the saved persona file path "
+                        + "and store result in old bio persona file path",
+                "$$oldBioPersonaFilePath=e2e_cloneResidentData($$personaFilePath)");
+        assertDecodeToDsl(
+                "I bio authentication where device info file is faceDevice, and UIN is the saved UIN, "
+                        + "and VID is the saved VID, and persona file path is the saved old bio persona file path",
+                "e2e_bioAuthentication(faceDevice,$$uin,$$vid,$$oldBioPersonaFilePath)");
+    }
+
+    @Test
+    public void decodeLastNameUpdateAndPartialNameDemoAuth() {
+        assertDecodeToDsl(
+                "I clone resident data where persona file path is the saved persona file path "
+                        + "and store result in old demo persona file path",
+                "$$oldDemoPersonaFilePath=e2e_cloneResidentData($$personaFilePath)");
+        assertDecodeToDsl(
+                "I update demo or bio details where bio type is 0, and miss fields is 0, "
+                        + "and update attributes is lastName, and persona file is the saved persona file path",
+                "e2e_updateDemoOrBioDetails(0,0,lastName,$$personaFilePath)");
+        assertDecodeToDsl(
+                "I update resident with uin where persona file path is the saved old demo persona file path, "
+                        + "and UIN is the saved UIN",
+                "e2e_updateResidentWithUIN($$oldDemoPersonaFilePath,$$uin)");
+        assertDecodeToDsl(
+                "I demo authentication where demo field is firstName, and UIN is the saved second UIN, "
+                        + "and persona file path is the saved persona file path, and VID is the saved VID",
+                "e2e_demoAuthentication(firstName,$$uin2,$$personaFilePath,$$vid)");
+        assertDecodeToDsl(
+                "I demo authentication where demo field is lastName, and UIN is the saved second UIN, "
+                        + "and persona file path is the saved old demo persona file path, and VID is the saved VID, "
+                        + "and age update flag is ERROR",
+                "e2e_demoAuthentication(lastName,$$uin2,$$oldDemoPersonaFilePath,$$vid,ERROR)");
+    }
+
+    @Test
+    public void decodeStaleLostL1ReprocessKeepsL2Name() {
+        assertDecodeToDsl(
+                "I update demo or bio details where bio type is 0, and miss fields is 0, "
+                        + "and update attributes is name=LostResident265A and addressLine1=L1AddressLine, "
+                        + "and persona file is the saved persona file path",
+                "e2e_updateDemoOrBioDetails(0,0,name=LostResident265A@@addressLine1=L1AddressLine,$$personaFilePath)");
+        assertDecodeToDsl(
+                "I reprocess packet where registration ID is rid lost1, and packet type is LOST",
+                "e2e_reprocessPacket($$ridLost1,LOST)");
+        assertDecodeToDsl(
+                "I demo authentication where demo field is name, and UIN is the saved UIN, "
+                        + "and persona file path is the saved persona file path, and VID is the saved VID",
+                "e2e_demoAuthentication(name,$$uin,$$personaFilePath,$$vid)");
+        assertDecodeToDsl(
+                "I demo authentication where demo field is name, and UIN is the saved UIN, "
+                        + "and persona file path is the saved old demo persona file path, and VID is the saved VID, "
+                        + "and age update flag is ERROR",
+                "e2e_demoAuthentication(name,$$uin,$$oldDemoPersonaFilePath,$$vid,ERROR)");
+    }
+
+    @Test
+    public void roundTripVerifyIdRepoDraftLocation() {
+        assertRoundTrip("e2e_verifyIdRepoDraftLocation($$rid,draft)");
+        assertRoundTrip("e2e_verifyIdRepoDraftLocation($$rid,published)");
+        assertRoundTrip("e2e_verifyIdRepoDraftLocation($$rid,rejected)");
+    }
+
+    @Test
+    public void decodeVerifyIdRepoDraftLocationRejected() {
+        assertDecodeToDsl(
+                "I verify id repo draft location where registration ID is the saved registration ID, and location phase is rejected",
+                "e2e_verifyIdRepoDraftLocation($$rid,rejected)");
+    }
+
+    @Test
+    public void testParseMasterFeatureFile() throws Exception {
+        java.io.File featureFile = new java.io.File(
+                "../ivv-orchestrator/src/main/resources/config/scenarios.feature");
+        if (featureFile.exists()) {
+            java.util.List<io.mosip.testrig.dslrig.ivv.core.dtos.Scenario> scenarios =
+                    new GherkinFeatureParser().parseScenarios(featureFile);
+            assertFalse(scenarios.isEmpty());
+            java.util.Set<String> ids = new java.util.HashSet<>();
+            for (io.mosip.testrig.dslrig.ivv.core.dtos.Scenario scenario : scenarios) {
+                assertTrue(scenario.getId() != null && !scenario.getId().isBlank());
+                assertTrue("duplicate scenario id " + scenario.getId(), ids.add(scenario.getId()));
+            }
+        }
     }
 
     private static void assertRoundTrip(String dsl) {

@@ -128,7 +128,12 @@ public class PacketTemplateProvider {
 
 		} catch (Throwable e) {
 			logger.error("generate", e);
-			return e.getMessage();
+			String message = e.getMessage();
+			String where = e.getStackTrace().length > 0 ? e.getStackTrace()[0].toString() : e.getClass().getName();
+			if (message == null || message.isBlank()) {
+				message = e.getClass().getName();
+			}
+			return message + " at " + where;
 		}
 		JSONObject processMVEL = processMVEL(resident, idJson, process, contextSchemaDetail, contextKey);
 		idJson = processMVEL.toString();
@@ -175,11 +180,14 @@ public class PacketTemplateProvider {
 
 		JSONObject fieldsString = CrvsIdJsonBuilder.generateCRVSIDJson(resident, contextKey, props, contextSchemaDetail,
 				validateToken, uin);
+		JSONObject metaInfo = PacketMetadataBuilder.generateMetaInfoJson(resident, process, RID, machineId,
+				centerId, contextKey, contextSchemaDetail);
+		if ("RESIDENT".equalsIgnoreCase(source)) {
+			fieldsString = stringFieldValues(fieldsString);
+			metaInfo = residentMetaInfo(process, machineId, centerId, uin);
+		}
 		requestNode.put("fields", fieldsString);
-
-
-		requestNode.put("metaInfo", PacketMetadataBuilder.generateMetaInfoJson(resident, process, RID, machineId,
-				centerId, contextKey, contextSchemaDetail));
+		requestNode.put("metaInfo", metaInfo);
 
 
 		JSONArray auditsArray = new JSONArray();
@@ -192,6 +200,38 @@ public class PacketTemplateProvider {
 
 	}
 
+	/** PacketDto.fields is Map of strings. Resident stores each identity value as a JSON string. */
+	private static JSONObject stringFieldValues(JSONObject fields) {
+		JSONObject stringFields = new JSONObject();
+		for (String key : fields.keySet()) {
+			Object value = fields.get(key);
+			if (value == null || value == JSONObject.NULL) {
+				continue;
+			}
+			stringFields.put(key, value instanceof String ? value : value.toString());
+		}
+		return stringFields;
+	}
+
+	/** Same metadata ResidentUpdateService writes: center, machine, process, UIN. */
+	private static JSONObject residentMetaInfo(String process, String machineId, String centerId, String uin) {
+		org.json.JSONArray metaData = new org.json.JSONArray();
+		metaData.put(metaLabel("centerId", centerId));
+		metaData.put(metaLabel("machineId", machineId));
+		metaData.put(metaLabel("registrationType", process));
+		metaData.put(metaLabel("UIN", uin));
+		JSONObject metaInfo = new JSONObject();
+		metaInfo.put("metaData", metaData.toString());
+		return metaInfo;
+	}
+
+	private static JSONObject metaLabel(String label, String value) {
+		JSONObject field = new JSONObject();
+		field.put("label", label);
+		field.put("value", value == null ? "" : value);
+		return field;
+	}
+
 	private JSONObject processMVEL(ResidentModel resident, String idJson, String process,
 			ContextSchemaDetail contextSchemaDetail, String contextKey) {
 		Map<String, Object> allIdentityDetails = new LinkedHashMap<String, Object>();
@@ -202,7 +242,8 @@ public class PacketTemplateProvider {
 		for (MosipIDSchema s : contextSchemaDetail.getSchema()) {
 			if (!CommonUtil.isExists(contextSchemaDetail.getRequiredAttribs(), s.getId()))
 				continue;
-			if (s.getType().equalsIgnoreCase(DOCUMENTTYPE) || s.getType().equalsIgnoreCase(BIOMETRICSTYPE)) {
+			if (s.getType() != null && (s.getType().equalsIgnoreCase(DOCUMENTTYPE)
+					|| s.getType().equalsIgnoreCase(BIOMETRICSTYPE))) {
 				continue;
 			}
 			if (json.has(s.getId()))
@@ -214,7 +255,13 @@ public class PacketTemplateProvider {
 		for (MosipIDSchema s : contextSchemaDetail.getSchema()) {
 			if (!CommonUtil.isExists(contextSchemaDetail.getRequiredAttribs(), s.getId()))
 				continue;
-			if (s.getType().equalsIgnoreCase(DOCUMENTTYPE) || s.getType().equalsIgnoreCase(BIOMETRICSTYPE)) {
+			if (s.getType() != null && (s.getType().equalsIgnoreCase(DOCUMENTTYPE)
+					|| s.getType().equalsIgnoreCase(BIOMETRICSTYPE))) {
+				continue;
+			}
+			if (PacketJsonSupport.isNewRegistrationProcess(process)
+					&& PacketJsonSupport.isResidentUinField(s.getId(), contextKey)) {
+				json.remove(s.getId());
 				continue;
 			}
 			if (PacketJsonSupport.isNewRegistrationProcess(process)
@@ -277,7 +324,7 @@ public class PacketTemplateProvider {
 			allIdentityDetails.put("isNew", true);
 		}
 		allIdentityDetails.put("isUpdate", false);
-		if (process.equals("UPDATE")) {
+		if (process != null && (process.equals("UPDATE") || process.contains("UPDATE"))) {
 			allIdentityDetails.put("isUpdate", true);
 		}
 		allIdentityDetails.put("isLost", false);

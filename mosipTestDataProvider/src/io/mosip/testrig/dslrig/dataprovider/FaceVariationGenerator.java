@@ -11,7 +11,6 @@ import java.nio.file.*;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.List;
-import java.util.UUID;
 
 public final class FaceVariationGenerator {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(FaceVariationGenerator.class);
@@ -31,11 +30,25 @@ public final class FaceVariationGenerator {
 				+ VariableManager.getVariableValue(contextKey, "mosip.test.persona.facedatapath") + "/output/"
 				+ currentScenarioNumber;
 
-		Files.createDirectories(Paths.get(outputUniqueFaceDataPath));
+		Path faceOutDir = Paths.get(outputUniqueFaceDataPath, "face");
+		// Clear leftovers so callers do not pick an older NONMATCH_* file under parallel/re-runs.
+		if (Files.isDirectory(faceOutDir)) {
+			try (var stream = Files.list(faceOutDir)) {
+				stream.forEach(p -> {
+					try {
+						Files.deleteIfExists(p);
+					} catch (Exception e) {
+						logger.warn("Unable to clear stale face file {}: {}", p, e.getMessage());
+					}
+				});
+			}
+		}
+		Files.createDirectories(faceOutDir);
 
 		generateNonMatchingFace(inputFaceTemplatePath, outputUniqueFaceDataPath, "face",
 				"face" + impressionToPick + ".png");
 
+		// Return the scenario output directory (callers list <dir>/face/).
 		return outputUniqueFaceDataPath;
 	}
 
@@ -65,12 +78,13 @@ public final class FaceVariationGenerator {
 
 		localInvert(img, r);
 
-		String uniqueName = "NONMATCH_" + System.currentTimeMillis() + "_" + UUID.randomUUID() + "_" + originalName;
+		String uniqueToken = BiometricUniquenessStamp.uniqueToken();
+		BiometricUniquenessStamp.apply(img, uniqueToken);
 
 		Path outDir = Paths.get(outputDir, facePath);
 		Files.createDirectories(outDir);
 
-		Path out = outDir.resolve(uniqueName);
+		Path out = outDir.resolve("NONMATCH_" + uniqueToken + "_" + originalName);
 		ImageIO.write(img, "png", out.toFile());
 
 		logger.info("[FACE-NONMATCH] " + sha256(Files.readAllBytes(out)));

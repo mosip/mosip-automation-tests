@@ -84,6 +84,10 @@ public class MosipDataSetup {
 		MasterdataCache.putByNamespace(runContextNamespace, key, value);
 	}
 
+	public static void removeCache(String key, String runContextNamespace) {
+		MasterdataCacheStore.remove(runContextNamespace, key);
+	}
+
 	static Object readCacheRaw(String key, String runContextNamespace) {
 		return MasterdataCacheStore.get(runContextNamespace, key);
 	}
@@ -499,7 +503,8 @@ public class MosipDataSetup {
 	}
 
 	public static String configureMockABISBiometric(String bdbString, boolean bDuplicate, String[] duplicateBdbs,
-			int delay, String operation, String contextKey, String statusCode, String failureReason)
+			int delay, String operation, String contextKey, String statusCode, String failureReason,
+			boolean deleteAfterUse)
 			throws JSONException, NoSuchAlgorithmException {
 
 		if (operation == null || operation.equals(""))
@@ -517,9 +522,12 @@ public class MosipDataSetup {
 		req.put("requesttime", CommonUtil.getUTCDateTime(null));
 		req.put("actionToInterfere", operation);
 
-		req.put("forcedResponse", failureReason);
+		String forcedResponse = resolveMockAbisForcedResponse(statusCode, failureReason);
+		String errorCode = resolveMockAbisErrorCode(forcedResponse, statusCode, failureReason);
+		req.put("forcedResponse", forcedResponse);
 		req.put("delayInExecution", Integer.toString(delay));
-		req.put("errorCode", statusCode);
+		req.put("errorCode", errorCode);
+		req.put("deleteAfterUse", deleteAfterUse);
 
 		if (!bDuplicate)
 			req.put("gallery", JSONObject.NULL);
@@ -547,6 +555,49 @@ public class MosipDataSetup {
 		}
 
 		return responseStr;
+	}
+
+	private static String resolveMockAbisForcedResponse(String statusCode, String failureReason) {
+		// Gherkin/DSL encodes bare statuses as "@@Success" / "@@Duplicate" / "@@Error",
+		// which parse as empty statusCode + failureReason=<word>. Also "10@@Error".
+		// Pre-MOSIP-45443 behavior: forcedResponse came from failureReason when set.
+		if (failureReason != null && !failureReason.isBlank() && isMockAbisForcedResponse(failureReason)) {
+			return failureReason;
+		}
+		if (failureReason != null && !failureReason.isBlank()) {
+			return "Error";
+		}
+		if (statusCode != null && isMockAbisForcedResponse(statusCode)) {
+			return statusCode;
+		}
+		if (statusCode != null && !statusCode.isBlank()) {
+			try {
+				int status = Integer.parseInt(statusCode);
+				return status >= 200 && status < 300 ? "Success" : "Error";
+			} catch (NumberFormatException e) {
+				return "Error";
+			}
+		}
+		return "Success";
+	}
+
+	private static String resolveMockAbisErrorCode(String forcedResponse, String statusCode, String failureReason) {
+		if (!"Error".equalsIgnoreCase(forcedResponse)) {
+			return "";
+		}
+		// 10@@Error → errorCode must be "10" (statusCode), not the word "Error"
+		if (statusCode != null && !statusCode.isBlank() && !isMockAbisForcedResponse(statusCode)) {
+			return statusCode;
+		}
+		if (failureReason != null && !failureReason.isBlank() && !isMockAbisForcedResponse(failureReason)) {
+			return failureReason;
+		}
+		return "";
+	}
+
+	private static boolean isMockAbisForcedResponse(String value) {
+		return "Success".equalsIgnoreCase(value) || "Error".equalsIgnoreCase(value)
+				|| "Duplicate".equalsIgnoreCase(value);
 	}
 
 	public static String uploadPackets(List<String> packetPaths, String contextKey) {
@@ -609,8 +660,8 @@ public class MosipDataSetup {
 		String url = VariableManager.getVariableValue(contextKey, "urlBase").toString().trim() + VariableManager
 				.getVariableValue(VariableManager.NS_DEFAULT, "deleteMockAbisExpectations").toString().trim();
 		if (mockId != null && !mockId.isBlank()) {
-            url += "/" + mockId;
-     }
+			url += "/" + mockId;
+		}
 		try {
 
 			response = RestClient.deleteExpectation(url, new JSONObject(), contextKey);

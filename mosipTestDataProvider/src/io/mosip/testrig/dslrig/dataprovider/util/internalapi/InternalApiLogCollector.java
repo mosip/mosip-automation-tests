@@ -108,4 +108,8 @@ public final class InternalApiLogCollector {
 		String key = contextKey == null || contextKey.isBlank() ? GLOBAL_LOG_KEY : contextKey;
 		BY_CONTEXT.remove(key);
 	}
+
+	public static void clearAll() {
+		BY_CONTEXT.clear();
+	}
 }

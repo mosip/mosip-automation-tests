@@ -1,10 +1,18 @@
 package io.mosip.testrig.dslrig.packetcreator.service;
 
+import java.beans.Introspector;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import io.mosip.testrig.dslrig.dataprovider.biometric.MdsCaptureService;
+import io.mosip.testrig.dslrig.dataprovider.biometric.MdsPortRegistry;
+import io.mosip.testrig.dslrig.dataprovider.preparation.MasterdataCacheStore;
+import io.mosip.testrig.dslrig.dataprovider.util.AuthTokenStore;
+import io.mosip.testrig.dslrig.dataprovider.util.internalapi.InternalApiLogCollector;
 import io.mosip.testrig.dslrig.dataprovider.variables.VariableManager;
+import io.mosip.testrig.dslrig.packetcreator.cache.PacketTemplateCache;
 
 /**
  * Shared reset/clear logic for {@link io.mosip.testrig.dslrig.packetcreator.controller.ContextController}
@@ -29,7 +37,39 @@ public class ContextResetService {
 	 */
 	public void clearRunScopedCache(String contextKey) {
 		apiRequestUtil.clearRunScopedCache(contextKey);
+		PacketTemplateCache.clear();
+		clearPersonaTemplateCacheIfAvailable();
+		clearPersonaParseCacheIfAvailable();
 		logger.info("Run-scoped cache cleared for context {}", contextKey);
+	}
+
+	/**
+	 * After-suite clear: run cache, every context namespace created by set context, and all other
+	 * in-memory per-context state (tokens, masterdata, schemas, server context, internal API logs,
+	 * prereg appointment slots, MDS ports and locks). Then collects the freed objects so the heap
+	 * shrinks back instead of holding the run's garbage until the next allocation spike.
+	 */
+	public void clearAfterSuite(String contextKey) {
+		Runtime runtime = Runtime.getRuntime();
+		long usedBeforeMb = usedHeapMb(runtime);
+		clearRunScopedCache(contextKey);
+		VariableManager.deleteScenarioNamespaces();
+		MasterdataCacheStore.clearAll();
+		AuthTokenStore.clearAll();
+		InternalApiLogCollector.clearAll();
+		SchemaUtil.clearMemoryCache();
+		ContextUtils.clearServerContextCache();
+		PacketSyncService.clearSlotQueue();
+		MdsPortRegistry.clearAll();
+		MdsCaptureService.clearContextLocks();
+		Introspector.flushCaches();
+		System.gc();
+		logger.info("After-suite clear completed for all contexts; heap used {} MB -> {} MB, committed {} MB",
+				usedBeforeMb, usedHeapMb(runtime), runtime.totalMemory() / (1024 * 1024));
+	}
+
+	private static long usedHeapMb(Runtime runtime) {
+		return (runtime.totalMemory() - runtime.freeMemory()) / (1024 * 1024);
 	}
 
 	/**
@@ -41,5 +81,27 @@ public class ContextResetService {
 		clearRunScopedCache(contextKey);
 		VariableManager.deleteNameSpace(contextKey);
 		logger.info("Context data reset for context {}", contextKey);
+	}
+
+	private void clearPersonaParseCacheIfAvailable() {
+		try {
+			Class<?> cacheClass = Class.forName("io.mosip.testrig.dslrig.dataprovider.cache.PersonaParseCache");
+			cacheClass.getMethod("clear").invoke(null);
+		} catch (ClassNotFoundException e) {
+			logger.debug("PersonaParseCache not available on classpath; skipping parse cache clear");
+		} catch (Exception e) {
+			logger.warn("Failed to clear PersonaParseCache", e);
+		}
+	}
+
+	private void clearPersonaTemplateCacheIfAvailable() {
+		try {
+			Class<?> cacheClass = Class.forName("io.mosip.testrig.dslrig.dataprovider.cache.PersonaTemplateCache");
+			cacheClass.getMethod("clear").invoke(null);
+		} catch (ClassNotFoundException e) {
+			logger.debug("PersonaTemplateCache not available on classpath; skipping template cache clear");
+		} catch (Exception e) {
+			logger.warn("Failed to clear PersonaTemplateCache", e);
+		}
 	}
 }

@@ -1,5 +1,6 @@
 package io.mosip.testrig.dslrig.dataprovider.preparation;
 
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.cache.Cache;
@@ -93,6 +94,16 @@ public final class MasterdataCacheStore {
 		getOrCreateCache(runContextNamespace).put(key, MosipDataSetup.toCacheValue(value));
 	}
 
+	public static void remove(String runContextNamespace, String key) {
+		if (key == null) {
+			return;
+		}
+		Cache<String, Object> cache = CACHES.get(toCacheNamespace(runContextNamespace));
+		if (cache != null) {
+			cache.remove(key);
+		}
+	}
+
 	public static void clearNamespace(String runContextNamespace) {
 		if (runContextNamespace == null || runContextNamespace.isBlank()) {
 			return;
@@ -114,6 +125,15 @@ public final class MasterdataCacheStore {
 					logger.warn("Failed to destroy masterdata cache {}: {}", cacheName, e.getMessage());
 				}
 			}
+		}
+	}
+
+	/**
+	 * Clears every run-scoped masterdata cache. Called after the suite; unsafe while other runs are active.
+	 */
+	public static void clearAll() {
+		for (String cacheName : new ArrayList<>(CACHES.keySet())) {
+			clearNamespace(cacheName.substring(NAMESPACE_PREFIX.length()));
 		}
 	}
 }

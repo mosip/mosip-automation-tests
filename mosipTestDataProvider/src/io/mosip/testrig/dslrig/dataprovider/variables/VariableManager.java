@@ -2,6 +2,7 @@ package io.mosip.testrig.dslrig.dataprovider.variables;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -20,7 +21,7 @@ import io.mosip.testrig.dslrig.dataprovider.util.DataProviderConstants;
 
 public final class VariableManager {
 	private static final Logger logger = LoggerFactory.getLogger(VariableManager.class);
-	public static String CONFIG_PATH = DataProviderConstants.RESOURCE + "config/";
+	public static String CONFIG_PATH = DataProviderConstants.getResource() + "config/";
 	public static String NS_DEFAULT = "mosipdefault";
 
 	static ConcurrentHashMap<String, Cache<String, Object>> varNameSpaces;
@@ -54,7 +55,7 @@ public final class VariableManager {
 				Cache<String, Object> cache = cacheManager.createCache(NS_DEFAULT, cacheConfig);
 				varNameSpaces.put(NS_DEFAULT, cache);
 			}
-			CONFIG_PATH = DataProviderConstants.RESOURCE + "config/";
+			CONFIG_PATH = DataProviderConstants.getResource() + "config/";
 			Boolean bret = loadNamespaceFromPropertyFile(CONFIG_PATH + "default.properties", NS_DEFAULT);
 			bInit = bret;
 		}
@@ -155,6 +156,23 @@ public final class VariableManager {
 		}
 
 		return bRet;
+	}
+
+	/**
+	 * Deletes every context created by set context. The default namespace is kept.
+	 * Called from after-suite {@code /runCache/clear}.
+	 */
+	public static void deleteScenarioNamespaces() {
+		if (varNameSpaces == null) {
+			return;
+		}
+		for (String nameSpace : new ArrayList<>(varNameSpaces.keySet())) {
+			if (NS_DEFAULT.equals(nameSpace)) {
+				continue;
+			}
+			deleteNameSpace(nameSpace);
+		}
+		logger.info("Deleted scenario context namespaces");
 	}
 
 	public static String deleteNameSpace(String contextKey) {

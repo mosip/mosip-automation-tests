@@ -53,13 +53,50 @@ import io.restassured.specification.RequestSpecification;
 public class BaseTestCaseUtil extends BaseStep {
 	private static final Logger logger = LoggerFactory.getLogger(BaseTestCaseUtil.class);
 
-	public static Properties props = new AdminTestUtil()
-			.getproperty(TestRunner.getExternalResourcePath() + "/config/test-orchestrator_mz.properties");
+	public static Properties props = dslConfigManager.props;
+
+	public static synchronized void init() {
+		props = dslConfigManager.props;
+		baseUrl = dslConfigManager.getpacketUtilityBaseUrl();
+	}
+
+	public static Properties loadProperties() {
+		return dslConfigManager.loadProperties();
+	}
+
+	public static final long DEFAULT_WAIT_TIME = longProperty("defaultWaitTimeMs");
+	public static final long TIME_IN_MILLISEC = longProperty("timeInMillisec");
+	private static final int INTERNAL_API_LOG_FETCH_CONNECT_MS = intProperty("internalApiLogFetchConnectMs");
+	private static final int INTERNAL_API_LOG_FETCH_READ_MS = intProperty("internalApiLogFetchReadMs");
+	private static final int PACKET_CREATOR_CONNECT_MS = intProperty("packetCreatorConnectMs");
+	private static final int PACKET_CREATOR_SOCKET_MS = intProperty("packetCreatorSocketMs");
+	private static final long DEFAULT_MAX_PACKET_STATUS_WAIT_MS = longProperty("maxPacketStatusWaitTimeMs");
+	private static final int DEFAULT_PACKET_STATUS_SOCKET_MS = intProperty("packetStatusSocketTimeoutMs");
+	private static final long DEFAULT_PACKET_STATUS_MAX_POLL_INTERVAL_MS = 30_000L;
 
 	public static String baseUrl = dslConfigManager.getpacketUtilityBaseUrl();
+	private static final RestAssuredConfig PACKET_CREATOR_HTTP_CONFIG = RestAssuredConfig.config()
+			.httpClient(HttpClientConfig.httpClientConfig()
+					.setParam("http.connection.timeout", PACKET_CREATOR_CONNECT_MS)
+					.setParam("http.socket.timeout", PACKET_CREATOR_SOCKET_MS));
 
-	public static final long DEFAULT_WAIT_TIME = 30000l;
-	public static final long TIME_IN_MILLISEC = 1000l;
+	public static PacketUtility packetUtility = new PacketUtility();
+	public static Hashtable<String, Map<String, String>> hashtable = new Hashtable<>();
+	public static Map<String, String> sceanrioExecutionStatistics = Collections
+			.synchronizedMap(new HashMap<String, String>());
+	public static String partnerKeyUrl = null;
+	public static String kycPartnerKeyUrl = null;
+	public static String partnerId = null;
+	public static String kycPartnerId = null;
+	public static HashMap<String, HashMap<String, String>> prereqDataSet = new HashMap<String, HashMap<String, String>>();
+	public static String extentReportName = "";
+	public static long exectionStartTime = 0;
+	public static long exectionEndTime = 0;
+	public static JSONArray regProcActuatorResponseArray = null;
+	public static String regProcWaitInterval = "";
+
+	public BaseTestCaseUtil() {
+	}
 
 	/**
 	 * Sleeps for the given duration while updating a single console line every second
@@ -127,32 +164,85 @@ public class BaseTestCaseUtil extends BaseStep {
 		}
 	}
 
-	private static final int INTERNAL_API_LOG_FETCH_CONNECT_MS = 10_000;
+	private static long longProperty(String key) {
+		if (props == null) {
+			throw new IllegalStateException("Missing test-orchestrator_mz.properties value for " + key);
+		}
+		String value = props.getProperty(key);
+		if (value == null || value.isBlank()) {
+			throw new IllegalStateException("Missing test-orchestrator_mz.properties value for " + key);
+		}
+		try {
+			long parsed = Long.parseLong(value.trim());
+			if (parsed <= 0) {
+				throw new IllegalStateException("Invalid " + key + " '" + value + "'");
+			}
+			return parsed;
+		} catch (NumberFormatException e) {
+			throw new IllegalStateException("Invalid " + key + " '" + value + "'", e);
+		}
+	}
 
-	private static final int INTERNAL_API_LOG_FETCH_READ_MS = 30_000;
+	private static int intProperty(String key) {
+		long parsed = longProperty(key);
+		if (parsed > Integer.MAX_VALUE) {
+			throw new IllegalStateException("Invalid " + key + " '" + parsed + "'");
+		}
+		return (int) parsed;
+	}
 
-	/** Prevents orchestrator threads hanging forever on packet-creator / resident/* calls. */
-	private static final int PACKET_CREATOR_CONNECT_MS = 15_000;
+	public static long getMaxPacketStatusWaitTimeMs() {
+		String value = props.getProperty("maxPacketStatusWaitTimeMs");
+		if (value == null || value.isBlank()) {
+			return DEFAULT_MAX_PACKET_STATUS_WAIT_MS;
+		}
+		try {
+			long parsed = Long.parseLong(value.trim());
+			return parsed > 0 ? parsed : DEFAULT_MAX_PACKET_STATUS_WAIT_MS;
+		} catch (NumberFormatException e) {
+			logger.warn("Invalid maxPacketStatusWaitTimeMs '{}', using default {}", value,
+					DEFAULT_MAX_PACKET_STATUS_WAIT_MS);
+			return DEFAULT_MAX_PACKET_STATUS_WAIT_MS;
+		}
+	}
 
-	private static final int PACKET_CREATOR_SOCKET_MS = 120_000;
+	public static long getPacketStatusMaxPollIntervalMs() {
+		String value = props.getProperty("packetStatusMaxPollIntervalMs");
+		if (value == null || value.isBlank()) {
+			return DEFAULT_PACKET_STATUS_MAX_POLL_INTERVAL_MS;
+		}
+		try {
+			long parsed = Long.parseLong(value.trim());
+			return parsed > 0 ? parsed : DEFAULT_PACKET_STATUS_MAX_POLL_INTERVAL_MS;
+		} catch (NumberFormatException e) {
+			logger.warn("Invalid packetStatusMaxPollIntervalMs '{}', using default {}", value,
+					DEFAULT_PACKET_STATUS_MAX_POLL_INTERVAL_MS);
+			return DEFAULT_PACKET_STATUS_MAX_POLL_INTERVAL_MS;
+		}
+	}
 
-	private static final RestAssuredConfig PACKET_CREATOR_HTTP_CONFIG = RestAssuredConfig.config()
-			.httpClient(HttpClientConfig.httpClientConfig()
-					.setParam("http.connection.timeout", PACKET_CREATOR_CONNECT_MS)
-					.setParam("http.socket.timeout", PACKET_CREATOR_SOCKET_MS));
+	public static int getPacketStatusSocketTimeoutMs() {
+		String value = props.getProperty("packetStatusSocketTimeoutMs");
+		if (value == null || value.isBlank()) {
+			return DEFAULT_PACKET_STATUS_SOCKET_MS;
+		}
+		try {
+			int parsed = Integer.parseInt(value.trim());
+			return parsed > 0 ? parsed : DEFAULT_PACKET_STATUS_SOCKET_MS;
+		} catch (NumberFormatException e) {
+			logger.warn("Invalid packetStatusSocketTimeoutMs '{}', using default {}", value,
+					DEFAULT_PACKET_STATUS_SOCKET_MS);
+			return DEFAULT_PACKET_STATUS_SOCKET_MS;
+		}
+	}
 
-	public static PacketUtility packetUtility = new PacketUtility();
-	public static Hashtable<String, Map<String, String>> hashtable = new Hashtable<>();
-
-	public static Map<String, String> sceanrioExecutionStatistics = Collections
-			.synchronizedMap(new HashMap<String, String>());
-
-
-	public static String partnerKeyUrl = null;
-	public static String kycPartnerKeyUrl = null;
-	public static String partnerId = null;
-	public static String kycPartnerId = null;
-	public static HashMap<String, HashMap<String, String>> prereqDataSet = new HashMap<String, HashMap<String, String>>();
+	private static RestAssuredConfig packetCreatorHttpConfig(int socketTimeoutMs) {
+		int socketMs = Math.max(1_000, socketTimeoutMs);
+		int connectMs = Math.min(PACKET_CREATOR_CONNECT_MS, socketMs);
+		return RestAssuredConfig.config().httpClient(HttpClientConfig.httpClientConfig()
+				.setParam("http.connection.timeout", connectMs)
+				.setParam("http.socket.timeout", socketMs));
+	}
 
 	/** In-memory key used by {@link io.mosip.testrig.dslrig.ivv.e2e.methods.WritePreReq} / ReadPreReq. */
 	public static String prereqStoragePath(String index) {
@@ -175,21 +265,12 @@ public class BaseTestCaseUtil extends BaseStep {
 		}
 	}
 
-	public static String extentReportName="";
-    public static long exectionStartTime = 0;
-    public static long exectionEndTime = 0;
-	public static JSONArray regProcActuatorResponseArray = null;
-	public static String regProcWaitInterval = "";
-
 	public static String getExtentReportName() {
 		return extentReportName;
 	}
 
 	public static void setExtentReportName(String emailableReportName) {
 		BaseTestCaseUtil.extentReportName = emailableReportName;
-	}
-
-	public BaseTestCaseUtil() {
 	}
 
 	public String getDateTime() {
@@ -251,7 +332,10 @@ public class BaseTestCaseUtil extends BaseStep {
 	protected static String addContextToUrl(String url, Scenario.Step step) {
 
 		String context = buildPacketCreatorContextKey(step.getScenario());
+		return addContextToUrl(url, context);
+	}
 
+	private static String addContextToUrl(String url, String context) {
 		if (url.contains("?")) {
 			String urlArr[] = url.split("\\?");
 			return urlArr[0] + "/" + context + "?" + urlArr[1];
@@ -282,18 +366,21 @@ public class BaseTestCaseUtil extends BaseStep {
 	}
 
 	public static void appendOutboundInternalApiLogsAfterPacketCreatorCall(Scenario.Step step, String resolvedUrl) {
-		if (!dslConfigManager.isInternalApiLoggingForReport() || step == null || resolvedUrl == null) {
+		if (step == null || resolvedUrl == null) {
 			return;
 		}
 		String pcBase = dslConfigManager.getpacketUtilityBaseUrl();
 		if (pcBase == null || pcBase.isEmpty() || !resolvedUrl.startsWith(pcBase)) {
 			return;
 		}
+		boolean debug = dslConfigManager.IsDebugEnabled();
 		try {
 			String contextKey = buildPacketCreatorContextKey(step.getScenario());
 			String pathKey = java.net.URLEncoder.encode(contextKey, java.nio.charset.StandardCharsets.UTF_8)
 					.replace("+", "%20");
-			String logUrl = pcBase + "/context/internalApiLogs/" + pathKey + "?clear=true&reportHints=true";
+			// Always drain so capture does not grow. Debug: all APIs; otherwise failed-only.
+			String logUrl = pcBase + "/context/internalApiLogs/" + pathKey + "?clear=true&reportHints=true"
+					+ (debug ? "" : "&failedOnly=true");
 			RestAssuredConfig timeoutConfig = RestAssuredConfig.config()
 					.httpClient(HttpClientConfig.httpClientConfig()
 							.setParam("http.connection.timeout", INTERNAL_API_LOG_FETCH_CONNECT_MS)
@@ -302,6 +389,9 @@ public class BaseTestCaseUtil extends BaseStep {
 					.relaxedHTTPSValidation().get(logUrl);
 			String body;
 			if (r.getStatusCode() != 200) {
+				if (!debug) {
+					return;
+				}
 				body = "Internal API log fetch failed: HTTP " + r.getStatusCode() + "\nURL: " + logUrl + "\nResponse: "
 						+ r.asString();
 			} else {
@@ -310,7 +400,8 @@ public class BaseTestCaseUtil extends BaseStep {
 					body = "";
 				}
 			}
-			if (r.getStatusCode() == 200 && (body.isBlank() || body.contains("no internal API calls recorded"))) {
+			if (r.getStatusCode() == 200 && (body.isBlank() || body.contains("no internal API calls recorded")
+					|| body.contains("no failed internal API calls"))) {
 				return;
 			}
 			String escaped = org.testng.internal.Utils.escapeHtml(SensitiveLogMasker.mask(body));
@@ -319,10 +410,12 @@ public class BaseTestCaseUtil extends BaseStep {
 			StringBuilder block = new StringBuilder(512 + escaped.length());
 			block.append("<div class=\"dsl-internal-api-log\">");
 			block.append("<div class=\"dsl-internal-api-log__title\">");
-			block.append("Outbound internal API traffic (Packet Creator / Data Provider) for this call");
+			block.append(debug ? "Outbound internal API traffic (Packet Creator / Data Provider) for this call"
+					: "Failed outbound internal API traffic (Packet Creator / Data Provider) for this call");
 			block.append("</div>");
 			block.append("<div class=\"dsl-internal-api-log__toolbar\">");
-			block.append("Internal outbound calls (request + response per call)");
+			block.append(debug ? "Internal outbound calls (request + response per call)"
+					: "Failed internal outbound calls only (request + response per call)");
 			block.append("</div>");
 			block.append("<div class=\"dsl-internal-api-log__body\">");
 			block.append("<pre class=\"dsl-internal-api-log__pre\">");
@@ -332,33 +425,56 @@ public class BaseTestCaseUtil extends BaseStep {
 		} catch (Exception e) {
 			logger.warn("Could not attach internal API log after packet creator call for context "
 					+ buildPacketCreatorContextKey(step.getScenario()), e);
-			Reporter.log("<pre>Internal API log error: " + org.testng.internal.Utils.escapeHtml(e.getMessage())
-					+ "</pre>", false);
+			if (debug) {
+				Reporter.log("<pre>Internal API log error: " + org.testng.internal.Utils.escapeHtml(e.getMessage())
+						+ "</pre>", false);
+			}
 		}
 	}
 
 	public static Response getRequest(String url, String opsToLog, Scenario.Step step) {
+		return getRequest(url, opsToLog, step, PACKET_CREATOR_SOCKET_MS);
+	}
+
+	public static Response getRequest(String url, String opsToLog, Scenario.Step step, int socketTimeoutMs) {
 		url = addContextToUrl(url, step);
-		Response getResponse = null;
+		Response getResponse;
+		RequestSpecification spec = given();
+		if (isPacketCreatorUrl(url)) {
+			spec = spec.config(packetCreatorHttpConfig(socketTimeoutMs));
+		}
+		spec = spec.relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON);
+
 		if (dslConfigManager.IsDebugEnabled()) {
-			getResponse = givenHttpClient(url).log().all().when().get(url).then().log().all().extract().response();
+			getResponse = spec.log().all().when().get(url).then().log().all().extract().response();
 		} else {
-			getResponse = givenHttpClient(url).when().get(url).then().extract().response();
+			getResponse = spec.when().get(url).then().extract().response();
 		}
 		DslReportLogUtil.reportRequestAndResponse(null, getResponse.getHeaders().asList().toString(), url, null,
-				getResponse.getBody().asString(),true);
+				getResponse.getBody().asString(), true);
 		appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
 		return getResponse;
 	}
 
 	public static Response getRequestSilent(String url, Scenario.Step step) {
+		return getRequestSilent(url, step, PACKET_CREATOR_SOCKET_MS);
+	}
+
+	public static Response getRequestSilent(String url, Scenario.Step step, int socketTimeoutMs) {
 		url = addContextToUrl(url, step);
 		Response getResponse = null;
+		RequestSpecification spec = given();
+		if (isPacketCreatorUrl(url)) {
+			spec = spec.config(packetCreatorHttpConfig(socketTimeoutMs));
+		}
+		spec = spec.relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON);
 
 		if (dslConfigManager.IsDebugEnabled()) {
-			getResponse = givenHttpClient(url).log().all().when().get(url).then().log().all().extract().response();
+			getResponse = spec.log().all().when().get(url).then().log().all().extract().response();
 		} else {
-			getResponse = givenHttpClient(url).when().get(url).then().extract().response();
+			getResponse = spec.when().get(url).then().extract().response();
 		}
 		return getResponse;
 	}
@@ -382,13 +498,57 @@ public class BaseTestCaseUtil extends BaseStep {
 		return getResponse;
 	}
 
+	public static int getPacketTemplateRetryCount() {
+		return resolveRetryCount("packetTemplateRetryCount");
+	}
+
+	public static int getPacketSyncRetryCount() {
+		return resolveRetryCount("packetSyncRetryCount");
+	}
+
+	private static int resolveRetryCount(String propertyName) {
+		String value = props.getProperty(propertyName);
+		if (value == null || value.isBlank()) {
+			value = props.getProperty("loopCount");
+		}
+		if (value == null || value.isBlank()) {
+			return 3;
+		}
+		try {
+			int parsed = Integer.parseInt(value.trim());
+			return parsed > 0 ? parsed : 1;
+		} catch (NumberFormatException e) {
+			logger.warn("Invalid {} '{}', using loopCount fallback", propertyName, value);
+			try {
+				return Integer.parseInt(props.getProperty("loopCount", "3").trim());
+			} catch (NumberFormatException ex) {
+				return 3;
+			}
+		}
+	}
+
 	public Response postRequest(String url, String body, String opsToLog, Scenario.Step step) {
 		url = addContextToUrl(url, step);
+		return postRequestToResolvedUrl(url, body, step);
+	}
 
-		Response apiResponse = RestClient.postRequest(url, body, MediaType.APPLICATION_JSON,
-				MediaType.APPLICATION_JSON);
+	protected Response postRequest(String url, String body, String opsToLog, Scenario.Step step, String contextKey) {
+		url = addContextToUrl(url, contextKey);
+		return postRequestToResolvedUrl(url, body, step);
+	}
+
+	private Response postRequestToResolvedUrl(String url, String body, Scenario.Step step) {
+		if (dslConfigManager.IsDebugEnabled()) {
+			Response apiResponse = givenHttpClient(url).body(body).log().all().when().post(url).then().log().all()
+					.extract().response();
+			DslReportLogUtil.reportRequestAndResponse(null, apiResponse.getHeaders().asList().toString(), url, body,
+					apiResponse.getBody().asString(), true);
+			appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
+			return apiResponse;
+		}
+		Response apiResponse = givenHttpClient(url).body(body).when().post(url).then().extract().response();
 		DslReportLogUtil.reportRequestAndResponse(null, apiResponse.getHeaders().asList().toString(), url, body,
-				apiResponse.getBody().asString(),true);
+				apiResponse.getBody().asString(), true);
 		appendOutboundInternalApiLogsAfterPacketCreatorCall(step, url);
 		return apiResponse;
 	}
@@ -477,6 +637,23 @@ public class BaseTestCaseUtil extends BaseStep {
 		} else {
 			deleteResponse = given().relaxedHTTPSValidation().contentType(MediaType.APPLICATION_JSON)
 					.accept(MediaType.APPLICATION_JSON).when().delete(url).then().extract().response();
+		}
+
+		DslReportLogUtil.reportRequestAndResponse(null, deleteResponse.getHeaders().asList().toString(), url, null,
+				deleteResponse.getBody().asString());
+
+		return deleteResponse;
+	}
+
+	public static Response deleteRequestWithQueryParamWithoutStep(String url, HashMap<String, String> map,
+			String opsToLog) {
+		Response deleteResponse = null;
+		if (dslConfigManager.IsDebugEnabled()) {
+			deleteResponse = given().relaxedHTTPSValidation().queryParams(map).accept("*/*").log().all().when()
+					.delete(url).then().log().all().extract().response();
+		} else {
+			deleteResponse = given().relaxedHTTPSValidation().queryParams(map).accept("*/*").when().delete(url).then()
+					.extract().response();
 		}
 
 		DslReportLogUtil.reportRequestAndResponse(null, deleteResponse.getHeaders().asList().toString(), url, null,
@@ -689,6 +866,31 @@ public class BaseTestCaseUtil extends BaseStep {
 			logger.error(GlobalConstants.EXCEPTION_STRING_2 + e);
 			return regProcWaitInterval;
 		}
+	}
+
+	public static String getRegprocPropertyFromActuator(String propertyKey) {
+		getRegprocWaitFromActuator();
+		if (regProcActuatorResponseArray == null || propertyKey == null || propertyKey.isBlank()) {
+			return null;
+		}
+		try {
+			for (int i = 0, size = regProcActuatorResponseArray.length(); i < size; i++) {
+				JSONObject eachJson = regProcActuatorResponseArray.getJSONObject(i);
+				JSONObject properties = eachJson.optJSONObject(GlobalConstants.PROPERTIES);
+				if (properties == null || !properties.has(propertyKey)) {
+					continue;
+				}
+				String value = properties.getJSONObject(propertyKey).optString(GlobalConstants.VALUE, "");
+				if (value != null && !value.isBlank()) {
+					logger.info("regproc actuator " + propertyKey + "=" + value + " from "
+							+ eachJson.optString("name"));
+					return value.trim();
+				}
+			}
+		} catch (Exception e) {
+			logger.error(GlobalConstants.EXCEPTION_STRING_2 + e);
+		}
+		return null;
 	}
 
 	protected String resolveScenarioVariable(String value) throws RigInternalError {

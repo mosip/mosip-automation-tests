@@ -1,6 +1,14 @@
 {
 		"demographics": {
+		{{#if age}}
 		"age": "{{age}}",
+		{{/if}}
+		{{#if email}}
+		"email": "{{email}}",
+		{{/if}}
+		{{#if phoneNumber}}
+		"phoneNumber": "{{phoneNumber}}",
+		{{/if}}
 			"addressLine1": [
       {{#each addressLine1}}
             {

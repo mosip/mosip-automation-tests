@@ -61,8 +61,11 @@ public class DownloadCard extends BaseTestCaseUtil implements StepInterface {
 					long elapsedTime = stopTime - startTime;
 					logger.info("Time taken to execute " + this.getClass().getSimpleName() + ": " + elapsedTime
 							+ " MilliSec");
-					if (getWithPathParam.pdf.length > 0) {
-						download(getWithPathParam.pdf, requestid);
+					byte[] pdfBytes = getWithPathParam.response != null
+							? getWithPathParam.response.asByteArray()
+							: new byte[0];
+					if (pdfBytes != null && pdfBytes.length > 0) {
+						download(pdfBytes, requestid);
 					} else {
 						this.hasError = true;
 						throw new RigInternalError("downloaded pdf size is less than 0");

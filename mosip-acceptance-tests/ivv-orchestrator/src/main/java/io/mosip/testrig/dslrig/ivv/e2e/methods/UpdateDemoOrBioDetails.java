@@ -16,6 +16,7 @@ import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.dslrig.ivv.core.base.StepInterface;
 import io.mosip.testrig.dslrig.ivv.core.exceptions.RigInternalError;
 import io.mosip.testrig.dslrig.ivv.orchestrator.BaseTestCaseUtil;
+import io.mosip.testrig.dslrig.ivv.orchestrator.DslPacketTemplateCache;
 import io.mosip.testrig.dslrig.ivv.orchestrator.dslConfigManager;
 
 public class UpdateDemoOrBioDetails extends BaseTestCaseUtil implements StepInterface {
@@ -84,6 +85,7 @@ public class UpdateDemoOrBioDetails extends BaseTestCaseUtil implements StepInte
 								: missFieldsAttributeList,
 						(updateAttributeList.get(0).equalsIgnoreCase("0")) ? new ArrayList<>() : updateAttributeList,
 						step);
+				DslPacketTemplateCache.incrementUpdateCounter(personaFilePath);
 			}
 		} else {
 			for (String resDataPath : step.getScenario().getResidentTemplatePaths().keySet()) {
@@ -92,7 +94,7 @@ public class UpdateDemoOrBioDetails extends BaseTestCaseUtil implements StepInte
 						(missFieldsAttributeList.get(0).equalsIgnoreCase("0")) ? new ArrayList<>()
 								: missFieldsAttributeList,
 						updateAttributeList, step);
-
+				DslPacketTemplateCache.incrementUpdateCounter(resDataPath);
 			}
 		}
 	}

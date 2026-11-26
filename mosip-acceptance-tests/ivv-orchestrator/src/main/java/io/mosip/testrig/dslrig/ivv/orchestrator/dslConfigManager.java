@@ -5,31 +5,53 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.hibernate.mapping.Set;
 
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
+import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.ConfigManager;
+import io.mosip.testrig.apirig.utils.LogMaskingUtil;
 
 public class dslConfigManager extends ConfigManager {
 	private static final Logger LOGGER = Logger.getLogger(dslConfigManager.class);
 
-	public static void init() {
+	private static final String KNOWN_ISSUES_JAVA11_FILE = "config/java11Known_Issues,txt";
+	private static final String KNOWN_ISSUES_JAVA21_FILE = "config/java21Known_Issues,txt";
+	private static final String JIRA_BROWSE_BASE = "https://mosip.atlassian.net/browse/";
+	private static final Pattern GITHUB_ISSUE_URL = Pattern.compile(
+			"^https?://github\\.com/([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+)/issues/(\\d+)(?:[/?#].*)?$",
+			Pattern.CASE_INSENSITIVE);
+	private static final Pattern GITHUB_ISSUE_SHORT = Pattern.compile(
+			"^(?:github:)?([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+)#(\\d+)$",
+			Pattern.CASE_INSENSITIVE);
+
+	private static volatile Map<String, String> cachedTestcaseToBeSkippedMap;
+	private static volatile String knownIssuesSourceFile;
+
+	public static Properties props = loadProperties();
+	public static String baseUrl = getpacketUtilityBaseUrl();
+
+	public static synchronized void init() {
+		props = loadProperties();
 		Map<String, Object> moduleSpecificPropertiesMap = new HashMap<>();
 
 		try {
 			String path = TestRunner.getGlobalResourcePath() + "/config/dsl.properties";
-			Properties props = getproperties(path);
+			Properties dslProps = getproperties(path);
 
-			for (String key : props.stringPropertyNames()) {
+			for (String key : dslProps.stringPropertyNames()) {
 
-				String value = System.getenv(key) == null ? props.getProperty(key) : System.getenv(key);
+				String value = System.getenv(key) == null ? dslProps.getProperty(key) : System.getenv(key);
 				moduleSpecificPropertiesMap.put(key, value);
 			}
 		} catch (Exception e) {
@@ -37,6 +59,42 @@ public class dslConfigManager extends ConfigManager {
 		}
 
 		init(moduleSpecificPropertiesMap);
+		alignAuthCertsPathWithSignatureLookup();
+		baseUrl = getpacketUtilityBaseUrl();
+	}
+
+	/**
+	 * Partner p12 files are written under {@code authCertsPath}. On Windows that
+	 * property is {@code /home/mosip/authcerts} (for example {@code D:\home\mosip\authcerts}),
+	 * but device-certificate upload reads {@code %TEMP%\AUTHCERTS}. Clearing the
+	 * property on Windows makes key generation use the same temp folder. Linux keeps
+	 * {@code /home/mosip/authcerts}.
+	 */
+	private static void alignAuthCertsPathWithSignatureLookup() {
+		String os = System.getProperty("os.name", "").toLowerCase();
+		if (os.contains("windows")) {
+			propertiesMap.put("authCertsPath", "");
+		}
+	}
+
+	public static Properties loadProperties() {
+		Properties p = AdminTestUtil
+				.getproperty(TestRunner.getExternalResourcePath() + "/config/test-orchestrator_mz.properties");
+		if (p == null) {
+			p = new Properties();
+		}
+		for (String key : p.stringPropertyNames()) {
+			String overrideVal = System.getProperty(key, System.getenv(key));
+			if (overrideVal == null || overrideVal.isBlank()) {
+				overrideVal = System.getenv(key.replace('.', '_'));
+			}
+			if (overrideVal != null && !overrideVal.isBlank()) {
+				p.setProperty(key, overrideVal.trim());
+				LOGGER.info("Overriding test-orchestrator property '" + key + "': '"
+						+ LogMaskingUtil.maskSensitiveData(key, overrideVal.trim()) + "'");
+			}
+		}
+		return p;
 	}
 
 	public static String getmountPathForScenario() {
@@ -45,6 +103,59 @@ public class dslConfigManager extends ConfigManager {
 
 	public static String getThreadCount() {
 		return ConfigManager.getproperty("threadCount");
+	}
+
+	/** When true, long Wait steps park/resume via {@code ScenarioParkScheduler}. */
+	public static boolean isParkResumeEnabled() {
+		try {
+			String v = ConfigManager.getproperty("parkResumeEnabled");
+			if (v == null || v.isBlank()) {
+				return true;
+			}
+			return "yes".equalsIgnoreCase(v.trim()) || "true".equalsIgnoreCase(v.trim());
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	/**
+	 * Max scenarios TestNG may submit concurrently when park/resume is on.
+	 * {@code maxInFlightScenarios} when set, otherwise {@code threadCount * 3}.
+	 */
+	public static int getMaxInFlightScenarios() {
+		int configured = getPositiveIntProperty("maxInFlightScenarios");
+		return configured > 0 ? configured : getWorkerThreadCount() * 3;
+	}
+
+	/**
+	 * Max scenarios running a step or parked between packet-status polls at the same time; scenarios
+	 * parked in a Wait step do not count. New scenarios start only while below this limit.
+	 * {@code maxActiveScenarios} when set, otherwise {@code threadCount}.
+	 */
+	public static int getMaxActiveScenarios() {
+		int configured = getPositiveIntProperty("maxActiveScenarios");
+		return configured > 0 ? configured : getWorkerThreadCount();
+	}
+
+	private static int getWorkerThreadCount() {
+		try {
+			return Math.max(1, Integer.parseInt(getThreadCount().trim()));
+		} catch (Exception ignored) {
+			return 8;
+		}
+	}
+
+	/** Returns the property as a positive int, or 0 when it is missing, blank, or invalid. */
+	private static int getPositiveIntProperty(String key) {
+		try {
+			String v = ConfigManager.getproperty(key);
+			if (v == null || v.isBlank()) {
+				return 0;
+			}
+			return Math.max(0, Integer.parseInt(v.trim()));
+		} catch (Exception e) {
+			return 0;
+		}
 	}
 
 	public static int getMaxSuiteTime() {
@@ -103,6 +214,10 @@ public class dslConfigManager extends ConfigManager {
 		return getproperty("esignetMockBaseURL");
 	}
 
+	public static String getMinioBucket() {
+		return ConfigManager.getproperty("minio-bucket");
+	}
+
 	public static synchronized boolean isInTobeSkippedList(String stringToFind) {
 		String toSkippedList = ConfigManager.getproperty("scenariosToSkip");
 		List<String> toBeSkippedLsit = Arrays.asList(toSkippedList.split(","));
@@ -110,7 +225,7 @@ public class dslConfigManager extends ConfigManager {
 			LOGGER.info("toSkippedList:  " + toSkippedList + ", toBeSkippedLsit : " + toBeSkippedLsit
 					+ ", stringToFind : " + stringToFind);
 		for (String string : toBeSkippedLsit) {
-			if (string.equalsIgnoreCase(stringToFind))
+			if (string.trim().equalsIgnoreCase(stringToFind))
 				return true;
 		}
 		return false;
@@ -126,11 +241,102 @@ public class dslConfigManager extends ConfigManager {
 	    return skipMap.getOrDefault(normalizeScenarioKey(scenario), "");
 	}
 
+	/**
+	 * Report link for a known-issue id. Jira keys stay on mosip.atlassian.net.
+	 * A GitHub issue URL or {@code owner/repo#number} links to that GitHub issue.
+	 */
+	public static String knownIssueHref(String bugId) {
+		if (bugId == null) {
+			return "";
+		}
+		String id = bugId.trim();
+		if (id.isEmpty()) {
+			return "";
+		}
+		Matcher githubUrl = GITHUB_ISSUE_URL.matcher(id);
+		if (githubUrl.matches()) {
+			return githubIssueUrl(githubUrl);
+		}
+		Matcher githubShort = GITHUB_ISSUE_SHORT.matcher(id);
+		if (githubShort.matches()) {
+			return githubIssueUrl(githubShort);
+		}
+		if (id.startsWith("http://") || id.startsWith("https://")) {
+			return id;
+		}
+		return JIRA_BROWSE_BASE + id;
+	}
+
+	/** Short label shown in the report. GitHub entries render as {@code repo#number}. */
+	public static String knownIssueLabel(String bugId) {
+		if (bugId == null) {
+			return "";
+		}
+		String id = bugId.trim();
+		if (id.isEmpty()) {
+			return "";
+		}
+		Matcher githubUrl = GITHUB_ISSUE_URL.matcher(id);
+		if (githubUrl.matches()) {
+			return githubUrl.group(2) + "#" + githubUrl.group(3);
+		}
+		Matcher githubShort = GITHUB_ISSUE_SHORT.matcher(id);
+		if (githubShort.matches()) {
+			return githubShort.group(2) + "#" + githubShort.group(3);
+		}
+		return id;
+	}
+
+	private static String githubIssueUrl(Matcher matcher) {
+		return "https://github.com/" + matcher.group(1) + "/" + matcher.group(2) + "/issues/" + matcher.group(3);
+	}
+
+	/**
+	 * Selects Java 11 vs Java 21 known-issues file from id-repository identity-service version
+	 * (1.2.x → Java 11 file, 1.3+ → Java 21 file) and caches the parsed skip map for the run.
+	 */
+	public static synchronized void initKnownIssuesFromIdRepoVersion(String version) {
+		String fileName = resolveKnownIssuesFileName(version);
+		knownIssuesSourceFile = fileName;
+		cachedTestcaseToBeSkippedMap = loadTestcaseToBeSkippedMapFromFile(fileName);
+		LOGGER.info("Loaded " + cachedTestcaseToBeSkippedMap.size() + " known issues from " + fileName
+				+ " for id-repository version " + version);
+	}
+
+	public static String getKnownIssuesSourceFile() {
+		return knownIssuesSourceFile;
+	}
+
+	static String resolveKnownIssuesFileName(String version) {
+		if (version == null || version.isBlank()) {
+			throw new IllegalArgumentException("id-repository build.version is empty");
+		}
+		String normalized = version.trim();
+		if (normalized.startsWith("1.2")) {
+			return KNOWN_ISSUES_JAVA11_FILE;
+		}
+		if (normalized.startsWith("1.3") || normalized.startsWith("1.4") || normalized.startsWith("1.5")) {
+			return KNOWN_ISSUES_JAVA21_FILE;
+		}
+		throw new IllegalArgumentException(
+				"Unsupported id-repository version '" + version + "'; expected 1.2.x (Java 11) or 1.3+ (Java 21)");
+	}
+
 	public static Map<String, String> loadTestcaseToBeSkippedMap() {
+		Map<String, String> cached = cachedTestcaseToBeSkippedMap;
+		if (cached != null) {
+			return cached;
+		}
+		LOGGER.warn("Known issues not loaded; run Scenario 0 step 'load known issues by env' first. "
+				+ "No platform known-issue skips will apply until then.");
+		return Collections.emptyMap();
+	}
+
+	private static Map<String, String> loadTestcaseToBeSkippedMapFromFile(String relativePath) {
 	    Map<String, String> testcaseToBeSkippedMap = new HashMap<>();
 
 	    try (BufferedReader br = new BufferedReader(
-	            new FileReader(BaseTestCase.getGlobalResourcePath() + "/" + "config/TestCaseSkip.txt"))) {
+	            new FileReader(BaseTestCase.getGlobalResourcePath() + "/" + relativePath))) {
 
 	        String line;
 	        while ((line = br.readLine()) != null) {
@@ -155,6 +361,7 @@ public class dslConfigManager extends ConfigManager {
 	            }
 	        }
 	    } catch (IOException e) {
+	        LOGGER.error("Failed to load known issues from " + relativePath + ": " + e.getMessage());
 	        e.printStackTrace();
 	    }
 
@@ -234,6 +441,26 @@ public class dslConfigManager extends ConfigManager {
 		return false;
 	}
 
+	/** True when the scenario group matches any value in scenariosFlowToSkip. Empty list skips nothing. */
+	public static synchronized boolean isInTobeGroupSkipList(String stringToFind) {
+		String toSkipList = ConfigManager.getproperty("scenariosFlowToSkip");
+		if (toSkipList == null || toSkipList.trim().isEmpty() || stringToFind == null)
+			return false;
+
+		List<String> toBeSkipList = Arrays.asList(toSkipList.split(","));
+		if (IsDebugEnabled())
+			LOGGER.info("toSkipList:  " + toSkipList + ", toBeSkipList : " + toBeSkipList
+					+ ", stringToFind : " + stringToFind);
+		for (String string : toBeSkipList) {
+			String token = string.trim();
+			if (token.isEmpty())
+				continue;
+			if (stringToFind.toLowerCase().contains(token.toLowerCase()))
+				return true;
+		}
+		return false;
+	}
+
 	public static Properties getConfigProperties() {
 		Properties properties = new Properties();
 		for (Map.Entry<String, Object> entry : propertiesMap.entrySet()) {
@@ -245,27 +472,25 @@ public class dslConfigManager extends ConfigManager {
 		return properties;
 	}
 
-
-	public static boolean isInternalApiLoggingForReport() {
-		if (Boolean.parseBoolean(System.getProperty("dslrig.internal.api.logging", "false"))) {
-			return true;
-		}
+	/** True when {@code enableDebug=yes} (full request/response bodies in the HTML report). */
+	public static boolean isEnableDebug() {
 		try {
-			String v = ConfigManager.getproperty("internalApiLogging");
+			String v = getEnableDebug();
 			return v != null && "yes".equalsIgnoreCase(v.trim());
 		} catch (Exception e) {
 			return false;
 		}
 	}
 
-
-	public static String getInternalApiLoggingForContextProps() {
-		return isInternalApiLoggingForReport() ? "yes" : "no";
-	}
-
-
-	/** Max chars kept in each report textarea; 0 disables truncation. */
+	/**
+	 * Max chars kept in each report textarea. When {@link #isEnableDebug()} is true, returns
+	 * {@code 0} (no truncation — full payload). Otherwise uses {@code reportPayloadMaxChars}
+	 * (default 8192); JVM {@code -Ddsl.report.payload.max.chars=} overrides that value.
+	 */
 	public static int getReportPayloadMaxChars() {
+		if (isEnableDebug()) {
+			return 0;
+		}
 		String jvm = System.getProperty("dsl.report.payload.max.chars");
 		if (jvm != null && !jvm.isBlank()) {
 			try {

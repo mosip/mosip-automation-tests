@@ -324,10 +324,11 @@ public class RestClient {
 							mapPathParam);
 				}
 
-				if (response.getStatusCode() == 401) {
+				if (isAuthRejected(response)) {
 					if (nLoop >= 1)
 						bDone = true;
 					else {
+						RestClientAuth.discardCachedToken(contextKey, role);
 						initToken(contextKey);
 						nLoop++;
 					}
@@ -373,14 +374,18 @@ public class RestClient {
 	}
 
 	public static Response getWithoutCookie(String url) {
+		return getWithoutCookie(url, null);
+	}
+
+	public static Response getWithoutCookie(String url, ContentType accept) {
 
 		Response response = null;
 		try {
-			response = requestSpec(null)
-					.relaxedHTTPSValidation()
-					.log().all()
-					.when()
-					.get(url);
+			RequestSpecification spec = requestSpec(null).relaxedHTTPSValidation();
+			if (accept != null) {
+				spec = spec.accept(accept);
+			}
+			response = spec.log().all().when().get(url);
 
 			if (response == null) {
 				throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
@@ -389,6 +394,29 @@ public class RestClient {
 			throw se;
 		} catch (Exception e) {
 			logger.error("GET failed for url {} : {}", url, e.getMessage(), e);
+			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
+		}
+		return response;
+	}
+
+	public static Response deleteWithoutCookie(String url) {
+
+		Response response = null;
+		try {
+			response = requestSpec(null)
+					.relaxedHTTPSValidation()
+					.accept(ContentType.JSON)
+					.log().all()
+					.when()
+					.delete(url);
+
+			if (response == null) {
+				throw new ServiceException(HttpStatus.BAD_GATEWAY, "REST_NO_RESPONSE", url);
+			}
+		} catch (ServiceException se) {
+			throw se;
+		} catch (Exception e) {
+			logger.error("DELETE failed for url {} : {}", url, e.getMessage(), e);
 			throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "REST_CALL_FAIL", url, e, e.getMessage());
 		}
 		return response;
@@ -1060,6 +1088,8 @@ public class RestClient {
 				JSONObject wrapper = new JSONObject();
 				wrapper.put("response", data);
 				return wrapper;
+			} else if (url != null && url.contains("packetmanager/createPacket")) {
+				throw new RuntimeException("packetmanager createPacket failed: " + response.getBody().asString());
 			} else {
 				throw new RuntimeException("Unexpected data type for key: response");
 			}
@@ -1285,6 +1315,20 @@ public class RestClient {
 		return RestClientAuth.initToken_crvs1(contextKey);
 	}
 
+
+	/**
+	 * Kernel auth rejection is HTTP 400 with body code {@code KER-ATH-401}, not HTTP 401.
+	 */
+	static boolean isAuthRejected(Response response) {
+		if (response == null) {
+			return false;
+		}
+		if (response.getStatusCode() == 401) {
+			return true;
+		}
+		String body = response.getBody() == null ? "" : response.getBody().asString();
+		return body != null && body.contains("KER-ATH-401");
+	}
 
 	static void checkErrorResponse(String response, String url) {
 
