@@ -17,7 +17,7 @@ public class PacketCreatorActivityTrackerFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		boolean track = !isPurgeRequest(request);
+		boolean track = isBusinessRequest(request);
 		if (track) {
 			PacketCreatorActivityTracker.enter();
 		}
@@ -30,8 +30,23 @@ public class PacketCreatorActivityTrackerFilter extends OncePerRequestFilter {
 		}
 	}
 
-	private static boolean isPurgeRequest(HttpServletRequest request) {
+	/**
+	 * Health/actuator/swagger/purge traffic must not keep the process "busy", otherwise
+	 * idle maintenance never runs under Kubernetes probes.
+	 */
+	private static boolean isBusinessRequest(HttpServletRequest request) {
 		String uri = request.getRequestURI();
-		return uri != null && uri.contains("/workDir/purgeAll");
+		if (uri == null || uri.isBlank()) {
+			return false;
+		}
+		String path = uri.toLowerCase();
+		if (path.contains("/workdir/purgeall")
+				|| path.contains("/actuator/")
+				|| path.contains("/swagger")
+				|| path.contains("/v3/api-docs")
+				|| path.contains("/api-docs")) {
+			return false;
+		}
+		return true;
 	}
 }
